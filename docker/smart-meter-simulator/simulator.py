@@ -257,7 +257,7 @@ class SmartMeterSimulator:
     def store_in_timescaledb(self, reading: Dict[str, Any]):
         """Store reading in TimescaleDB"""
         try:
-            timescale_url = os.getenv('TIMESCALE_URL', 'postgresql://timescale_user:timescale_password@localhost:5433/p2p_timeseries')
+            timescale_url = os.getenv('TIMESCALE_URL', 'postgresql://timescale_user:timescale_password@timescaledb:5432/p2p_timeseries')
             
             with psycopg2.connect(timescale_url) as conn:
                 with conn.cursor() as cursor:

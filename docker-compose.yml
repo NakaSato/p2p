@@ -1,25 +1,25 @@
 services:
-  # Substrate Node for Smart Contract Development
-  substrate-node:
-    image: parity/substrate-contracts-node:latest
-    container_name: p2p-substrate-node
-    ports:
-      - "9944:9944"  # WebSocket
-      - "9933:9933"  # HTTP RPC
-      - "30333:30333" # P2P
-    command: >
-      substrate-contracts-node
-      --dev
-      --ws-external
-      --rpc-external
-      --rpc-cors=all
-      --unsafe-ws-external
-      --unsafe-rpc-external
-    volumes:
-      - substrate_data:/data
-    networks:
-      - p2p-network
-    restart: unless-stopped
+  # Substrate Node for Smart Contract Development (commented out for now)
+  # substrate-node:
+  #   image: paritytech/substrate-contracts-node:latest
+  #   container_name: p2p-substrate-node
+  #   ports:
+  #     - "9944:9944"  # WebSocket
+  #     - "9933:9933"  # HTTP RPC
+  #     - "30333:30333" # P2P
+  #   command: >
+  #     substrate-contracts-node
+  #     --dev
+  #     --ws-external
+  #     --rpc-external
+  #     --rpc-cors=all
+  #     --unsafe-ws-external
+  #     --unsafe-rpc-external
+  #   volumes:
+  #     - substrate_data:/data
+  #   networks:
+  #     - p2p-network
+  #   restart: unless-stopped
 
   # PostgreSQL Database
   postgres:
@@ -94,7 +94,7 @@ services:
     restart: unless-stopped
 
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.4.1
     container_name: p2p-kafka
     depends_on:
       - zookeeper
@@ -103,8 +103,9 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
@@ -128,34 +129,36 @@ services:
     depends_on:
       - kafka
       - postgres
+      - timescaledb
     environment:
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       DATABASE_URL: postgresql://p2p_user:p2p_password@postgres:5432/p2p_energy_trading
+      TIMESCALE_URL: postgresql://timescale_user:timescale_password@timescaledb:5432/p2p_timeseries
       SIMULATION_INTERVAL: 30
       NUM_METERS: 10
     networks:
       - p2p-network
     restart: unless-stopped
 
-  # Oracle Simulator
-  oracle-simulator:
-    build:
-      context: ./docker/oracle-simulator
-      dockerfile: Dockerfile
-    container_name: p2p-oracle-simulator
-    depends_on:
-      - substrate-node
-      - kafka
-    environment:
-      SUBSTRATE_WS_URL: ws://substrate-node:9944
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      ORACLE_ACCOUNT_SEED: "//Alice"
-      PROCESSING_INTERVAL: 60
-    networks:
-      - p2p-network
-    restart: unless-stopped
+  # Oracle Simulator (commented out until substrate node is available)
+  # oracle-simulator:
+  #   build:
+  #     context: ./docker/oracle-simulator
+  #     dockerfile: Dockerfile
+  #   container_name: p2p-oracle-simulator
+  #   depends_on:
+  #     - substrate-node
+  #     - kafka
+  #   environment:
+  #     SUBSTRATE_WS_URL: ws://substrate-node:9944
+  #     KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  #     ORACLE_ACCOUNT_SEED: "//Alice"
+  #     PROCESSING_INTERVAL: 60
+  #   networks:
+  #     - p2p-network
+  #   restart: unless-stopped
 
-  # API Gateway (Development)
+  # API Gateway (Development) - commented out substrate dependency for now
   api-gateway:
     build:
       context: ./docker/api-gateway
@@ -164,13 +167,13 @@ services:
     depends_on:
       - postgres
       - redis
-      - substrate-node
+      # - substrate-node
     ports:
       - "8080:8080"
     environment:
       DATABASE_URL: postgresql://p2p_user:p2p_password@postgres:5432/p2p_energy_trading
       REDIS_URL: redis://redis:6379
-      SUBSTRATE_WS_URL: ws://substrate-node:9944
+      # SUBSTRATE_WS_URL: ws://substrate-node:9944
       JWT_SECRET: dev-secret-key-change-in-production
       API_PORT: 8080
     networks:

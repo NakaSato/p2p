@@ -1,23 +1,22 @@
-FROM python:3.11-slim
+FROM python:3.11-alpine
 
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
+# Install minimal system dependencies
+RUN apk add --no-cache gcc musl-dev
 
 # Copy requirements and install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY . .
+COPY simulator.py .
 
 # Create non-root user
-RUN useradd --create-home --shell /bin/bash simulator && \
+RUN adduser -D -h /app simulator && \
     chown -R simulator:simulator /app
+
 USER simulator
 
-# Command to run the application
+# Run the smart meter simulator
 CMD ["python", "simulator.py"]
