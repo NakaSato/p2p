@@ -1,0 +1,228 @@
+services:
+  # Substrate Node for Smart Contract Development
+  substrate-node:
+    image: parity/substrate-contracts-node:latest
+    container_name: p2p-substrate-node
+    ports:
+      - "9944:9944"  # WebSocket
+      - "9933:9933"  # HTTP RPC
+      - "30333:30333" # P2P
+    command: >
+      substrate-contracts-node
+      --dev
+      --ws-external
+      --rpc-external
+      --rpc-cors=all
+      --unsafe-ws-external
+      --unsafe-rpc-external
+    volumes:
+      - substrate_data:/data
+    networks:
+      - p2p-network
+    restart: unless-stopped
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: p2p-postgres
+    environment:
+      POSTGRES_DB: p2p_energy_trading
+      POSTGRES_USER: p2p_user
+      POSTGRES_PASSWORD: p2p_password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - p2p-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U p2p_user -d p2p_energy_trading"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # TimescaleDB for Time-Series Data
+  timescaledb:
+    image: timescale/timescaledb:latest-pg15
+    container_name: p2p-timescaledb
+    environment:
+      POSTGRES_DB: p2p_timeseries
+      POSTGRES_USER: timescale_user
+      POSTGRES_PASSWORD: timescale_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - timescale_data:/var/lib/postgresql/data
+      - ./docker/timescaledb/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - p2p-network
+    restart: unless-stopped
+
+  # Redis for Caching
+  redis:
+    image: redis:7-alpine
+    container_name: p2p-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf
+    networks:
+      - p2p-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Apache Kafka for Message Queuing
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: p2p-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+    networks:
+      - p2p-network
+    restart: unless-stopped
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: p2p-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    networks:
+      - p2p-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Smart Meter Simulator
+  smart-meter-simulator:
+    build:
+      context: ./docker/smart-meter-simulator
+      dockerfile: Dockerfile
+    container_name: p2p-smart-meter-simulator
+    depends_on:
+      - kafka
+      - postgres
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      DATABASE_URL: postgresql://p2p_user:p2p_password@postgres:5432/p2p_energy_trading
+      SIMULATION_INTERVAL: 30
+      NUM_METERS: 10
+    networks:
+      - p2p-network
+    restart: unless-stopped
+
+  # Oracle Simulator
+  oracle-simulator:
+    build:
+      context: ./docker/oracle-simulator
+      dockerfile: Dockerfile
+    container_name: p2p-oracle-simulator
+    depends_on:
+      - substrate-node
+      - kafka
+    environment:
+      SUBSTRATE_WS_URL: ws://substrate-node:9944
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      ORACLE_ACCOUNT_SEED: "//Alice"
+      PROCESSING_INTERVAL: 60
+    networks:
+      - p2p-network
+    restart: unless-stopped
+
+  # API Gateway (Development)
+  api-gateway:
+    build:
+      context: ./docker/api-gateway
+      dockerfile: Dockerfile
+    container_name: p2p-api-gateway
+    depends_on:
+      - postgres
+      - redis
+      - substrate-node
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: postgresql://p2p_user:p2p_password@postgres:5432/p2p_energy_trading
+      REDIS_URL: redis://redis:6379
+      SUBSTRATE_WS_URL: ws://substrate-node:9944
+      JWT_SECRET: dev-secret-key-change-in-production
+      API_PORT: 8080
+    networks:
+      - p2p-network
+    restart: unless-stopped
+
+  # Grafana for Monitoring
+  grafana:
+    image: grafana/grafana:latest
+    container_name: p2p-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./docker/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - p2p-network
+    restart: unless-stopped
+
+  # Prometheus for Metrics
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: p2p-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - p2p-network
+    restart: unless-stopped
+
+volumes:
+  substrate_data:
+  postgres_data:
+  timescale_data:
+  redis_data:
+  zookeeper_data:
+  kafka_data:
+  grafana_data:
+  prometheus_data:
+
+networks:
+  p2p-network:
+    driver: bridge

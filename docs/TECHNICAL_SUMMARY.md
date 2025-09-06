@@ -361,11 +361,26 @@ sequenceDiagram
 - **Access Control**: Role-based database permissions aligned with smart contract roles
 - **Audit Logging**: Complete audit trail of all database operations
 
+**Private Key and Sensitive Data Protection**:
+- **Never Store Private Keys**: Private keys never stored in application databases
+- **Encrypted Wallet Files**: User wallet files encrypted with user-controlled passwords
+- **Key Derivation Storage**: Only public keys and encrypted wallet metadata stored
+- **HSM Integration**: Hardware Security Module integration for institutional keys
+- **Secure Key Escrow**: Optional encrypted key backup with trusted third parties
+
+**Database Security Layers**:
+- **Field-Level Encryption**: Sensitive fields encrypted with separate encryption keys
+- **Database Encryption**: Full database encryption using transparent data encryption (TDE)
+- **Connection Security**: Mutual TLS authentication for database connections
+- **Query Monitoring**: Real-time monitoring of database access patterns
+- **Data Masking**: Production data masking for development and testing environments
+
 **Compliance Requirements**:
 - **GDPR Compliance**: User data protection, right to erasure, data portability
 - **Energy Regulations**: Meter data retention, trading record keeping, regulatory reporting
 - **Financial Compliance**: Transaction records, anti-money laundering (AML) monitoring
 - **Data Residency**: Location-specific data storage requirements
+- **Cryptographic Compliance**: FIPS 140-2 Level 3 compliance for key management
 
 ### Backup and Disaster Recovery
 
@@ -415,6 +430,71 @@ sequenceDiagram
 3. **Oracle Funding**: Require prepaid oracle operations to prevent spam
 4. **Order Validation**: Comprehensive order validation before execution
 5. **Event Logging**: Complete audit trail through blockchain events
+
+### Wallet and Key Management
+
+**Wallet Architecture**:
+- **Hot Wallets**: For active trading operations with limited funds
+- **Cold Storage**: For long-term storage of institutional funds and reserves
+- **Multi-Signature Wallets**: For REC regulator operations requiring multiple approvals
+- **Hardware Security Modules (HSM)**: For critical infrastructure key protection
+
+**Key Management Strategy**:
+- **Hierarchical Deterministic (HD) Wallets**: BIP32/BIP44 standard for key derivation
+- **Seed Phrase Management**: 12/24-word mnemonic phrases for wallet recovery
+- **Key Rotation**: Regular rotation of operational keys for enhanced security
+- **Backup and Recovery**: Secure, distributed backup of seed phrases and private keys
+
+**Account Types and Security Levels**:
+
+**User Accounts**:
+- **Individual Wallets**: Student/faculty personal wallets for energy trading
+- **Browser-Based**: MetaMask/Polkadot.js extension integration
+- **Mobile Wallets**: Dedicated mobile apps with biometric authentication
+- **Social Recovery**: Account recovery through trusted contacts
+
+**Institutional Accounts**:
+- **REC Regulator Wallets**: Multi-sig wallets requiring 2-of-3 or 3-of-5 signatures
+- **AMI Service Accounts**: Hardware-secured keys for automated meter integration
+- **Oracle Operator Keys**: Dedicated accounts for oracle data operations
+- **Treasury Accounts**: Multi-sig cold storage for platform reserves
+
+**Key Security Measures**:
+
+**Encryption Standards**:
+- **Private Key Encryption**: AES-256-GCM encryption for stored private keys
+- **Key Derivation**: PBKDF2/Argon2 for password-based key derivation
+- **Secure Enclaves**: Hardware-based key protection on supported devices
+- **Zero-Knowledge Proofs**: Privacy-preserving authentication where applicable
+
+**Access Control**:
+- **Role-Based Permissions**: Granular permissions based on user roles
+- **Time-Locked Operations**: Delayed execution for high-value transactions
+- **Spending Limits**: Daily/monthly limits for automated operations
+- **Geographic Restrictions**: Location-based access controls for sensitive operations
+
+**Operational Security**:
+- **Key Ceremony**: Formal procedures for generating institutional keys
+- **Shared Secrets**: Shamir's Secret Sharing for critical key components
+- **Air-Gapped Systems**: Offline key generation and signing procedures
+- **Regular Audits**: Periodic security audits of key management practices
+
+### Wallet Integration Points
+
+**User Interface Integration**:
+- **QR Code Signing**: Mobile wallet transaction signing via QR codes
+
+**Backend Integration**:
+- **Wallet APIs**: Standardized APIs for wallet interactions
+- **Transaction Broadcasting**: Reliable transaction submission and monitoring
+- **Gas Management**: Automated gas price optimization and fee estimation
+- **Nonce Management**: Proper transaction ordering and replay protection
+
+**Emergency Procedures**:
+- **Account Recovery**: Multi-factor recovery processes for lost access
+- **Key Compromise Response**: Immediate response procedures for security breaches
+- **Fund Recovery**: Emergency procedures for recovering locked funds
+- **Incident Response**: Security incident handling and communication procedures
 
 ## Testing Framework
 
