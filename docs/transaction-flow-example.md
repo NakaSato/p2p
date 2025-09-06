@@ -5,7 +5,7 @@ This document demonstrates a complete end-to-end transaction flow on the P2P Ene
 ## Scenario Setup
 
 **Participants:**
-- **Alice**: System Administrator
+- **Alice**: REC Regulator
 - **Bob**: AMI Integration Service (authorized minter/market maker)
 - **Charlie**: Prosumer with rooftop solar panels
 - **Dave**: Consumer who needs energy
@@ -15,6 +15,7 @@ This document demonstrates a complete end-to-end transaction flow on the P2P Ene
 - Dave has 2000 GRID tokens for purchasing energy
 - Market epoch length: 15 minutes (900 seconds)
 - Current energy price: ~150 GRID per kWh
+- Oracle client is funded with sufficient balance for operations
 
 ## Step-by-Step Transaction Flow
 
@@ -22,7 +23,7 @@ This document demonstrates a complete end-to-end transaction flow on the P2P Ene
 
 #### 1.1 Register Charlie as Prosumer
 ```rust
-// Alice (admin) registers Charlie
+// Alice (REC regulator) registers Charlie
 Registry::register_user(
     RuntimeOrigin::signed(alice_account),
     charlie_account,
@@ -37,7 +38,7 @@ Registry::register_user(
 
 #### 1.2 Register Dave as Consumer
 ```rust
-// Alice (admin) registers Dave
+// Alice (REC regulator) registers Dave
 Registry::register_user(
     RuntimeOrigin::signed(alice_account),
     dave_account,
@@ -71,6 +72,20 @@ Registry::assign_meter(
 - Charlie's meter: `SOLAR_METER_ENG_BLDG_001`
 - Dave's meter: `LOAD_METER_DORM_A_205`
 - Events: `MeterAssigned` for both users
+
+#### 1.4 Fund Oracle Operations
+```rust
+// Alice funds the oracle client for automated operations
+OracleClient::fund_oracle_operations(
+    RuntimeOrigin::signed(alice_account),
+    1_000_000_000_000_000_000 // 1 DOT (or native token) for oracle operations
+);
+```
+
+**Result:**
+- Oracle balance: 1 DOT
+- Event: `OracleFunded { amount: 1 DOT, new_balance: 1 DOT }`
+- Oracle can now process data requests and automated operations
 
 ### Phase 2: Energy Generation and Token Minting
 
@@ -149,9 +164,30 @@ Trading::create_buy_order(
 - Maximum cost: 350 × 160 = 56,000 GRID tokens
 - Event: `BuyOrderCreated { order_id: 1002, user: Dave, energy_amount: 350, max_price: 160 GRID }`
 
-### Phase 4: Automated Market Clearing
+### Phase 4: Oracle Data Processing
 
-#### 4.1 Market Epoch Timer
+#### 4.1 Oracle Request for Market Data
+```rust
+// Oracle client requests current energy data for market clearing
+OracleClient::request_energy_data(
+    RuntimeOrigin::signed(charlie_account),
+    b"SOLAR_METER_ENG_BLDG_001".to_vec()
+);
+```
+
+**Requirements Check:**
+- Oracle balance > 0: ✅ (funded in step 1.4)
+- User has meter access: ✅ (meter assigned to Charlie)
+- Pending requests within limit: ✅
+
+**Result:**
+- Request ID: 2001
+- Event: `OracleRequestCreated { request_id: 2001, requester: Charlie, meter_id: "SOLAR_METER_ENG_BLDG_001" }`
+- Request status: Pending
+
+### Phase 5: Automated Market Clearing
+
+#### 5.1 Market Epoch Timer
 ```
 Current Time: 14:45:00
 Epoch Start: 14:30:00
@@ -159,7 +195,7 @@ Epoch Length: 15 minutes
 Next Clearing: 14:45:00 (NOW!)
 ```
 
-#### 4.2 Oracle Triggers Market Clearing
+#### 5.2 Oracle Triggers Market Clearing
 ```rust
 // Bob (market maker) or Oracle Client automatically triggers matching
 Trading::match_orders(RuntimeOrigin::signed(bob_account));
@@ -180,7 +216,7 @@ Trading::match_orders(RuntimeOrigin::signed(bob_account));
    - Trade price: 155 GRID/kWh (seller's price in price-time priority)
    - Total trade value: 350 × 155 = 54,250 GRID tokens
 
-#### 4.3 Trade Execution
+#### 5.3 Trade Execution
 ```rust
 // Internal function called by match_orders()
 execute_trade(
@@ -203,9 +239,9 @@ GridToken::transfer_from(
 );
 ```
 
-### Phase 5: Final State and Events
+### Phase 6: Final State and Events
 
-#### 5.1 Updated Balances
+#### 6.1 Updated Balances
 **Before Trade:**
 - Charlie: 1,500 GRID tokens
 - Dave: 2,000 GRID tokens
@@ -220,7 +256,7 @@ GridToken::transfer_from(
 - Charlie: 1,500 + 54,250 = 55,750 GRID tokens
 - Dave: 2,000 - 54,250 = 1,945,750 remaining (from 2M initial balance)
 
-#### 5.2 Updated Orders
+#### 6.2 Updated Orders
 **Charlie's Sell Order (ID: 1001):**
 - Original: 400 kWh at 155 GRID/kWh
 - Filled: 350 kWh
@@ -233,7 +269,7 @@ GridToken::transfer_from(
 - Remaining: 0 kWh
 - Status: Filled
 
-#### 5.3 Trade Record
+#### 6.3 Trade Record
 ```rust
 Trade {
     sell_order_id: 1001,
@@ -247,7 +283,7 @@ Trade {
 }
 ```
 
-#### 5.4 Events Emitted
+#### 6.4 Events Emitted
 ```rust
 // Market clearing event
 Event::MarketCleared {
@@ -275,9 +311,9 @@ Event::Transfer {
 }
 ```
 
-## Phase 6: Energy Delivery and Consumption
+## Phase 7: Energy Delivery and Consumption
 
-#### 6.1 Physical Energy Delivery
+#### 7.1 Physical Energy Delivery
 ```
 Real-world process (outside blockchain):
 1. Campus grid management system routes 350 kWh from Charlie's solar array
@@ -286,7 +322,7 @@ Real-world process (outside blockchain):
 4. Smart meters record the physical delivery
 ```
 
-#### 6.2 Consumption Recording
+#### 7.2 Consumption Recording
 ```rust
 // Later, when Dave actually uses the energy, tokens are burned
 GridToken::burn(
@@ -338,4 +374,4 @@ GridToken::burn(
 4. **Cross-Campus Trading:** Expand to multiple university campuses
 5. **Government Integration:** Connect to national energy markets
 
-This example demonstrates the complete lifecycle of a P2P energy trade, from registration through physical energy delivery, showcasing the blockchain's role in facilitating transparent, efficient, and automated renewable energy trading within a campus microgrid environment.
+This example demonstrates the complete lifecycle of a P2P energy trade, from registration through physical energy delivery, showcasing the blockchain's role in facilitating transparent, efficient, and automated renewable energy trading within a campus microgrid environment. The oracle funding requirement ensures continuous automated operations and reliable data processing for market clearing activities.
