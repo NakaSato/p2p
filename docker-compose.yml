@@ -222,6 +222,65 @@ services:
       - p2p-network
     restart: unless-stopped
 
+  # Frontend - Development
+  frontend-dev:
+    build:
+      context: ./frontend
+      dockerfile: ../docker/frontend/Dockerfile.dev
+    container_name: p2p-frontend-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3001/api
+      - VITE_WS_URL=ws://localhost:3001
+      - VITE_APP_ENV=development
+      - VITE_APP_NAME=P2P Energy Trading Platform
+      - VITE_ENABLE_DEVTOOLS=true
+    env_file:
+      - ./docker/frontend/.env.development
+    networks:
+      - p2p-network
+    depends_on:
+      - api-gateway
+    restart: unless-stopped
+    profiles:
+      - development
+      - dev
+
+  # Frontend - Production
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../docker/frontend/Dockerfile
+    container_name: p2p-frontend
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+      - VITE_APP_ENV=production
+      - VITE_APP_NAME=P2P Energy Trading Platform
+      - VITE_ENABLE_DEVTOOLS=false
+    env_file:
+      - ./docker/frontend/.env.production
+    networks:
+      - p2p-network
+    depends_on:
+      - api-gateway
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    profiles:
+      - production
+      - prod
+
 volumes:
   substrate_data:
   contract_addresses:

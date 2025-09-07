@@ -37,7 +37,7 @@ jobs:
             - 'docker/**'
             - 'docker-compose.yml'
           frontend:
-            - 'fontend/**'
+            - 'frontend/**'
           docs:
             - 'docs/**'
             - '*.md'

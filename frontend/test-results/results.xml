@@ -1,0 +1,172 @@
+<testsuites id="" name="" tests="10" failures="10" skipped="0" errors="0" time="1.166306">
+<testsuite name="dashboard.spec.ts" timestamp="2025-09-07T12:14:38.111Z" hostname="chromium" tests="2" failures="2" skipped="0" time="0.004" errors="0">
+<testcase name="Dashboard Page › should load dashboard and display energy stats" classname="dashboard.spec.ts" time="0.002">
+<failure message="dashboard.spec.ts:4:3 should load dashboard and display energy stats" type="FAILURE">
+<![CDATA[  [chromium] › dashboard.spec.ts:4:3 › Dashboard Page › should load dashboard and display energy stats 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/wit/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Dashboard Page › should navigate between pages" classname="dashboard.spec.ts" time="0.002">
+<failure message="dashboard.spec.ts:20:3 should navigate between pages" type="FAILURE">
+<![CDATA[  [chromium] › dashboard.spec.ts:20:3 › Dashboard Page › should navigate between pages ─────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/wit/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="dashboard.spec.ts" timestamp="2025-09-07T12:14:38.111Z" hostname="firefox" tests="2" failures="2" skipped="0" time="0.003" errors="0">
+<testcase name="Dashboard Page › should load dashboard and display energy stats" classname="dashboard.spec.ts" time="0.001">
+<failure message="dashboard.spec.ts:4:3 should load dashboard and display energy stats" type="FAILURE">
+<![CDATA[  [firefox] › dashboard.spec.ts:4:3 › Dashboard Page › should load dashboard and display energy stats 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/wit/Library/Caches/ms-playwright/firefox-1490/firefox/Nightly.app/Contents/MacOS/firefox
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Dashboard Page › should navigate between pages" classname="dashboard.spec.ts" time="0.002">
+<failure message="dashboard.spec.ts:20:3 should navigate between pages" type="FAILURE">
+<![CDATA[  [firefox] › dashboard.spec.ts:20:3 › Dashboard Page › should navigate between pages ──────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/wit/Library/Caches/ms-playwright/firefox-1490/firefox/Nightly.app/Contents/MacOS/firefox
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="dashboard.spec.ts" timestamp="2025-09-07T12:14:38.111Z" hostname="webkit" tests="2" failures="2" skipped="0" time="0.002" errors="0">
+<testcase name="Dashboard Page › should load dashboard and display energy stats" classname="dashboard.spec.ts" time="0.001">
+<failure message="dashboard.spec.ts:4:3 should load dashboard and display energy stats" type="FAILURE">
+<![CDATA[  [webkit] › dashboard.spec.ts:4:3 › Dashboard Page › should load dashboard and display energy stats 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/wit/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Dashboard Page › should navigate between pages" classname="dashboard.spec.ts" time="0.001">
+<failure message="dashboard.spec.ts:20:3 should navigate between pages" type="FAILURE">
+<![CDATA[  [webkit] › dashboard.spec.ts:20:3 › Dashboard Page › should navigate between pages ───────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/wit/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="dashboard.spec.ts" timestamp="2025-09-07T12:14:38.111Z" hostname="Mobile Chrome" tests="2" failures="2" skipped="0" time="0.004" errors="0">
+<testcase name="Dashboard Page › should load dashboard and display energy stats" classname="dashboard.spec.ts" time="0.002">
+<failure message="dashboard.spec.ts:4:3 should load dashboard and display energy stats" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › dashboard.spec.ts:4:3 › Dashboard Page › should load dashboard and display energy stats 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/wit/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Dashboard Page › should navigate between pages" classname="dashboard.spec.ts" time="0.002">
+<failure message="dashboard.spec.ts:20:3 should navigate between pages" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › dashboard.spec.ts:20:3 › Dashboard Page › should navigate between pages ────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/wit/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="dashboard.spec.ts" timestamp="2025-09-07T12:14:38.111Z" hostname="Mobile Safari" tests="2" failures="2" skipped="0" time="0.002" errors="0">
+<testcase name="Dashboard Page › should load dashboard and display energy stats" classname="dashboard.spec.ts" time="0.001">
+<failure message="dashboard.spec.ts:4:3 should load dashboard and display energy stats" type="FAILURE">
+<![CDATA[  [Mobile Safari] › dashboard.spec.ts:4:3 › Dashboard Page › should load dashboard and display energy stats 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/wit/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Dashboard Page › should navigate between pages" classname="dashboard.spec.ts" time="0.001">
+<failure message="dashboard.spec.ts:20:3 should navigate between pages" type="FAILURE">
+<![CDATA[  [Mobile Safari] › dashboard.spec.ts:20:3 › Dashboard Page › should navigate between pages ────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/wit/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+</testsuite>
+</testsuites>

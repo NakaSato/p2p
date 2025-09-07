@@ -1,0 +1,39 @@
+services:
+  frontend-dev:
+    build:
+      context: ../../frontend
+      dockerfile: ../docker/frontend/Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../../frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3000/api
+      - VITE_WS_URL=ws://localhost:3000
+    networks:
+      - p2p-network
+    depends_on:
+      - api-gateway
+    restart: unless-stopped
+
+  frontend-prod:
+    build:
+      context: ../../frontend
+      dockerfile: ../docker/frontend/Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - p2p-network
+    depends_on:
+      - api-gateway
+    restart: unless-stopped
+    profiles:
+      - production
+
+networks:
+  p2p-network:
+    external: true

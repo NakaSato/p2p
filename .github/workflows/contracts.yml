@@ -14,6 +14,8 @@ on:
       - 'contracts/**'
       - 'Cargo.toml'
       - 'Cargo.lock'
+  workflow_call:
+    # Allow this workflow to be called by other workflows
 
 env:
   CARGO_TERM_COLOR: always
@@ -37,6 +39,9 @@ jobs:
         target: wasm32-unknown-unknown
         override: true
         components: rustfmt, clippy
+
+    - name: Install rust-src component
+      run: rustup component add rust-src --toolchain stable-x86_64-unknown-linux-gnu
 
     - name: Setup sccache (with fallback)
       run: |
@@ -131,6 +136,9 @@ jobs:
         toolchain: stable
         target: wasm32-unknown-unknown
         override: true
+
+    - name: Install rust-src component
+      run: rustup component add rust-src --toolchain stable-x86_64-unknown-linux-gnu
 
     - name: Setup sccache (with fallback)
       run: |
@@ -275,6 +283,9 @@ jobs:
         toolchain: stable
         target: wasm32-unknown-unknown
         override: true
+
+    - name: Install rust-src component
+      run: rustup component add rust-src --toolchain stable-x86_64-unknown-linux-gnu
 
     - name: Cache cargo-contract installation
       uses: actions/cache@v4
