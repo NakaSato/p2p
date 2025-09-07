@@ -532,7 +532,6 @@ mod oracle_client {
         }
 
         /// Helper functions
-
         fn verify_meter_access(&self, _user: &AccountId, _meter_id: &str) -> Result<()> {
             // Would make cross-contract call to registry
             // For now, assume access is granted
@@ -571,6 +570,12 @@ mod oracle_client {
             // In a real implementation, you'd need to iterate through all requests
             // This is a simplified version
             0 // Placeholder
+        }
+    }
+
+    impl Default for OracleClient {
+        fn default() -> Self {
+            Self::new()
         }
     }
 

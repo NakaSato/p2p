@@ -1,0 +1,5 @@
+# Clippy configuration for ink! smart contracts
+
+# ink! smart contracts typically use these patterns  
+avoid-breaking-exported-api = false
+disallowed-names = []
