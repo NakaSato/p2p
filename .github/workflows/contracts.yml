@@ -18,8 +18,7 @@ on:
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: full
-  SCCACHE_GHA_ENABLED: "true"
-  RUSTC_WRAPPER: "sccache"
+  # sccache will be conditionally enabled in jobs
 
 jobs:
   check:
@@ -39,8 +38,30 @@ jobs:
         override: true
         components: rustfmt, clippy
 
-    - name: Run sccache-cache
-      uses: mozilla-actions/sccache-action@v0.0.3
+    - name: Setup sccache (with fallback)
+      run: |
+        echo "Attempting to setup sccache for faster compilation..."
+        
+        # Try to setup sccache with error handling
+        if curl -L https://github.com/mozilla/sccache/releases/latest/download/sccache-v0.5.4-x86_64-unknown-linux-musl.tar.gz | tar xz; then
+          mv sccache-v0.5.4-x86_64-unknown-linux-musl/sccache ~/.cargo/bin/
+          
+          # Test if sccache can start properly
+          if sccache --start-server 2>/dev/null; then
+            echo "sccache started successfully"
+            echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV
+            echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
+          else
+            echo "sccache server failed to start, falling back to standard compilation"
+            echo "This is likely due to GitHub cache service issues - continuing without sccache"
+          fi
+        else
+          echo "Failed to download sccache, continuing without it"
+        fi
+        
+        # Always show final compilation setup
+        echo "Rust compilation setup complete"
+      continue-on-error: true
 
     - name: Cache cargo registry and target
       uses: actions/cache@v4
@@ -80,6 +101,16 @@ jobs:
     - name: Run tests
       run: cargo test --all-features --workspace
 
+    - name: Show sccache statistics
+      run: |
+        if command -v sccache >/dev/null 2>&1 && [ -n "$RUSTC_WRAPPER" ]; then
+          echo "📊 sccache statistics:"
+          sccache --show-stats || echo "Failed to get sccache stats (may be disabled)"
+        else
+          echo "sccache not active for this build"
+        fi
+      continue-on-error: true
+
   build:
     name: Build Smart Contracts
     runs-on: ubuntu-latest
@@ -101,8 +132,27 @@ jobs:
         target: wasm32-unknown-unknown
         override: true
 
-    - name: Run sccache-cache
-      uses: mozilla-actions/sccache-action@v0.0.3
+    - name: Setup sccache (with fallback)
+      run: |
+        echo "Attempting to setup sccache for faster compilation..."
+        
+        # Try to setup sccache with error handling
+        if curl -L https://github.com/mozilla/sccache/releases/latest/download/sccache-v0.5.4-x86_64-unknown-linux-musl.tar.gz | tar xz; then
+          mv sccache-v0.5.4-x86_64-unknown-linux-musl/sccache ~/.cargo/bin/
+          
+          # Test if sccache can start properly
+          if sccache --start-server 2>/dev/null; then
+            echo "sccache started successfully for contract build"
+            echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV
+            echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
+          else
+            echo "sccache server failed to start, falling back to standard compilation"
+            echo "This is likely due to GitHub cache service issues - continuing without sccache"
+          fi
+        else
+          echo "Failed to download sccache, continuing without it"
+        fi
+      continue-on-error: true
 
     - name: Cache cargo registry and contract targets
       uses: actions/cache@v4
@@ -139,6 +189,16 @@ jobs:
       run: |
         cd contracts/${{ matrix.contract }}
         cargo contract build --release --quiet
+
+    - name: Show sccache statistics for ${{ matrix.contract }}
+      run: |
+        if command -v sccache >/dev/null 2>&1 && [ -n "$RUSTC_WRAPPER" ]; then
+          echo "📊 sccache statistics for ${{ matrix.contract }}:"
+          sccache --show-stats || echo "Failed to get sccache stats (may be disabled)"
+        else
+          echo "sccache not active for ${{ matrix.contract }} build"
+        fi
+      continue-on-error: true
 
     - name: Upload contract artifacts
       uses: actions/upload-artifact@v4
