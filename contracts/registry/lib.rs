@@ -161,7 +161,10 @@ mod registry {
 
         /// Constructor with initial configuration
         #[ink(constructor)]
-        pub fn new_with_config(initial_rec_regulators: Vec<AccountId>, max_meters_per_user: u32) -> Self {
+        pub fn new_with_config(
+            initial_rec_regulators: Vec<AccountId>,
+            max_meters_per_user: u32,
+        ) -> Self {
             let mut rec_regulators = Mapping::default();
             let caller = Self::env().caller();
 
@@ -193,7 +196,9 @@ mod registry {
             }
 
             self.rec_regulators.insert(new_rec_regulator, &());
-            self.env().emit_event(RecRegulatorAdded { rec_regulator: new_rec_regulator });
+            self.env().emit_event(RecRegulatorAdded {
+                rec_regulator: new_rec_regulator,
+            });
 
             Ok(())
         }

@@ -26,11 +26,15 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Install hadolint
+      run: |
+        curl -L https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64 -o hadolint
+        chmod +x hadolint
+        sudo mv hadolint /usr/local/bin/
+
     - name: Lint Dockerfiles
-      uses: hadolint/hadolint-action@v3.1.0
-      with:
-        dockerfile: docker/*/Dockerfile
-        failure-threshold: warning
+      run: |
+        find docker -name "Dockerfile" -type f | xargs -I {} hadolint {}
 
     - name: Validate docker-compose
       run: |
@@ -43,7 +47,7 @@ jobs:
     
     strategy:
       matrix:
-        service: [api-gateway, smart-meter-simulator, oracle-simulator]
+        service: [api-gateway, smart-meter-simulator, oracle-simulator, contracts]
     
     steps:
     - name: Checkout code
@@ -62,7 +66,9 @@ jobs:
         cd docker/${{ matrix.service }}
         if [ -f package.json ]; then
           npm ci
-          npm test || echo "No tests found"
+          npm test || echo "No tests found for ${{ matrix.service }}"
+        else
+          echo "No package.json found for ${{ matrix.service }} - skipping npm install"
         fi
 
     - name: Build Docker image - ${{ matrix.service }}
@@ -71,11 +77,33 @@ jobs:
 
     - name: Test Docker image - ${{ matrix.service }}
       run: |
-        # Basic container start test
-        docker run --rm -d --name test-container-${{ matrix.service }} test-${{ matrix.service }}
-        sleep 10
-        docker logs test-container-${{ matrix.service }}
-        docker stop test-container-${{ matrix.service }} || true
+        # Test that the image can be built and started
+        echo "Testing Docker image for ${{ matrix.service }}"
+        
+        # Try to start the container
+        if [ "${{ matrix.service }}" = "contracts" ]; then
+          # For contracts, just test that it builds - it's a deployment container
+          echo "Contracts service built successfully"
+        else
+          # For other services, try to start them briefly
+          docker run --rm -d --name test-container-${{ matrix.service }} test-${{ matrix.service }} || {
+            echo "Failed to start container for ${{ matrix.service }}"
+            exit 1
+          }
+          
+          # Wait a bit and check if container is still running
+          sleep 5
+          
+          if docker ps | grep -q test-container-${{ matrix.service }}; then
+            echo "${{ matrix.service }} container started successfully"
+            docker logs test-container-${{ matrix.service }}
+            docker stop test-container-${{ matrix.service }}
+          else
+            echo "${{ matrix.service }} container failed to stay running"
+            docker logs test-container-${{ matrix.service }} || echo "No logs available"
+            exit 1
+          fi
+        fi
 
   build-and-push:
     name: Build and Push Images
@@ -217,7 +245,7 @@ jobs:
 
     - name: Deploy to staging environment
       run: |
-        echo "🚀 Deploying to staging environment..."
+        echo "Deploying to staging environment..."
         echo "Images will be pulled from: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
         
         # Add actual deployment logic here
@@ -229,12 +257,12 @@ jobs:
         
     - name: Run smoke tests
       run: |
-        echo "🧪 Running smoke tests on staging..."
+        echo "Running smoke tests on staging..."
         # Add smoke test logic here
         
     - name: Create deployment summary
       run: |
-        echo "## 🚀 Staging Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "## Staging Deployment Summary" >> $GITHUB_STEP_SUMMARY
         echo "- **Environment**: Staging" >> $GITHUB_STEP_SUMMARY
         echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
         echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
