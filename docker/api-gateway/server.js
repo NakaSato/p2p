@@ -2,94 +2,53 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const compression = require('compression');
-const rateLimit = require('express-rate-limit');
-const { createProxyMiddleware } = require('http-proxy-middleware');
+require('dotenv').config();
 
 const app = express();
-const PORT = process.env.API_PORT || process.env.PORT || 3000;
+const PORT = process.env.API_PORT || 8080;
 
 // Middleware
 app.use(helmet());
 app.use(cors());
-app.use(compression());
 app.use(morgan('combined'));
 app.use(express.json());
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
-});
-app.use(limiter);
-
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ status: 'healthy', timestamp: new Date().toISOString() });
-});
-
-// API Gateway routes
-app.get('/api/status', (req, res) => {
   res.json({
-    message: 'P2P Energy Trading API Gateway',
-    version: '1.0.0',
-    timestamp: new Date().toISOString(),
-    services: {
-      postgres: 'Available',
-      timescaledb: 'Available',
-      redis: 'Available',
-      kafka: 'Available'
-    }
+  status: 'healthy',
+  timestamp: new Date().toISOString(),
+  service: 'p2p-api-gateway'
   });
 });
 
-// Proxy middleware for different services
-const services = {
-  // Note: substrate-node proxy commented out until image is available
-  // '/api/blockchain': {
-  //   target: 'http://substrate-node:9944',
-  //   changeOrigin: true,
-  //   pathRewrite: { '^/api/blockchain': '' }
-  // },
-  '/api/metrics': {
-    target: 'http://prometheus:9090',
-    changeOrigin: true,
-    pathRewrite: { '^/api/metrics': '' }
-  }
-};
-
-// Create proxy middlewares
-Object.entries(services).forEach(([path, config]) => {
-  app.use(path, createProxyMiddleware(config));
+// Metrics endpoint for Prometheus
+app.get('/metrics', (req, res) => {
+  res.set('Content-Type', 'text/plain');
+  res.send(`
+# HELP api_requests_total Total number of API requests
+# TYPE api_requests_total counter
+api_requests_total{method="GET",endpoint="/health"} 1
+`);
 });
 
-// Default route
-app.get('/', (req, res) => {
-  res.json({
-    message: 'P2P Energy Trading Platform API Gateway',
-    version: '1.0.0',
-    endpoints: {
-      health: '/health',
-      status: '/api/status',
-      metrics: '/api/metrics'
-    }
+// Basic API endpoints (stubs)
+app.get('/api/users', (req, res) => {
+  res.json({ message: 'Users endpoint - implement database connection' });
+});
+
+app.get('/api/meters', (req, res) => {
+  res.json({ message: 'Smart meters endpoint - implement database connection' });
+});
+
+app.get('/api/market', (req, res) => {
+  res.json({ 
+  message: 'Market data endpoint',
+  price: Math.random() * 0.1 + 0.1,
+  volume: Math.random() * 500 + 100
   });
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
-});
-
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({ error: 'Route not found' });
 });
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`API Gateway running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
-
-module.exports = app;

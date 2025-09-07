@@ -1,12 +1,14 @@
-FROM node:18-alpine
+FROM node:18-slim
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
+# Install basic dependencies for a simple API gateway
+RUN npm init -y && \
+  npm install express cors helmet morgan dotenv
 
-COPY . .
+# Create a basic Express server
+COPY server.js .
 
-EXPOSE 3000
+EXPOSE 8080
 
-CMD ["npm", "start"]
+CMD ["node", "server.js"]

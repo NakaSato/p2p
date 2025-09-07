@@ -1,0 +1,133 @@
+version: 2
+
+updates:
+  # Rust dependencies
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    target-branch: "develop"
+    reviewers:
+      - "NakaSato"
+    commit-message:
+      prefix: "cargo"
+      prefix-development: "cargo"
+      include: "scope"
+
+  # Node.js dependencies - API Gateway
+  - package-ecosystem: "npm"
+    directory: "/docker/api-gateway"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    target-branch: "develop"
+    reviewers:
+      - "NakaSato"
+    commit-message:
+      prefix: "npm"
+      prefix-development: "npm"
+      include: "scope"
+
+  # Node.js dependencies - Oracle Simulator
+  - package-ecosystem: "npm"
+    directory: "/docker/oracle-simulator"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    target-branch: "develop"
+    reviewers:
+      - "NakaSato"
+    commit-message:
+      prefix: "npm"
+      prefix-development: "npm"
+      include: "scope"
+
+  # Node.js dependencies - Smart Meter Simulator
+  - package-ecosystem: "npm"
+    directory: "/docker/smart-meter-simulator"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    target-branch: "develop"
+    reviewers:
+      - "NakaSato"
+    commit-message:
+      prefix: "npm"
+      prefix-development: "npm"
+      include: "scope"
+
+  # Node.js dependencies - Frontend
+  - package-ecosystem: "npm"
+    directory: "/fontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    target-branch: "develop"
+    reviewers:
+      - "NakaSato"
+    commit-message:
+      prefix: "npm"
+      prefix-development: "npm"
+      include: "scope"
+
+  # Docker base images
+  - package-ecosystem: "docker"
+    directory: "/docker/api-gateway"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+    target-branch: "develop"
+    reviewers:
+      - "NakaSato"
+
+  - package-ecosystem: "docker"
+    directory: "/docker/oracle-simulator"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+    target-branch: "develop"
+    reviewers:
+      - "NakaSato"
+
+  - package-ecosystem: "docker"
+    directory: "/docker/smart-meter-simulator"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+    target-branch: "develop"
+    reviewers:
+      - "NakaSato"
+
+  - package-ecosystem: "docker"
+    directory: "/docker/contracts"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+    target-branch: "develop"
+    reviewers:
+      - "NakaSato"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "09:00"
+    target-branch: "develop"
+    reviewers:
+      - "NakaSato"
+    commit-message:
+      prefix: "ci"
+      prefix-development: "ci"
+      include: "scope"

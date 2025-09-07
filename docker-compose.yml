@@ -1,25 +1,25 @@
 services:
-  # Substrate Node for Smart Contract Development (commented out for now)
-  # substrate-node:
-  #   image: paritytech/substrate-contracts-node:latest
-  #   container_name: p2p-substrate-node
-  #   ports:
-  #     - "9944:9944"  # WebSocket
-  #     - "9933:9933"  # HTTP RPC
-  #     - "30333:30333" # P2P
-  #   command: >
-  #     substrate-contracts-node
-  #     --dev
-  #     --ws-external
-  #     --rpc-external
-  #     --rpc-cors=all
-  #     --unsafe-ws-external
-  #     --unsafe-rpc-external
-  #   volumes:
-  #     - substrate_data:/data
-  #   networks:
-  #     - p2p-network
-  #   restart: unless-stopped
+  # Substrate Node for Smart Contract Development
+  substrate-node:
+    build:
+      context: ./docker/contracts
+      dockerfile: Dockerfile
+    container_name: p2p-substrate-node
+    ports:
+      - "9944:9944"  # WebSocket
+      - "9933:9933"  # HTTP RPC
+      - "30333:30333" # P2P
+    volumes:
+      - substrate_data:/data
+      - contract_addresses:/tmp/contract_addresses
+    networks:
+      - p2p-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -H 'Content-Type: application/json' -d '{\"id\":1, \"jsonrpc\":\"2.0\", \"method\": \"system_health\", \"params\":[]}' http://localhost:9933 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   # PostgreSQL Database
   postgres:
@@ -140,25 +140,28 @@ services:
       - p2p-network
     restart: unless-stopped
 
-  # Oracle Simulator (commented out until substrate node is available)
-  # oracle-simulator:
-  #   build:
-  #     context: ./docker/oracle-simulator
-  #     dockerfile: Dockerfile
-  #   container_name: p2p-oracle-simulator
-  #   depends_on:
-  #     - substrate-node
-  #     - kafka
-  #   environment:
-  #     SUBSTRATE_WS_URL: ws://substrate-node:9944
-  #     KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-  #     ORACLE_ACCOUNT_SEED: "//Alice"
-  #     PROCESSING_INTERVAL: 60
-  #   networks:
-  #     - p2p-network
-  #   restart: unless-stopped
+  # Oracle Simulator (now enabled with substrate node)
+  oracle-simulator:
+    build:
+      context: ./docker/oracle-simulator
+      dockerfile: Dockerfile
+    container_name: p2p-oracle-simulator
+    depends_on:
+      - substrate-node
+      - kafka
+    environment:
+      SUBSTRATE_WS_URL: ws://substrate-node:9944
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      ORACLE_ACCOUNT_SEED: "//Alice"
+      PROCESSING_INTERVAL: 60
+      CONTRACT_ADDRESSES_PATH: /tmp/contract_addresses
+    volumes:
+      - contract_addresses:/tmp/contract_addresses
+    networks:
+      - p2p-network
+    restart: unless-stopped
 
-  # API Gateway (Development) - commented out substrate dependency for now
+  # API Gateway (Development) - now with substrate dependency
   api-gateway:
     build:
       context: ./docker/api-gateway
@@ -167,15 +170,18 @@ services:
     depends_on:
       - postgres
       - redis
-      # - substrate-node
+      - substrate-node
     ports:
       - "8080:8080"
     environment:
       DATABASE_URL: postgresql://p2p_user:p2p_password@postgres:5432/p2p_energy_trading
       REDIS_URL: redis://redis:6379
-      # SUBSTRATE_WS_URL: ws://substrate-node:9944
+      SUBSTRATE_WS_URL: ws://substrate-node:9944
       JWT_SECRET: dev-secret-key-change-in-production
       API_PORT: 8080
+      CONTRACT_ADDRESSES_PATH: /tmp/contract_addresses
+    volumes:
+      - contract_addresses:/tmp/contract_addresses
     networks:
       - p2p-network
     restart: unless-stopped
@@ -218,6 +224,7 @@ services:
 
 volumes:
   substrate_data:
+  contract_addresses:
   postgres_data:
   timescale_data:
   redis_data:

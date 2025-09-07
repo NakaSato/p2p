@@ -4,28 +4,28 @@
 
 set -e
 
-echo "🚀 Setting up P2P Energy Trading Platform for local development..."
+echo "Setting up P2P Energy Trading Platform for local development..."
 
 # Check if Docker and Docker Compose are installed
 if ! command -v docker &> /dev/null; then
-    echo "❌ Docker is not installed. Please install Docker first."
-    exit 1
+  echo "Docker is not installed. Please install Docker first."
+  exit 1
 fi
 
 if ! command -v docker-compose &> /dev/null; then
-    echo "❌ Docker Compose is not installed. Please install Docker Compose first."
-    exit 1
+  echo "Docker Compose is not installed. Please install Docker Compose first."
+  exit 1
 fi
 
 # Create necessary directories
-echo "📁 Creating directories..."
+echo "Creating directories..."
 mkdir -p docker/grafana/dashboards
 mkdir -p docker/grafana/datasources
 mkdir -p docker/api-gateway
 mkdir -p logs
 
 # Set environment variables for development
-echo "🔧 Setting up environment variables..."
+echo "Setting up environment variables..."
 cat > .env << 'EOF'
 # Blockchain Configuration
 SUBSTRATE_WS_URL=ws://localhost:9944
@@ -78,43 +78,43 @@ NUM_METERS=10
 GRAFANA_ADMIN_PASSWORD=admin
 EOF
 
-echo "✅ Environment file created"
+echo "Environment file created"
 
 # Create Grafana datasources configuration
-echo "📊 Setting up Grafana datasources..."
+echo "Setting up Grafana datasources..."
 cat > docker/grafana/datasources/datasources.yml << 'EOF'
 apiVersion: 1
 
 datasources:
   - name: PostgreSQL
-    type: postgres
-    url: postgres:5432
-    database: p2p_energy_trading
-    user: p2p_user
-    secureJsonData:
-      password: p2p_password
-    jsonData:
-      sslmode: disable
-      maxOpenConns: 0
-      maxIdleConns: 2
-      connMaxLifetime: 14400
+  type: postgres
+  url: postgres:5432
+  database: p2p_energy_trading
+  user: p2p_user
+  secureJsonData:
+    password: p2p_password
+  jsonData:
+    sslmode: disable
+    maxOpenConns: 0
+    maxIdleConns: 2
+    connMaxLifetime: 14400
 
   - name: TimescaleDB
-    type: postgres
-    url: timescaledb:5432
-    database: p2p_timeseries
-    user: timescale_user
-    secureJsonData:
-      password: timescale_password
-    jsonData:
-      sslmode: disable
-      timescaledb: true
+  type: postgres
+  url: timescaledb:5432
+  database: p2p_timeseries
+  user: timescale_user
+  secureJsonData:
+    password: timescale_password
+  jsonData:
+    sslmode: disable
+    timescaledb: true
 
   - name: Prometheus
-    type: prometheus
-    url: http://prometheus:9090
-    access: proxy
-    isDefault: true
+  type: prometheus
+  url: http://prometheus:9090
+  access: proxy
+  isDefault: true
 EOF
 
 # Create basic dashboard configuration
@@ -123,18 +123,18 @@ apiVersion: 1
 
 providers:
   - name: 'default'
-    orgId: 1
-    folder: ''
-    type: file
-    disableDeletion: false
-    updateIntervalSeconds: 10
-    allowUiUpdates: true
-    options:
-      path: /etc/grafana/provisioning/dashboards
+  orgId: 1
+  folder: ''
+  type: file
+  disableDeletion: false
+  updateIntervalSeconds: 10
+  allowUiUpdates: true
+  options:
+    path: /etc/grafana/provisioning/dashboards
 EOF
 
 # Create a basic API Gateway Dockerfile
-echo "🔧 Creating API Gateway container..."
+echo "Creating API Gateway container..."
 cat > docker/api-gateway/Dockerfile << 'EOF'
 FROM node:18-slim
 
@@ -142,7 +142,7 @@ WORKDIR /app
 
 # Install basic dependencies for a simple API gateway
 RUN npm init -y && \
-    npm install express cors helmet morgan dotenv
+  npm install express cors helmet morgan dotenv
 
 # Create a basic Express server
 COPY server.js .
@@ -172,9 +172,9 @@ app.use(express.json());
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    service: 'p2p-api-gateway'
+  status: 'healthy',
+  timestamp: new Date().toISOString(),
+  service: 'p2p-api-gateway'
   });
 });
 
@@ -199,9 +199,9 @@ app.get('/api/meters', (req, res) => {
 
 app.get('/api/market', (req, res) => {
   res.json({ 
-    message: 'Market data endpoint',
-    price: Math.random() * 0.1 + 0.1,
-    volume: Math.random() * 500 + 100
+  message: 'Market data endpoint',
+  price: Math.random() * 0.1 + 0.1,
+  volume: Math.random() * 500 + 100
   });
 });
 
@@ -210,7 +210,7 @@ app.listen(PORT, '0.0.0.0', () => {
 });
 EOF
 
-echo "🐳 Starting Docker containers..."
+echo "Starting Docker containers..."
 
 # Pull images first to show progress
 docker-compose pull
@@ -218,47 +218,47 @@ docker-compose pull
 # Start the services
 docker-compose up -d
 
-echo "⏳ Waiting for services to start..."
+echo "Waiting for services to start..."
 sleep 30
 
 # Check service health
-echo "🔍 Checking service health..."
+echo "Checking service health..."
 
 services=("substrate-node:9944" "postgres:5432" "timescaledb:5432" "redis:6379" "kafka:9092")
 
 for service in "${services[@]}"; do
-    IFS=':' read -r host port <<< "$service"
-    if docker-compose exec -T $host sh -c "nc -z localhost $port" 2>/dev/null; then
-        echo "✅ $host is running on port $port"
-    else
-        echo "⚠️  $host might not be ready yet on port $port"
-    fi
+  IFS=':' read -r host port <<< "$service"
+  if docker-compose exec -T $host sh -c "nc -z localhost $port" 2>/dev/null; then
+    echo "$host is running on port $port"
+  else
+    echo "$host might not be ready yet on port $port"
+  fi
 done
 
 echo ""
-echo "🎉 P2P Energy Trading Platform setup complete!"
+echo "P2P Energy Trading Platform setup complete!"
 echo ""
-echo "📋 Service URLs:"
-echo "  🔗 Substrate Node (WebSocket): ws://localhost:9944"
-echo "  🔗 Substrate Node (HTTP): http://localhost:9933"
-echo "  🔗 PostgreSQL: localhost:5432"
-echo "  🔗 TimescaleDB: localhost:5433"
-echo "  🔗 Redis: localhost:6379"
-echo "  🔗 Kafka: localhost:9092"
-echo "  🔗 API Gateway: http://localhost:8080"
-echo "  🔗 Grafana: http://localhost:3000 (admin/admin)"
-echo "  🔗 Prometheus: http://localhost:9090"
+echo "Service URLs:"
+echo "  Substrate Node (WebSocket): ws://localhost:9944"
+echo "  Substrate Node (HTTP): http://localhost:9933"
+echo "  PostgreSQL: localhost:5432"
+echo "  TimescaleDB: localhost:5433"
+echo "  Redis: localhost:6379"
+echo "  Kafka: localhost:9092"
+echo "  API Gateway: http://localhost:8080"
+echo "  Grafana: http://localhost:3000 (admin/admin)"
+echo "  Prometheus: http://localhost:9090"
 echo ""
-echo "📖 Next steps:"
+echo "Next steps:"
 echo "  1. Deploy smart contracts to the local Substrate node"
 echo "  2. Update contract addresses in .env file"
 echo "  3. Access Grafana dashboard for monitoring"
 echo "  4. Check API health at http://localhost:8080/health"
 echo ""
-echo "🛠️  Useful commands:"
-echo "  📋 View logs: docker-compose logs -f [service-name]"
-echo "  🔄 Restart services: docker-compose restart"
-echo "  🛑 Stop all services: docker-compose down"
-echo "  🗑️  Clean up: docker-compose down -v --remove-orphans"
+echo "Useful commands:"
+echo "  View logs: docker-compose logs -f [service-name]"
+echo "  Restart services: docker-compose restart"
+echo "  Stop all services: docker-compose down"
+echo "  Clean up: docker-compose down -v --remove-orphans"
 echo ""
-echo "Happy coding! 🚀"
+echo "Happy coding!"

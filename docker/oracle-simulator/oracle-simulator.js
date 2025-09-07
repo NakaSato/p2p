@@ -1,14 +1,13 @@
 #!/usr/bin/env node
 /**
  * Oracle Simulator for P2P Energy Trading Platform
- * Simulates oracle operations including data requests and automated market clearing
+ * Enhanced with contract interaction capabilities
  */
 
-const { ApiPromise, WsProvider } = require('@polkadot/api');
-const { ContractPromise } = require('@polkadot/api-contract');
-const { Keyring } = require('@polkadot/keyring');
-const { kafka } = require('kafkajs');
 const winston = require('winston');
+const fs = require('fs');
+const path = require('path');
+const { spawn } = require('child_process');
 require('dotenv').config();
 
 // Configure logging
@@ -29,321 +28,166 @@ class OracleSimulator {
         this.kafkaServers = process.env.KAFKA_BOOTSTRAP_SERVERS || 'localhost:9092';
         this.oracleAccountSeed = process.env.ORACLE_ACCOUNT_SEED || '//Alice';
         this.processingInterval = parseInt(process.env.PROCESSING_INTERVAL) || 60; // seconds
+        this.contractAddressesPath = process.env.CONTRACT_ADDRESSES_PATH || '/tmp/contract_addresses';
         
-        this.api = null;
-        this.keyring = null;
-        this.oracleAccount = null;
-        this.contracts = {};
-        this.kafkaClient = null;
-        this.consumer = null;
-        this.producer = null;
-        
-        this.pendingRequests = new Map();
+        this.contractAddresses = null;
+        this.setupComplete = false;
+        this.intervalId = null;
     }
     
     async initialize() {
         logger.info('Initializing Oracle Simulator...');
         
-        // Initialize Polkadot API
-        await this.initializeBlockchain();
-        
-        // Initialize Kafka
-        await this.initializeKafka();
-        
-        // Load contract ABIs and addresses (would be loaded from config in production)
-        await this.loadContracts();
-        
-        logger.info('Oracle Simulator initialized successfully');
-    }
-    
-    async initializeBlockchain() {
         try {
-            const provider = new WsProvider(this.wsUrl);
-            this.api = await ApiPromise.create({ provider });
+            // Wait for contracts to be deployed
+            await this.waitForContracts();
             
-            this.keyring = new Keyring({ type: 'sr25519' });
-            this.oracleAccount = this.keyring.addFromUri(this.oracleAccountSeed);
+            // Load contract addresses
+            await this.loadContractAddresses();
             
-            logger.info(`Connected to blockchain at ${this.wsUrl}`);
-            logger.info(`Oracle account: ${this.oracleAccount.address}`);
+            // Setup demo data
+            await this.setupDemoData();
             
+            logger.info('Oracle Simulator initialized successfully');
         } catch (error) {
-            logger.error('Failed to initialize blockchain connection:', error);
+            logger.error('Failed to initialize Oracle Simulator:', error);
             throw error;
         }
     }
     
-    async initializeKafka() {
+    async waitForContracts() {
+        logger.info('Waiting for contract deployment to complete...');
+        
+        const deploymentSummaryPath = path.join(this.contractAddressesPath, 'deployment_summary.json');
+        
+        while (!fs.existsSync(deploymentSummaryPath)) {
+            logger.info('Waiting for contracts to be deployed...');
+            await new Promise(resolve => setTimeout(resolve, 5000));
+        }
+        
+        logger.info('✅ Contracts are deployed and ready!');
+    }
+    
+    async loadContractAddresses() {
         try {
-            this.kafkaClient = kafka({
-                clientId: 'oracle-simulator',
-                brokers: this.kafkaServers.split(',')
+            const deploymentSummaryPath = path.join(this.contractAddressesPath, 'deployment_summary.json');
+            const deploymentData = JSON.parse(fs.readFileSync(deploymentSummaryPath, 'utf8'));
+            
+            this.contractAddresses = deploymentData.deployment_summary.contracts;
+            
+            logger.info('Contract addresses loaded:', {
+                registry: this.contractAddresses.registry.address,
+                grid_token: this.contractAddresses.grid_token.address,
+                trading: this.contractAddresses.trading.address,
+                oracle_client: this.contractAddresses.oracle_client.address
             });
             
-            this.consumer = this.kafkaClient.consumer({ groupId: 'oracle-group' });
-            this.producer = this.kafkaClient.producer();
-            
-            await this.consumer.connect();
-            await this.producer.connect();
-            
-            // Subscribe to energy readings topic
-            await this.consumer.subscribe({ topic: 'energy-readings' });
-            
-            logger.info('Connected to Kafka successfully');
-            
         } catch (error) {
-            logger.error('Failed to initialize Kafka:', error);
+            logger.error('Failed to load contract addresses:', error);
             throw error;
         }
     }
     
-    async loadContracts() {
-        // In a real implementation, these would be loaded from deployed contract addresses
-        // For simulation, we'll use placeholder contract interfaces
+    async setupDemoData() {
+        if (this.setupComplete) {
+            logger.info('Demo data already setup, skipping...');
+            return;
+        }
         
-        // Oracle Client Contract ABI (simplified)
-        const oracleClientAbi = {
-            // This would contain the actual contract ABI
-            messages: [
-                {
-                    name: 'request_energy_data',
-                    selector: '0x12345678'
-                },
-                {
-                    name: 'fulfill_energy_data',
-                    selector: '0x87654321'
-                }
-            ]
-        };
+        logger.info('Setting up demo data...');
         
-        // Trading Contract ABI (simplified)
-        const tradingContractAbi = {
-            messages: [
-                {
-                    name: 'perform_upkeep',
-                    selector: '0xabcdef00'
-                }
-            ]
-        };
-        
-        // These addresses would be loaded from configuration
-        const oracleClientAddress = process.env.ORACLE_CLIENT_ADDRESS || '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
-        const tradingContractAddress = process.env.TRADING_CONTRACT_ADDRESS || '5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty';
-        
-        this.contracts = {
-            oracleClient: {
-                address: oracleClientAddress,
-                abi: oracleClientAbi
-            },
-            trading: {
-                address: tradingContractAddress,
-                abi: tradingContractAbi
-            }
-        };
-        
-        logger.info('Contract interfaces loaded');
-    }
-    
-    async processEnergyReadings() {
         try {
-            await this.consumer.run({
-                eachMessage: async ({ topic, partition, message }) => {
-                    try {
-                        const reading = JSON.parse(message.value.toString());
-                        await this.handleEnergyReading(reading);
-                        
-                    } catch (error) {
-                        logger.error('Failed to process energy reading:', error);
-                    }
-                },
-            });
-            
+            const result = await this.executeShellScript('setup');
+            logger.info('Demo data setup completed');
+            this.setupComplete = true;
         } catch (error) {
-            logger.error('Failed to process energy readings:', error);
+            logger.error('Failed to setup demo data:', error);
+            // Continue without demo data
         }
     }
     
-    async handleEnergyReading(reading) {
-        logger.debug(`Processing energy reading from meter: ${reading.meter_id}`);
-        
-        // Simulate oracle data request fulfillment
-        const requestId = `REQ_${reading.meter_id}_${Date.now()}`;
-        
-        // In a real oracle, this would:
-        // 1. Verify the reading authenticity
-        // 2. Aggregate multiple readings if needed
-        // 3. Call the smart contract with the data
-        
-        const oracleData = {
-            meter_id: reading.meter_id,
-            energy_generated: reading.energy_generated,
-            energy_consumed: reading.energy_consumed,
-            timestamp: reading.timestamp,
-            verification_score: Math.random() * 0.2 + 0.8, // 80-100% confidence
-        };
-        
-        // Simulate calling smart contract (in real implementation would use contract calls)
-        await this.simulateContractCall('fulfill_energy_data', {
-            request_id: requestId,
-            data: oracleData
-        });
-        
-        // Send processed data to analytics topic
-        await this.producer.send({
-            topic: 'oracle-processed-data',
-            messages: [{
-                key: reading.meter_id,
-                value: JSON.stringify({
-                    request_id: requestId,
-                    original_reading: reading,
-                    oracle_data: oracleData,
-                    processed_at: new Date().toISOString()
-                })
-            }]
+    async executeShellScript(command) {
+        return new Promise((resolve, reject) => {
+            const script = spawn('./interact_contracts.sh', [command], {
+                stdio: ['inherit', 'pipe', 'pipe']
+            });
+            
+            let output = '';
+            let errorOutput = '';
+            
+            script.stdout.on('data', (data) => {
+                output += data.toString();
+            });
+            
+            script.stderr.on('data', (data) => {
+                errorOutput += data.toString();
+            });
+            
+            script.on('close', (code) => {
+                if (code === 0) {
+                    resolve(output);
+                } else {
+                    reject(new Error(`Script failed with code ${code}: ${errorOutput}`));
+                }
+            });
         });
     }
     
-    async performMarketUpkeep() {
-        logger.info('Performing automated market upkeep...');
-        
+    async executeMarketClearing() {
         try {
-            // Simulate calling trading contract's perform_upkeep function
-            await this.simulateContractCall('perform_upkeep', {
-                timestamp: new Date().toISOString()
-            });
+            logger.info('Executing market clearing...');
             
-            // Send market upkeep event
-            await this.producer.send({
-                topic: 'market-events',
-                messages: [{
-                    key: 'market_upkeep',
-                    value: JSON.stringify({
-                        event_type: 'market_upkeep',
-                        timestamp: new Date().toISOString(),
-                        oracle_address: this.oracleAccount.address
-                    })
-                }]
-            });
+            // Execute market clearing
+            const clearResult = await this.executeShellScript('clear-market');
+            logger.info('Market clearing executed successfully');
             
-            logger.info('Market upkeep completed successfully');
-            
+            return true;
         } catch (error) {
-            logger.error('Failed to perform market upkeep:', error);
+            logger.error('Failed to execute market clearing:', error);
+            return false;
         }
     }
     
-    async simulateContractCall(method, params) {
-        // In a real implementation, this would make actual contract calls
-        // For simulation, we'll just log the operation
-        
-        logger.info(`Simulated contract call: ${method}`, {
-            method,
-            params,
-            caller: this.oracleAccount.address,
-            timestamp: new Date().toISOString()
-        });
-        
-        // Simulate transaction time
-        await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
-        
-        return {
-            success: true,
-            transaction_hash: `0x${Math.random().toString(16).substring(2, 66)}`,
-            block_number: Math.floor(Math.random() * 1000000) + 1000000
-        };
-    }
-    
-    async generateMarketData() {
-        // Generate simulated market data for testing
-        const marketData = {
-            timestamp: new Date().toISOString(),
-            current_price: Math.random() * 0.1 + 0.1, // 0.1 - 0.2 GRID/kWh
-            trading_volume: Math.random() * 500 + 100, // 100-600 kWh
-            active_orders: {
-                buy: Math.floor(Math.random() * 20) + 5,
-                sell: Math.floor(Math.random() * 15) + 3
-            },
-            market_depth: {
-                buy_side: Math.random() * 1000 + 500,
-                sell_side: Math.random() * 800 + 300
-            }
-        };
-        
-        await this.producer.send({
-            topic: 'market-data',
-            messages: [{
-                key: 'market_snapshot',
-                value: JSON.stringify(marketData)
-            }]
-        });
-        
-        logger.debug('Generated market data snapshot');
-    }
-    
-    async monitorSystemHealth() {
+    async checkSystemStatus() {
         try {
-            // Check blockchain connection
-            const health = await this.api.rpc.system.health();
-            const peers = await this.api.rpc.system.peers();
+            logger.info('Checking system status...');
             
-            // Generate system metrics
-            const metrics = {
-                timestamp: new Date().toISOString(),
-                blockchain: {
-                    is_syncing: health.isSyncing.toHuman(),
-                    peers: peers.length,
-                    should_have_peers: health.shouldHavePeers.toHuman()
-                },
-                oracle: {
-                    pending_requests: this.pendingRequests.size,
-                    account_balance: 'simulated', // Would check actual balance
-                    last_activity: new Date().toISOString()
-                }
-            };
+            const statusResult = await this.executeShellScript('status');
+            logger.info('System status checked successfully');
             
-            await this.producer.send({
-                topic: 'system-metrics',
-                messages: [{
-                    key: 'oracle_health',
-                    value: JSON.stringify(metrics)
-                }]
-            });
-            
+            return true;
         } catch (error) {
-            logger.error('Failed to monitor system health:', error);
+            logger.error('Failed to check system status:', error);
+            return false;
         }
     }
     
     async run() {
-        logger.info('Starting Oracle Simulator...');
-        
         try {
             await this.initialize();
             
-            // Start processing energy readings
-            this.processEnergyReadings();
+            logger.info(`🚀 Oracle Simulator is running with ${this.processingInterval}s intervals`);
             
-            // Schedule periodic tasks
-            setInterval(() => {
-                this.performMarketUpkeep();
+            // Perform initial market clearing
+            await this.executeMarketClearing();
+            
+            // Set up periodic market clearing
+            this.intervalId = setInterval(async () => {
+                try {
+                    logger.info('⏰ Periodic market clearing started');
+                    await this.executeMarketClearing();
+                    await this.checkSystemStatus();
+                } catch (error) {
+                    logger.error('Error in periodic market clearing:', error);
+                }
             }, this.processingInterval * 1000);
             
-            setInterval(() => {
-                this.generateMarketData();
-            }, 30000); // Every 30 seconds
-            
-            setInterval(() => {
-                this.monitorSystemHealth();
-            }, 60000); // Every minute
-            
-            logger.info(`Oracle Simulator running with ${this.processingInterval}s market clearing interval`);
-            
             // Keep the process running
-            process.on('SIGINT', async () => {
-                logger.info('Shutting down Oracle Simulator...');
-                await this.consumer.disconnect();
-                await this.producer.disconnect();
-                await this.api.disconnect();
+            process.on('SIGINT', () => {
+                logger.info('Received SIGINT, gracefully shutting down...');
+                if (this.intervalId) {
+                    clearInterval(this.intervalId);
+                }
                 process.exit(0);
             });
             
@@ -354,9 +198,13 @@ class OracleSimulator {
     }
 }
 
-// Start the simulator
-const simulator = new OracleSimulator();
-simulator.run().catch(error => {
-    logger.error('Unhandled error:', error);
-    process.exit(1);
-});
+// Start the Oracle Simulator
+if (require.main === module) {
+    const simulator = new OracleSimulator();
+    simulator.run().catch(error => {
+        logger.error('Fatal error:', error);
+        process.exit(1);
+    });
+}
+
+module.exports = OracleSimulator;
