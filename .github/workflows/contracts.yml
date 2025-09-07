@@ -18,6 +18,8 @@ on:
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: full
+  SCCACHE_GHA_ENABLED: "true"
+  RUSTC_WRAPPER: "sccache"
 
 jobs:
   check:
@@ -37,20 +39,37 @@ jobs:
         override: true
         components: rustfmt, clippy
 
-    - name: Cache cargo registry
-      uses: actions/cache@v3
+    - name: Run sccache-cache
+      uses: mozilla-actions/sccache-action@v0.0.3
+
+    - name: Cache cargo registry and target
+      uses: actions/cache@v4
       with:
         path: |
-          ~/.cargo/registry
-          ~/.cargo/git
-          target
-        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('contracts/**/*.rs') }}
         restore-keys: |
+          ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-
           ${{ runner.os }}-cargo-
+
+    - name: Cache cargo-contract installation
+      uses: actions/cache@v4
+      with:
+        path: ~/.cargo/bin/cargo-contract
+        key: ${{ runner.os }}-cargo-contract-4.1.1
+        restore-keys: |
+          ${{ runner.os }}-cargo-contract-
 
     - name: Install cargo-contract
       run: |
-        cargo install --force --locked cargo-contract --version 4.1.1
+        if ! command -v cargo-contract &> /dev/null; then
+          cargo install --force --locked cargo-contract --version 4.1.1
+        else
+          echo "cargo-contract already installed"
+        fi
 
     - name: Check code formatting
       run: cargo fmt --all -- --check
@@ -82,26 +101,47 @@ jobs:
         target: wasm32-unknown-unknown
         override: true
 
-    - name: Cache cargo registry
-      uses: actions/cache@v3
+    - name: Run sccache-cache
+      uses: mozilla-actions/sccache-action@v0.0.3
+
+    - name: Cache cargo registry and contract targets
+      uses: actions/cache@v4
       with:
         path: |
-          ~/.cargo/registry
-          ~/.cargo/git
-          target
-        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+          contracts/${{ matrix.contract }}/target/
+        key: ${{ runner.os }}-cargo-contract-${{ matrix.contract }}-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('contracts/${{ matrix.contract }}/**/*.rs') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-contract-${{ matrix.contract }}-${{ hashFiles('**/Cargo.lock') }}-
+          ${{ runner.os }}-cargo-contract-${{ matrix.contract }}-
+          ${{ runner.os }}-cargo-
+
+    - name: Cache cargo-contract installation
+      uses: actions/cache@v4
+      with:
+        path: ~/.cargo/bin/cargo-contract
+        key: ${{ runner.os }}-cargo-contract-4.1.1
+        restore-keys: |
+          ${{ runner.os }}-cargo-contract-
 
     - name: Install cargo-contract
       run: |
-        cargo install --force --locked cargo-contract --version 4.1.1
+        if ! command -v cargo-contract &> /dev/null; then
+          cargo install --force --locked cargo-contract --version 4.1.1
+        else
+          echo "cargo-contract already installed"
+        fi
 
     - name: Build contract - ${{ matrix.contract }}
       run: |
         cd contracts/${{ matrix.contract }}
-        cargo contract build --release
+        cargo contract build --release --quiet
 
     - name: Upload contract artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: contract-${{ matrix.contract }}
         path: |
@@ -125,17 +165,27 @@ jobs:
         toolchain: stable
         override: true
 
-    - name: Cache cargo registry
-      uses: actions/cache@v3
+    - name: Cache cargo registry and audit tools
+      uses: actions/cache@v4
       with:
         path: |
-          ~/.cargo/registry
-          ~/.cargo/git
-          target
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          ~/.cargo/bin/cargo-audit
+          target/
         key: ${{ runner.os }}-cargo-audit-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-audit-
+          ${{ runner.os }}-cargo-
 
     - name: Install cargo-audit
-      run: cargo install --force cargo-audit
+      run: |
+        if ! command -v cargo-audit &> /dev/null; then
+          cargo install --force cargo-audit
+        else
+          echo "cargo-audit already installed"
+        fi
 
     - name: Run security audit
       run: cargo audit
@@ -152,9 +202,11 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Download contract artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         path: ./contract-artifacts
+        pattern: contract-*
+        merge-multiple: true
 
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
@@ -164,9 +216,21 @@ jobs:
         target: wasm32-unknown-unknown
         override: true
 
+    - name: Cache cargo-contract installation
+      uses: actions/cache@v4
+      with:
+        path: ~/.cargo/bin/cargo-contract
+        key: ${{ runner.os }}-cargo-contract-4.1.1
+        restore-keys: |
+          ${{ runner.os }}-cargo-contract-
+
     - name: Install cargo-contract
       run: |
-        cargo install --force --locked cargo-contract --version 4.1.1
+        if ! command -v cargo-contract &> /dev/null; then
+          cargo install --force --locked cargo-contract --version 4.1.1
+        else
+          echo "cargo-contract already installed"
+        fi
 
     - name: Setup deployment environment
       run: |
@@ -223,7 +287,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
@@ -235,9 +299,11 @@ jobs:
         cd ../oracle-simulator && npm ci
 
     - name: Download contract artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         path: ./contract-artifacts
+        pattern: contract-*
+        merge-multiple: true
 
     - name: Run integration tests
       run: |
@@ -245,7 +311,7 @@ jobs:
         # Add actual integration test commands here
         
     - name: Upload test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: integration-test-results
