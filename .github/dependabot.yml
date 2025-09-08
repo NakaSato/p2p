@@ -16,9 +16,9 @@ updates:
       prefix-development: "cargo"
       include: "scope"
 
-  # Node.js dependencies - API Gateway
-  - package-ecosystem: "npm"
-    directory: "/docker/api-gateway"
+  # Rust dependencies - API Gateway
+  - package-ecosystem: "cargo"
+    directory: "/api-gateway"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -27,7 +27,7 @@ updates:
     reviewers:
       - "NakaSato"
     commit-message:
-      prefix: "npm"
+      prefix: "cargo"
       prefix-development: "npm"
       include: "scope"
 
@@ -78,7 +78,7 @@ updates:
 
   # Docker base images
   - package-ecosystem: "docker"
-    directory: "/docker/api-gateway"
+    directory: "/api-gateway"
     schedule:
       interval: "weekly"
       day: "tuesday"

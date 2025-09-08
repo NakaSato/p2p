@@ -366,8 +366,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        cd docker/api-gateway && npm ci
-        cd ../oracle-simulator && npm ci
+        cd docker/oracle-simulator && npm ci
 
     - name: Download contract artifacts
       uses: actions/download-artifact@v4

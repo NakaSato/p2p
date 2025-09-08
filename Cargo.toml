@@ -6,6 +6,7 @@ members = [
     "contracts/grid-token",
     "contracts/trading",
     "contracts/oracle-client",
+    "api-gateway",
 ]
 
 [workspace.dependencies]

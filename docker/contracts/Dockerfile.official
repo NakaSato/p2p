@@ -1,0 +1,64 @@
+FROM rust:1.83-bookworm
+
+# Install basic dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    clang \
+    cmake \
+    curl \
+    git \
+    jq \
+    libssl-dev \
+    pkg-config \
+    protobuf-compiler \
+    wget \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install WASM target and cargo-contract
+RUN rustup target add wasm32-unknown-unknown
+RUN rustup component add clippy
+RUN cargo install --force --locked cargo-contract --version 4.1.1
+
+# Download and install substrate-contracts-node binary
+RUN wget https://github.com/paritytech/substrate-contracts-node/releases/download/v0.42.0/substrate-contracts-node-linux.tar.gz && \
+    tar -xzf substrate-contracts-node-linux.tar.gz && \
+    chmod +x substrate-contracts-node-linux/substrate-contracts-node && \
+    mv substrate-contracts-node-linux/substrate-contracts-node /usr/local/bin/ && \
+    rm -rf substrate-contracts-node-linux substrate-contracts-node-linux.tar.gz
+
+WORKDIR /contracts
+
+# Copy contract source
+COPY contracts ./contracts
+
+# Create a contracts-only Cargo.toml workspace
+RUN echo '[workspace]' > Cargo.toml && \
+    echo 'resolver = "2"' >> Cargo.toml && \
+    echo '' >> Cargo.toml && \
+    echo 'members = [' >> Cargo.toml && \
+    echo '    "contracts/registry",' >> Cargo.toml && \
+    echo '    "contracts/grid-token",' >> Cargo.toml && \
+    echo '    "contracts/trading",' >> Cargo.toml && \
+    echo '    "contracts/oracle-client",' >> Cargo.toml && \
+    echo ']' >> Cargo.toml && \
+    echo '' >> Cargo.toml && \
+    echo '[workspace.dependencies]' >> Cargo.toml && \
+    echo 'ink = { version = "4.3", default-features = false }' >> Cargo.toml && \
+    echo 'scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }' >> Cargo.toml && \
+    echo 'scale-info = { version = "2.6", default-features = false, features = ["derive"] }' >> Cargo.toml && \
+    echo 'openbrush = { version = "4.0.0-beta", default-features = false }' >> Cargo.toml
+
+# Build contracts
+RUN cd contracts/registry && cargo contract build --release
+RUN cd contracts/grid-token && cargo contract build --release  
+RUN cd contracts/trading && cargo contract build --release
+RUN cd contracts/oracle-client && cargo contract build --release
+
+# Copy deployment script
+COPY docker/contracts/deploy_contracts.sh /contracts/
+RUN chmod +x deploy_contracts.sh
+
+EXPOSE 9944 9933 30333
+
+CMD ["./deploy_contracts.sh"]

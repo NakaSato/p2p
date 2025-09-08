@@ -19,22 +19,23 @@ The P2P Energy Trading Platform is a comprehensive blockchain-based solution for
 
 The platform consists of four interoperable smart contracts:
 
-```
-┌─────────────────┐    ┌─────────────────┐
-│   Registry      │    │   GridToken     │
-│   Contract      │    │   Contract      │
-│                 │    │   (PSP22)       │
-└─────────────────┘    └─────────────────┘
-         │                       │
-         │                       │
-         └───────────┬───────────┘
-                     │
-         ┌───────────▼───────────┐
-         │                       │
-┌─────────────────┐    ┌─────────────────┐
-│   Trading       │    │   OracleClient  │
-│   Contract      │    │   Contract      │
-└─────────────────┘    └─────────────────┘
+```mermaid
+graph TD
+    subgraph "Core Contracts"
+        Registry("Registry Contract")
+        GridToken("GridToken Contract (PSP22)")
+        Trading("Trading Contract")
+        OracleClient("OracleClient Contract")
+    end
+
+    subgraph "Interactions"
+        OracleClient -- "triggers" --> Trading
+        OracleClient -- "mints" --> GridToken
+        Trading -- "transfers" --> GridToken
+        Trading -- "verifies users" --> Registry
+        GridToken -- "verifies users" --> Registry
+        OracleClient -- "verifies users" --> Registry
+    end
 ```
 
 ## Contract Details

@@ -9,24 +9,32 @@ NC='\033[0m' # No Color
 
 # Configuration
 NODE_URL="ws://localhost:9944"
+HTTP_URL="http://localhost:9933"
 DEPLOYER_ACCOUNT="//Alice"
 OUTPUT_DIR="/tmp/contract_addresses"
 
+# Ensure output directory exists
 mkdir -p $OUTPUT_DIR
 
 echo -e "${GREEN}Starting Substrate Contracts Node...${NC}"
-substrate-contracts-node --dev --tmp &
+substrate-contracts-node --dev --tmp --ws-external --rpc-external &
 NODE_PID=$!
 
-# Wait for node to start
+# Enhanced wait for node with retries
 echo -e "${YELLOW}Waiting for node to be ready...${NC}"
-sleep 15
-
-# Check if node is running
-if ! curl -s -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "system_health", "params":[]}' http://localhost:9933 > /dev/null; then
-    echo -e "${RED}Node is not responding. Exiting...${NC}"
-    exit 1
-fi
+for i in {1..30}; do
+    sleep 2
+    if curl -s -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "system_health", "params":[]}' $HTTP_URL > /dev/null 2>&1; then
+        echo -e "${GREEN}Node is ready after ${i} attempts!${NC}"
+        break
+    fi
+    if [ $i -eq 30 ]; then
+        echo -e "${RED}Node failed to start after 60 seconds. Exiting...${NC}"
+        kill $NODE_PID 2>/dev/null || true
+        exit 1
+    fi
+    echo "Attempt $i/30: Waiting for node..."
+done
 
 echo -e "${GREEN}Node is ready! Starting contract deployment...${NC}"
 
@@ -39,30 +47,54 @@ deploy_contract() {
     echo -e "${YELLOW}Deploying $contract_name...${NC}"
     cd /contracts/contracts/$contract_name
     
+    # Check if contract build exists
+    if [ ! -f "target/ink/$contract_name.contract" ]; then
+        echo -e "${RED}Contract build not found! Building $contract_name...${NC}"
+        cargo contract build --release
+    fi
+    
     # First, upload the code
     echo "Uploading contract code..."
-    cargo contract upload \
+    if ! cargo contract upload \
         --suri $DEPLOYER_ACCOUNT \
         --url $NODE_URL \
         --skip-confirm \
-        --output-json > /tmp/${contract_name}_upload.json
+        --output-json > /tmp/${contract_name}_upload.json 2>/tmp/${contract_name}_upload_error.log; then
+        echo -e "${RED}Failed to upload $contract_name code${NC}"
+        cat /tmp/${contract_name}_upload_error.log
+        return 1
+    fi
     
-    # Extract code hash
-    CODE_HASH=$(cat /tmp/${contract_name}_upload.json | grep -o '"code_hash":"[^"]*"' | cut -d'"' -f4)
+    # Extract code hash with better error handling
+    CODE_HASH=$(jq -r '.code_hash // empty' /tmp/${contract_name}_upload.json 2>/dev/null)
+    if [ -z "$CODE_HASH" ] || [ "$CODE_HASH" = "null" ]; then
+        echo -e "${RED}Failed to extract code hash for $contract_name${NC}"
+        cat /tmp/${contract_name}_upload.json
+        return 1
+    fi
     echo "Code hash: $CODE_HASH"
     
     # Instantiate the contract
     echo "Instantiating contract..."
-    cargo contract instantiate \
-        --constructor $constructor_name \
-        --args "$constructor_args" \
-        --suri $DEPLOYER_ACCOUNT \
-        --url $NODE_URL \
-        --skip-confirm \
-        --output-json > /tmp/${contract_name}_deployment.json
+    local instantiate_cmd="cargo contract instantiate --constructor $constructor_name --suri $DEPLOYER_ACCOUNT --url $NODE_URL --skip-confirm --output-json"
     
-    # Extract contract address
-    CONTRACT_ADDRESS=$(cat /tmp/${contract_name}_deployment.json | grep -o '"contract":"[^"]*"' | cut -d'"' -f4)
+    if [ -n "$constructor_args" ]; then
+        instantiate_cmd="$instantiate_cmd --args $constructor_args"
+    fi
+    
+    if ! eval $instantiate_cmd > /tmp/${contract_name}_deployment.json 2>/tmp/${contract_name}_deploy_error.log; then
+        echo -e "${RED}Failed to instantiate $contract_name${NC}"
+        cat /tmp/${contract_name}_deploy_error.log
+        return 1
+    fi
+    
+    # Extract contract address with better error handling
+    CONTRACT_ADDRESS=$(jq -r '.contract // empty' /tmp/${contract_name}_deployment.json 2>/dev/null)
+    if [ -z "$CONTRACT_ADDRESS" ] || [ "$CONTRACT_ADDRESS" = "null" ]; then
+        echo -e "${RED}Failed to extract contract address for $contract_name${NC}"
+        cat /tmp/${contract_name}_deployment.json
+        return 1
+    fi
     
     if [ -n "$CONTRACT_ADDRESS" ]; then
         echo -e "${GREEN}✅ $contract_name deployed successfully!${NC}"
@@ -98,6 +130,14 @@ EOF
 setup_contract_connections() {
     echo -e "${YELLOW}Setting up contract connections...${NC}"
     
+    # Check if all contract addresses exist
+    for contract in registry grid-token trading oracle-client; do
+        if [ ! -f "$OUTPUT_DIR/${contract}_address.txt" ]; then
+            echo -e "${RED}Missing contract address file for $contract${NC}"
+            return 1
+        fi
+    done
+    
     # Read contract addresses
     REGISTRY_ADDRESS=$(cat $OUTPUT_DIR/registry_address.txt)
     TOKEN_ADDRESS=$(cat $OUTPUT_DIR/grid-token_address.txt)
@@ -109,38 +149,58 @@ setup_contract_connections() {
     echo "Trading: $TRADING_ADDRESS"
     echo "Oracle: $ORACLE_ADDRESS"
     
+    # Validate addresses are not empty
+    for addr in "$REGISTRY_ADDRESS" "$TOKEN_ADDRESS" "$TRADING_ADDRESS" "$ORACLE_ADDRESS"; do
+        if [ -z "$addr" ]; then
+            echo -e "${RED}One or more contract addresses are empty${NC}"
+            return 1
+        fi
+    done
+    
     # Set registry contract in token contract
     echo "Connecting token contract to registry..."
     cd /contracts/contracts/grid-token
-    cargo contract call \
+    if ! cargo contract call \
         --contract $TOKEN_ADDRESS \
         --message set_registry_contract \
         --args $REGISTRY_ADDRESS \
         --suri $DEPLOYER_ACCOUNT \
         --url $NODE_URL \
-        --skip-confirm
+        --skip-confirm > /tmp/token_registry_connection.log 2>&1; then
+        echo -e "${RED}Failed to connect token to registry${NC}"
+        cat /tmp/token_registry_connection.log
+        return 1
+    fi
     
     # Set contracts in trading contract
     echo "Connecting trading contract to registry and token..."
     cd /contracts/contracts/trading
-    cargo contract call \
+    if ! cargo contract call \
         --contract $TRADING_ADDRESS \
         --message set_contracts \
         --args $REGISTRY_ADDRESS $TOKEN_ADDRESS \
         --suri $DEPLOYER_ACCOUNT \
         --url $NODE_URL \
-        --skip-confirm
+        --skip-confirm > /tmp/trading_connections.log 2>&1; then
+        echo -e "${RED}Failed to connect trading contract${NC}"
+        cat /tmp/trading_connections.log
+        return 1
+    fi
     
     # Set contracts in oracle contract
     echo "Connecting oracle contract to other contracts..."
     cd /contracts/contracts/oracle-client
-    cargo contract call \
+    if ! cargo contract call \
         --contract $ORACLE_ADDRESS \
         --message set_contracts \
         --args $REGISTRY_ADDRESS $TOKEN_ADDRESS $TRADING_ADDRESS \
         --suri $DEPLOYER_ACCOUNT \
         --url $NODE_URL \
-        --skip-confirm
+        --skip-confirm > /tmp/oracle_connections.log 2>&1; then
+        echo -e "${RED}Failed to connect oracle contract${NC}"
+        cat /tmp/oracle_connections.log
+        return 1
+    fi
     
     echo -e "${GREEN}✅ Contract connections established!${NC}"
 }
@@ -148,15 +208,46 @@ setup_contract_connections() {
 # Deploy contracts in order
 echo -e "${GREEN}=== STARTING CONTRACT DEPLOYMENT ===${NC}"
 
-deploy_contract "registry" "new" ""
-deploy_contract "grid-token" "new" "1000000000000000000000"  # 1000 GRID initial supply
-deploy_contract "trading" "new" "900000"  # 15 minutes market epoch
-deploy_contract "oracle-client" "new" ""
+# Deploy contracts with error handling
+deploy_contract "registry" "new" "" || { echo -e "${RED}Registry deployment failed${NC}"; exit 1; }
+deploy_contract "grid-token" "new" "1000000000000000000000" || { echo -e "${RED}Grid token deployment failed${NC}"; exit 1; }  # 1000 GRID initial supply
+deploy_contract "trading" "new" "900000" || { echo -e "${RED}Trading contract deployment failed${NC}"; exit 1; }  # 15 minutes market epoch
+deploy_contract "oracle-client" "new" "" || { echo -e "${RED}Oracle client deployment failed${NC}"; exit 1; }
 
 echo -e "${GREEN}=== ALL CONTRACTS DEPLOYED ===${NC}"
 
 # Setup contract connections
-setup_contract_connections
+if ! setup_contract_connections; then
+    echo -e "${RED}Failed to setup contract connections${NC}"
+    exit 1
+fi
+
+# Add authorization setup
+echo -e "${YELLOW}Setting up contract authorizations...${NC}"
+
+# Add Alice as REC regulator in registry
+echo "Adding Alice as REC regulator..."
+cd /contracts/contracts/registry
+cargo contract call \
+    --contract $(cat $OUTPUT_DIR/registry_address.txt) \
+    --message add_rec_regulator \
+    --args "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY" \
+    --suri $DEPLOYER_ACCOUNT \
+    --url $NODE_URL \
+    --skip-confirm
+
+# Add Alice as minter in grid-token
+echo "Adding Alice as minter..."
+cd /contracts/contracts/grid-token
+cargo contract call \
+    --contract $(cat $OUTPUT_DIR/grid-token_address.txt) \
+    --message add_minter \
+    --args "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY" \
+    --suri $DEPLOYER_ACCOUNT \
+    --url $NODE_URL \
+    --skip-confirm
+
+echo -e "${GREEN}✅ Authorization setup completed!${NC}"
 
 # Create summary file
 cat > $OUTPUT_DIR/deployment_summary.json << EOF
@@ -190,10 +281,26 @@ EOF
 
 echo -e "${GREEN}✅ Deployment completed successfully!${NC}"
 echo -e "${YELLOW}Contract addresses and deployment info saved to: $OUTPUT_DIR${NC}"
-cat $OUTPUT_DIR/deployment_summary.json
+
+# Display deployment summary
+echo -e "${GREEN}=== DEPLOYMENT SUMMARY ===${NC}"
+cat $OUTPUT_DIR/deployment_summary.json | jq '.'
 
 echo -e "${GREEN}🚀 Substrate node is running at $NODE_URL${NC}"
+echo -e "${GREEN}🌐 HTTP RPC endpoint: $HTTP_URL${NC}"
+echo -e "${YELLOW}📁 Contract files and addresses: $OUTPUT_DIR${NC}"
 echo -e "${YELLOW}Press Ctrl+C to stop the node${NC}"
+
+# Setup signal handler for graceful shutdown
+cleanup() {
+    echo -e "\n${YELLOW}Shutting down substrate node...${NC}"
+    kill $NODE_PID 2>/dev/null || true
+    wait $NODE_PID 2>/dev/null || true
+    echo -e "${GREEN}Substrate node stopped.${NC}"
+    exit 0
+}
+
+trap cleanup SIGINT SIGTERM
 
 # Keep the node running
 wait $NODE_PID
