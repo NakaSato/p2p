@@ -321,7 +321,7 @@ mod oracle_client {
             };
 
             self.oracle_requests.insert(request_id, &request);
-            self.next_request_id += 1;
+            self.next_request_id = self.next_request_id.checked_add(1).ok_or(Error::Overflow)?;
 
             self.env().emit_event(OracleRequestCreated {
                 request_id,
@@ -355,7 +355,8 @@ mod oracle_client {
 
             // Check if request has expired
             let current_block = self.env().block_number();
-            if (current_block as u64) > request.block_number + self.oracle_timeout {
+            let timeout_block = request.block_number.checked_add(self.oracle_timeout).ok_or(Error::Overflow)?;
+            if (current_block as u64) > timeout_block {
                 request.status = RequestStatus::Expired;
                 self.oracle_requests.insert(request_id, &request);
 
@@ -438,7 +439,7 @@ mod oracle_client {
         #[ink(message, payable)]
         pub fn fund_oracle_operations(&mut self) -> Result<()> {
             let amount = self.env().transferred_value();
-            self.oracle_balance += amount;
+            self.oracle_balance = self.oracle_balance.checked_add(amount).ok_or(Error::Overflow)?;
 
             self.env().emit_event(OracleFunded {
                 amount,
@@ -547,8 +548,10 @@ mod oracle_client {
         fn mint_energy_tokens(&self, meter_data: &MeterData) -> Result<Balance> {
             // Would make cross-contract call to token contract
             // For now, return the amount that would be minted
-            let tokens_to_mint =
-                meter_data.energy_generated as Balance * 1_000_000_000_000_000_000u128; // Convert to 18 decimals
+            let decimal_multiplier = 1_000_000_000_000_000_000u128; // 18 decimals
+            let tokens_to_mint = (meter_data.energy_generated as Balance)
+                .checked_mul(decimal_multiplier)
+                .ok_or(Error::Overflow)?;
             Ok(tokens_to_mint)
         }
 
@@ -557,7 +560,8 @@ mod oracle_client {
             // For now, assume clearing is needed every 15 minutes
             let current_time = self.env().block_timestamp();
             let fifteen_minutes = 15 * 60 * 1000; // 15 minutes in milliseconds
-            Ok(current_time >= self.last_market_check + fifteen_minutes)
+            let next_check_time = self.last_market_check.checked_add(fifteen_minutes).ok_or(Error::Overflow)?;
+            Ok(current_time >= next_check_time)
         }
 
         fn trigger_market_clearing(&self) -> Result<()> {

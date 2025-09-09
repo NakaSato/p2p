@@ -15,17 +15,19 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install WASM target and cargo-contract
+# Install Rust WASM target and cargo-contract
 RUN rustup target add wasm32-unknown-unknown
 RUN rustup component add clippy
-RUN cargo install --force --locked cargo-contract --version 4.1.1
+RUN rustup component add rust-src
+RUN cargo install --force --locked cargo-contract --version 5.0.3
 
-# Download and install substrate-contracts-node binary
-RUN wget https://github.com/paritytech/substrate-contracts-node/releases/download/v0.42.0/substrate-contracts-node-linux.tar.gz && \
-    tar -xzf substrate-contracts-node-linux.tar.gz && \
-    chmod +x substrate-contracts-node-linux/substrate-contracts-node && \
-    mv substrate-contracts-node-linux/substrate-contracts-node /usr/local/bin/ && \
-    rm -rf substrate-contracts-node-linux substrate-contracts-node-linux.tar.gz
+# Build substrate-contracts-node from source for compatibility
+RUN git clone --branch v0.42.0 --depth 1 https://github.com/paritytech/substrate-contracts-node.git /tmp/substrate-contracts-node && \
+    cd /tmp/substrate-contracts-node && \
+    RUSTFLAGS="-C target-cpu=native" cargo build --release && \
+    mv target/release/substrate-contracts-node /usr/local/bin/ && \
+    cd / && \
+    rm -rf /tmp/substrate-contracts-node
 
 WORKDIR /contracts
 
@@ -44,9 +46,9 @@ RUN echo '[workspace]' > Cargo.toml && \
     echo ']' >> Cargo.toml && \
     echo '' >> Cargo.toml && \
     echo '[workspace.dependencies]' >> Cargo.toml && \
-    echo 'ink = { version = "4.3", default-features = false }' >> Cargo.toml && \
-    echo 'scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }' >> Cargo.toml && \
-    echo 'scale-info = { version = "2.6", default-features = false, features = ["derive"] }' >> Cargo.toml && \
+    echo 'ink = { version = "5.1.1", default-features = false }' >> Cargo.toml && \
+    echo 'scale = { package = "parity-scale-codec", version = "3.7.5", default-features = false, features = ["derive"] }' >> Cargo.toml && \
+    echo 'scale-info = { version = "2.11.6", default-features = false, features = ["derive"] }' >> Cargo.toml && \
     echo 'openbrush = { version = "4.0.0-beta", default-features = false }' >> Cargo.toml
 
 # Build contracts
