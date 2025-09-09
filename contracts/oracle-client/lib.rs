@@ -5,6 +5,7 @@
 /// for automated operations like market clearing and energy data verification.
 
 #[ink::contract]
+#[allow(clippy::cast_possible_truncation)]
 mod oracle_client {
     use ink::prelude::string::String;
     use ink::prelude::vec::Vec;
