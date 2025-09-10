@@ -23,7 +23,7 @@ Deploy everything with one command:
 
 This will:
 - ✅ Start all infrastructure services
-- ✅ Deploy smart contracts to Substrate
+- ✅ Deploy smart contracts to Solana
 - ✅ Setup demo data and users
 - ✅ Start oracle for automated market clearing
 - ✅ Launch API Gateway and monitoring
@@ -37,7 +37,7 @@ docker-compose up -d postgres timescaledb redis kafka zookeeper
 
 2. **Deploy contracts only**:
 ```bash
-docker-compose up -d substrate-node
+docker-compose up -d solana-validator
 ```
 
 3. **Start remaining services**:
@@ -97,7 +97,7 @@ You can also interact with contracts directly:
 
 ```bash
 # Enter the substrate container
-docker-compose exec substrate-node bash
+docker-compose exec solana-validator bash
 
 # Example: Check user balance
 cargo contract call \
@@ -117,7 +117,7 @@ cargo contract call \
 docker-compose logs -f
 
 # Specific service
-docker-compose logs -f substrate-node
+docker-compose logs -f solana-validator
 docker-compose logs -f oracle-simulator
 docker-compose logs -f api-gateway
 ```
@@ -129,13 +129,13 @@ docker-compose logs -f api-gateway
 
 ### View Contract Addresses
 ```bash
-docker-compose exec substrate-node cat /tmp/contract_addresses/deployment_summary.json
+docker-compose exec solana-validator cat /tmp/contract_addresses/deployment_summary.json
 ```
 
 ## 🔄 System Workflow
 
 1. **Initialization**:
-   - Contracts are deployed to Substrate node
+   - Contracts are deployed to Solana node
    - Demo users (Alice, Bob, Charlie) are registered
    - Smart meters are assigned to users
    - Initial GRID tokens are minted
@@ -160,7 +160,7 @@ docker-compose exec substrate-node cat /tmp/contract_addresses/deployment_summar
 ### Rebuild Contracts
 ```bash
 # Rebuild specific contract
-docker-compose build substrate-node
+docker-compose build solana-validator
 
 # Rebuild and restart with fresh data
 docker-compose down -v
@@ -178,8 +178,8 @@ docker-compose down -v
 
 ### Access Container Shell
 ```bash
-# Substrate node
-docker-compose exec substrate-node bash
+# Solana node
+docker-compose exec solana-validator bash
 
 # Oracle simulator
 docker-compose exec oracle-simulator bash
@@ -197,7 +197,7 @@ docker-compose exec oracle-simulator bash
 ### Common Issues
 
 1. **Contracts not deploying**:
-   - Check substrate-node logs: `docker-compose logs substrate-node`
+   - Check solana-validator logs: `docker-compose logs solana-validator`
    - Ensure sufficient wait time for node startup
 
 2. **Oracle not working**:
@@ -216,7 +216,7 @@ docker-compose ps
 # Test API Gateway
 curl http://localhost:8080/health
 
-# Check Substrate node
+# Check Solana node
 curl -H "Content-Type: application/json" \
   -d '{"id":1, "jsonrpc":"2.0", "method": "system_health", "params":[]}' \
   http://localhost:9933
@@ -225,7 +225,7 @@ curl -H "Content-Type: application/json" \
 ## 📚 Additional Resources
 
 - [ink! Documentation](https://use.ink/)
-- [Substrate Documentation](https://docs.substrate.io/)
+- [Solana Documentation](https://docs.substrate.io/)
 - [Polkadot API Documentation](https://polkadot.js.org/docs/)
 - [Docker Compose Reference](https://docs.docker.com/compose/)
 

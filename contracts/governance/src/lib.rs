@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("GovernanceProgramId1234567890123456789");
+declare_id!("11111111111111111111111111111111");
 
 /// University authority public key (compile-time constant)
 pub const UNIVERSITY_AUTHORITY_PUBKEY: Pubkey = solana_program::pubkey!("UniversityAuthorityKey1234567890123456789");

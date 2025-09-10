@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::hash::hash;
 
-declare_id!("OracleProgramId1234567890123456789");
+declare_id!("BrFkiEYxP6saiVHVBoaDYJZ2RRZnoXoo9P47PuwP9tHA");
 
 #[program]
 pub mod oracle {
