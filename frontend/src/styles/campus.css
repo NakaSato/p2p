@@ -1,0 +1,107 @@
+/* Campus Map specific styles and animations */
+
+.campus-building {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.campus-building:hover {
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+  transform: scale(1.02);
+}
+
+.campus-building.selected {
+  animation: pulse-building 2s infinite;
+  transform: scale(1.05);
+}
+
+@keyframes pulse-building {
+  0%, 100% {
+    filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 8px 20px rgba(59, 130, 246, 0.7));
+  }
+}
+
+.building-number {
+  transition: all 0.2s ease;
+}
+
+.building-number:hover {
+  transform: scale(1.1);
+}
+
+.building-tooltip {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-overlay {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+  animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Responsive campus map styles */
+@media (max-width: 768px) {
+  .campus-map-container {
+    padding: 1rem;
+  }
+  
+  .building-tooltip text {
+    font-size: 10px;
+  }
+  
+  .campus-building {
+    stroke-width: 0.5;
+  }
+}
+
+/* Campus map legend styles */
+.legend-item {
+  transition: all 0.2s ease;
+}
+
+.legend-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Loading animation for campus map */
+.campus-loading {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

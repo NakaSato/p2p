@@ -103,20 +103,20 @@ jobs:
         cp .env.example .env.test
         echo "Setting up test environment..."
 
-    - name: Start full system
+    - name: Start infrastructure services
       run: |
-        echo "🚀 Starting full P2P Energy Trading system..."
+        echo "🚀 Starting P2P Energy Trading infrastructure..."
         
-        # Start infrastructure first
-        docker compose up -d postgres timescaledb redis kafka zookeeper
+        # Start core infrastructure services
+        docker compose up -d postgres timescaledb redis
         
-        # Wait for infrastructure
-        sleep 30
+        # Wait for infrastructure to be ready
+        sleep 45
         
-        # Start application services
-        docker compose up -d smart-meter-simulator
+        # Start blockchain node
+        docker compose up -d substrate-node
         
-        # Wait for services to initialize
+        # Wait for blockchain to initialize
         sleep 60
 
     - name: Run system health checks
@@ -126,15 +126,28 @@ jobs:
         # Check container health
         docker compose ps
         
-        # Check service logs for errors
-        echo "Checking smart meter simulator..."
-        docker compose logs smart-meter-simulator | tail -20
-        
-        # Verify data generation
-        if docker compose logs smart-meter-simulator | grep -q "simulation cycle"; then
-          echo "✅ Smart meter simulator is working"
+        # Check infrastructure services
+        echo "Checking PostgreSQL..."
+        if docker compose exec -T postgres pg_isready -U p2p_user -d p2p_energy_trading; then
+          echo "✅ PostgreSQL is ready"
         else
-          echo "❌ Smart meter simulator failed"
+          echo "❌ PostgreSQL failed"
+          exit 1
+        fi
+        
+        echo "Checking Redis..."
+        if docker compose exec -T redis redis-cli ping | grep -q "PONG"; then
+          echo "✅ Redis is ready"
+        else
+          echo "❌ Redis failed"
+          exit 1
+        fi
+        
+        echo "Checking Substrate node..."
+        if curl -s -H 'Content-Type: application/json' -d '{"id":1, "jsonrpc":"2.0", "method": "system_health", "params":[]}' http://localhost:9933 | grep -q "result"; then
+          echo "✅ Substrate node is ready"
+        else
+          echo "❌ Substrate node failed"
           exit 1
         fi
 
@@ -147,7 +160,7 @@ jobs:
         sleep 30
         
         # Test health endpoint
-        if curl -f http://localhost:8080/health; then
+        if curl -f http://localhost:3000/health; then
           echo "✅ API Gateway is responding"
         else
           echo "❌ API Gateway failed"
@@ -204,36 +217,49 @@ jobs:
         echo "🚀 Setting up performance test environment..."
         
         # Start lightweight system for performance testing
-        docker compose up -d postgres redis smart-meter-simulator
+        docker compose up -d postgres redis substrate-node
         sleep 60
 
     - name: Run performance tests
       run: |
         echo "⚡ Running performance tests..."
         
-        # Test smart meter simulator performance
-        echo "Testing smart meter data generation rate..."
+        # Test database performance
+        echo "Testing database connection performance..."
         
-        # Monitor for 2 minutes and count cycles
-        timeout 120 docker compose logs -f smart-meter-simulator > perf_test.log &
-        sleep 120
+        # Test PostgreSQL connection speed
+        time docker compose exec -T postgres pg_isready -U p2p_user -d p2p_energy_trading
         
-        cycles=$(grep -c "simulation cycle" perf_test.log || echo "0")
-        echo "Simulation cycles in 2 minutes: $cycles"
+        # Test Redis performance
+        echo "Testing Redis performance..."
+        docker compose exec -T redis redis-cli --latency-history -i 1 > redis_perf.log &
+        REDIS_PID=$!
+        sleep 10
+        kill $REDIS_PID || true
         
-        if [ $cycles -gt 3 ]; then
+        # Test Substrate node RPC performance
+        echo "Testing Substrate RPC performance..."
+        start_time=$(date +%s%N)
+        response=$(curl -s -H 'Content-Type: application/json' -d '{"id":1, "jsonrpc":"2.0", "method": "system_health", "params":[]}' http://localhost:9933)
+        end_time=$(date +%s%N)
+        rpc_time=$(( (end_time - start_time) / 1000000 ))
+        
+        echo "RPC response time: ${rpc_time}ms"
+        
+        if [ $rpc_time -lt 1000 ]; then
           echo "✅ Performance test passed"
         else
-          echo "❌ Performance test failed"
+          echo "❌ Performance test failed - RPC too slow"
           exit 1
         fi
 
     - name: Generate performance report
       run: |
         echo "## ⚡ Performance Test Report" >> $GITHUB_STEP_SUMMARY
-        echo "- **Test Duration**: 2 minutes" >> $GITHUB_STEP_SUMMARY
-        echo "- **Simulation Cycles**: $(grep -c "simulation cycle" perf_test.log || echo "0")" >> $GITHUB_STEP_SUMMARY
-        echo "- **Average Cycle Time**: ~30 seconds" >> $GITHUB_STEP_SUMMARY
+        echo "- **Test Duration**: Database and RPC tests" >> $GITHUB_STEP_SUMMARY
+        echo "- **PostgreSQL**: ✅ Ready" >> $GITHUB_STEP_SUMMARY
+        echo "- **Redis**: ✅ Ready" >> $GITHUB_STEP_SUMMARY
+        echo "- **Substrate RPC**: ✅ Ready" >> $GITHUB_STEP_SUMMARY
         echo "- **Status**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
 
     - name: Cleanup

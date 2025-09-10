@@ -1,0 +1,46 @@
+# Engineering Department Operations Configuration
+# University P2P Energy Trading System
+
+[validator]
+department = "engineering"
+authority_level = "FULL_AUTHORITY"
+network_role = "sole_validator"
+
+[rec_validation]
+enabled = true
+certificate_authority = true  
+single_signature_mode = true
+engineering_authority = true
+sustainability_coordination = true
+
+[operations]
+auto_market_clearing = true
+meter_data_validation = true
+emergency_pause_authority = true
+audit_logging = true
+system_administration = true
+
+[network]
+campus_only = true
+external_connectivity = false
+single_validator_consensus = true
+
+[security]
+key_management = "engineering_department"
+access_control = "engineering_specific" 
+encryption = "campus_standard"
+backup_procedures = "engineering_managed"
+
+[rec_policies]
+# REC validation by Engineering Department
+solar_rec_rate = 1.0  # 1 REC per kWh solar
+grid_rec_rate = 0.0   # No RECs for grid electricity
+battery_storage_eligible = true
+engineering_oversight = true
+
+[market_operations]
+clearing_frequency = "hourly"
+price_discovery = "automatic"
+order_matching = "fifo"  # First In, First Out
+settlement = "automatic"
+escrow_management = true

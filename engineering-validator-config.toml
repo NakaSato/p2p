@@ -1,0 +1,29 @@
+# engineering Department Validator Configuration
+# University P2P Energy Trading System
+
+[validator]
+department = "engineering"
+authority_level = "REC_FULL"
+network_role = "consensus_validator"
+
+[rec_validation]
+enabled = true
+certificate_authority = true  
+multi_signature_required = true
+minimum_signatures = 2
+
+[operations]
+auto_market_clearing = true
+meter_data_validation = true
+emergency_pause_authority = true
+audit_logging = true
+
+[network]
+campus_only = true
+external_connectivity = false
+peer_departments = ["sustainability", "engineering", "facilities"]
+
+[security]
+key_management = "university_managed"
+access_control = "department_specific" 
+encryption = "campus_standard"

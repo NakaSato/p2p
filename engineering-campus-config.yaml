@@ -1,0 +1,141 @@
+# Engineering Department P2P Energy Trading Configuration
+# Single Validator Campus Network
+
+system:
+  name: "Engineering Department P2P Energy Trading"
+  network_type: "private_campus_single_validator"
+  university: "State University"
+  department: "College of Engineering"
+  deployment_date: "2025-11-01"
+
+validator:
+  count: 1
+  department: "Engineering"
+  authority: "FULL_AUTHORITY"
+  location: "Engineering Complex - Server Room"
+  roles:
+    - "REC_VALIDATOR" 
+    - "NETWORK_ADMIN"
+    - "MARKET_OPERATOR"
+    - "SYSTEM_ADMIN"
+
+network:
+  name: "campus-energy-network"
+  cluster_type: "Development"
+  external_connectivity: false
+  air_gapped: true
+  campus_only: true
+  single_validator_mode: true
+
+blockchain_programs:
+  registry: "RegEngDeptEnergyP2P1234567890123456789"
+  energy_token: "EnergyTokenEngDept1234567890123456789"
+  trading: "TradingEngDeptP2P1234567890123456789"
+  oracle: "OracleEngDeptAMI1234567890123456789"
+  governance: "GovernanceEngDeptPoA1234567890123456789"
+
+smart_meters:
+  total_count: 15
+  building: "Engineering Complex"
+  coverage:
+    - name: "Engineering Complex"
+      meter_count: 15
+      meter_ids: 
+        - "ENG_001"
+        - "ENG_002"
+        - "ENG_003"
+        - "ENG_004"
+        - "ENG_005"
+        - "ENG_006"
+        - "ENG_007"
+        - "ENG_008"
+        - "ENG_009"
+        - "ENG_010"
+        - "ENG_011"
+        - "ENG_012"
+        - "ENG_013"
+        - "ENG_014"
+        - "ENG_015"
+      energy_sources:
+        - type: "solar_panels"
+          capacity: "50kW"
+          location: "rooftop_array"
+        - type: "grid_connection"
+          capacity: "unlimited"
+          source: "university_electrical"
+        - type: "battery_storage"
+          capacity: "10kWh"
+          technology: "lithium_ion"
+
+participants:
+  total: 250
+  categories:
+    faculty: 50
+    graduate_students: 75
+    undergraduate_students: 125
+  building: "Engineering Complex"
+  department: "College of Engineering"
+
+operations:
+  market_clearing: "hourly"
+  settlement: "automatic"
+  rec_validation: "engineering_authority"
+  emergency_controls: "engineering_department"
+  
+  data_collection:
+    interval: "15_minutes"
+    encryption: "AES_256"
+    backup: "hourly"
+    retention: "7_years"
+
+  oracle_integration:
+    frequency: "15_minutes"
+    validator: "engineering"
+    consensus: "single_authority"
+
+governance:
+  authority: "engineering_department"
+  decision_making: "departmental"
+  rec_policy: "engineering_managed"
+  user_management: "engineering_controlled"
+  system_administration: "engineering_it_staff"
+
+security:
+  access_control: "engineering_authentication"
+  key_management: "engineering_department"
+  monitoring: "engineering_soc"
+  incident_response: "engineering_it_team"
+  compliance: "university_policies"
+
+performance_targets:
+  uptime: "99%"
+  transaction_latency: "2_seconds"
+  user_satisfaction: "80%"
+  energy_cost_reduction: "10%"
+  system_efficiency: "high"
+
+pilot_phase:
+  duration: "4_weeks"
+  start_date: "2025-11-01"
+  end_date: "2025-11-29"
+  evaluation_period: "2_weeks"
+  
+  success_criteria:
+    technical_performance: ">95%"
+    user_adoption: ">70%"
+    cost_savings: ">10%"
+    zero_security_incidents: true
+    regulatory_compliance: true
+
+future_options:
+  campus_expansion: "conditional"
+  multi_validator: "possible_future"
+  research_integration: "immediate"
+  curriculum_integration: "ready"
+  academic_publications: "encouraged"
+
+budget:
+  infrastructure: "engineering_department"
+  operations: "engineering_it_budget"
+  maintenance: "existing_staff"
+  expansion: "future_consideration"

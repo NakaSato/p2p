@@ -5,6 +5,8 @@ import Dashboard from './pages/Dashboard'
 import Trading from './pages/Trading'
 import Profile from './pages/Profile'
 import Settings from './pages/Settings'
+import CampusDemo from './pages/CampusDemo'
+import CampusMapPage from './pages/CampusMapPage'
 import './App.css'
 
 function App() {
@@ -16,6 +18,8 @@ function App() {
           <Route path="/trading" element={<Trading />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/campus-map" element={<CampusMapPage />} />
+          <Route path="/campus-demo" element={<CampusDemo />} />
         </Routes>
       </Layout>
       <Toaster />

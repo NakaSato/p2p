@@ -1,0 +1,31 @@
+{
+  "name": "p2p-energy-trading-tests",
+  "version": "1.0.0",
+  "description": "Integration tests for P2P Energy Trading System",
+  "scripts": {
+    "test": "anchor test",
+    "test:unit": "mocha -r ts-node/register tests/**/*.test.ts",
+    "test:integration": "mocha -r ts-node/register tests/integration.test.ts --timeout 60000",
+    "test:performance": "mocha -r ts-node/register tests/performance.test.ts --timeout 120000",
+    "test:security": "mocha -r ts-node/register tests/security.test.ts --timeout 60000",
+    "test:stakeholder": "mocha -r ts-node/register tests/stakeholder-acceptance.test.ts --timeout 30000",
+    "test:phase3": "npm run test:integration && npm run test:performance && npm run test:security && npm run test:stakeholder"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "0.31.1",
+    "@solana/spl-token": "0.4.14",
+    "@solana/web3.js": "^1.87.6"
+  },
+  "devDependencies": {
+    "@types/chai": "5.2.2",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^24.3.1",
+    "chai": "6.0.1",
+    "mocha": "11.7.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "mocha": {
+    "timeout": 1000000
+  }
+}
