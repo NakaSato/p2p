@@ -1,31 +1,31 @@
 # Smart Meter Simulation System - Engineering Department
 
-## ภาพรวม (Overview)
+## Overview
 
-ระบบ Smart Meter Simulation เป็นส่วนสำคัญของโปรเจค P2P Energy Trading ที่จำลองการทำงานของ Smart Meter จริงในคณะวิศวกรรมศาสตร์ โดยสร้างข้อมูลพลังงานแบบ Real-time และส่งผ่าน API เข้าสู่ Solana Anchor Blockchain Network ที่ควบคุมโดยคณะวิศวกรรมศาสตร์
+The Smart Meter Simulation System is a critical component of the P2P Energy Trading project that simulates real smart meter operations within the Engineering Complex. The system generates real-time energy data and transmits it via API to the Solana Anchor blockchain network operated by the Engineering Department as the sole validator authority.
 
-## สถาปัตยกรรมระบบ (System Architecture)
+## System Architecture
 
 ```mermaid
 graph LR
   A[Engineering Smart Meters] --> B[API Gateway Rust]
   B --> C[Engineering Validator]
   C --> D[Oracle Anchor Program]
-  D --> E[Energy Token Program]
+  D --> E[Energy Token Program SPL]
   D --> F[Trading Program]
   D --> G[Registry Program]
 ```
 
-## ส่วนประกอบหลัก (Main Components)
+## Main Components
 
 ### 1. Engineering Department Python Simulation Engine
 
 #### **Core Functionality**
-- จำลองการผลิตพลังงานจากแผงโซลาร์เซลล์ 50kW บนหลังคาอาคารวิศวกรรม
-- จำลองการใช้พลังงานของอาคารวิศวกรรม (ห้องเรียน, ห้องปฏิบัติการ, สำนักงาน)
-- สร้างข้อมูลทุก 15 นาที (Market Clearing Interval)
-- คำนวณ surplus/deficit energy สำหรับ 15 Smart Meters ในอาคารวิศวกรรม
-- ส่งข้อมูลไปยัง Engineering Department Validator
+- Simulates energy generation from 50kW solar panels on Engineering Complex rooftop
+- Simulates energy consumption of Engineering Complex (classrooms, laboratories, offices)
+- Generates data every 15 minutes (Market Clearing Interval)
+- Calculates surplus/deficit energy for 15 Smart Meters in the Engineering Complex
+- Transmits data to Engineering Department Validator via SPL token minting
 
 #### **Engineering Complex Simulation Parameters**
 ```python
@@ -38,7 +38,7 @@ class EngineeringEnergyData:
     location: str          # Engineering Complex
     building_type: str     # engineering_building
     validator: str         # engineering_department
-    digital_signature: str
+    digital_signature: str # Engineering Department authority signature
 ```
 
 #### **Engineering Solar Generation Model**
@@ -99,7 +99,8 @@ Authorization: Bearer <engineering_api_key>
   "status": "success",
   "message": "Engineering meter reading processed",
   "solana_transaction_id": "3kM8eZ...",
-  "energy_tokens_minted": 2.1,
+  "energy_tokens_minted": "2100000000",
+  "spl_token_account": "user_associated_token_account",
   "validator": "engineering_department",
   "next_reading_time": 1730448900,
   "engineering_authority": "validated"
@@ -109,12 +110,12 @@ Authorization: Bearer <engineering_api_key>
 ### 3. Engineering Department Solana Blockchain Integration
 
 #### **Engineering Data Flow Process**
-1. **Engineering Simulator Generation**: Python script สร้างข้อมูลพลังงานจาก 15 meters ในอาคารวิศวกรรม
-2. **API Transmission**: ส่งข้อมูลผ่าน HTTP POST ไปยัง Engineering API Gateway
-3. **Engineering Gateway Validation**: API Gateway ตรวจสอบความถูกต้องและ Engineering authority
-4. **Solana Oracle Processing**: Oracle Anchor Program รับและประมวลผลข้อมูล
-5. **SPL Token Minting**: Energy Token Program สร้าง SPL tokens สำหรับพลังงานเกิน
-6. **Engineering Registry Update**: Registry Program อัปเดตข้อมูลผู้ใช้และ Meter ภายใต้ Engineering authority
+1. **Engineering Simulator Generation**: Python script generates energy data from 15 meters in Engineering Complex
+2. **API Transmission**: Transmits data via HTTP POST to Engineering API Gateway
+3. **Engineering Gateway Validation**: API Gateway validates data accuracy and Engineering authority
+4. **Solana Oracle Processing**: Oracle Anchor Program receives and processes data
+5. **SPL Token Minting**: Energy Token Program creates SPL tokens for surplus energy using mint authority
+6. **Engineering Registry Update**: Registry Program updates user and meter data under Engineering authority
 
 #### **Solana Anchor Program Integration**
 ```rust
@@ -144,20 +145,21 @@ pub mod engineering_oracle {
             OracleError::InvalidEngineeringMeter
         );
         
-        // Process energy data
+        // Process energy data with proper decimal precision
         let net_energy = energy_generated.saturating_sub(energy_consumed);
         
         if net_energy > 0 {
-            // Call Energy Token Program to mint SPL tokens
+            // Call SPL Token Program to mint tokens (9 decimal places)
+            let tokens_to_mint = net_energy * 1_000_000_000; // Convert to lamports
             let cpi_ctx = CpiContext::new(
-                ctx.accounts.energy_token_program.to_account_info(),
-                energy_token::cpi::accounts::MintTokens {
+                ctx.accounts.token_program.to_account_info(),
+                token::MintTo {
                     mint: ctx.accounts.energy_token_mint.to_account_info(),
                     to: ctx.accounts.user_token_account.to_account_info(),
-                    authority: ctx.accounts.authority.to_account_info(),
+                    authority: ctx.accounts.mint_authority.to_account_info(),
                 }
             );
-            energy_token::cpi::mint_tokens(cpi_ctx, net_energy)?;
+            token::mint_to(cpi_ctx, tokens_to_mint)?;
         }
         
         // Update trading program with new market data
@@ -184,15 +186,16 @@ pub struct SubmitMeterReading<'info> {
     pub user_token_account: Account<'info, TokenAccount>,
     #[account(mut)]
     pub market: AccountInfo<'info>,
-    pub energy_token_program: AccountInfo<'info>,
+    pub mint_authority: AccountInfo<'info>,
+    pub token_program: Program<'info, Token>,
     pub trading_program: AccountInfo<'info>,
     pub system_program: Program<'info, System>,
 }
 ```
 
-## การทำงานของระบบ (System Operation)
+## System Operation
 
-### **Engineering Department Simulation Cycle (ทุก 15 นาที)**
+### **Engineering Department Simulation Cycle (Every 15 minutes)**
 
 #### 1. **Engineering Complex Data Generation Phase**
 ```python
@@ -253,13 +256,13 @@ for data in engineering_meter_readings:
 ```
 
 #### 3. **Engineering Solana Blockchain Processing Phase**
-- Engineering Department Oracle Anchor Program รับข้อมูล
-- ตรวจสอบ Engineering Department Authority
-- ตรวจสอบว่า Meter ID เป็นของอาคารวิศวกรรม (ENG_xxx)
-- คำนวณ SPL Token ที่ควรได้รับ
-- เรียก Energy Token Program เพื่อ Mint SPL Tokens
-- อัปเดต Trading Program สำหรับ Market Making
-- บันทึกข้อมูลลง Engineering Department Registry
+- Engineering Department Oracle Anchor Program receives data
+- Validates Engineering Department Authority
+- Verifies Meter ID belongs to Engineering Complex (ENG_xxx)
+- Calculates SPL Token amount to mint (with 9 decimal precision)
+- Calls SPL Token Program to mint tokens to user's associated token account
+- Updates Trading Program for market making operations
+- Records data in Engineering Department Registry
 
 ### **Engineering Department Configuration & Setup**
 
@@ -307,16 +310,20 @@ engineering-smart-meter-simulator:
     - engineering-validator
 ```
 
-## การติดตั้งและใช้งาน (Installation & Usage)
+## Installation & Usage
 
 ### **Engineering Department Prerequisites**
 ```bash
 # Python Dependencies for Engineering Simulation
-pip install requests python-dotenv numpy pandas solana
+pip install requests python-dotenv numpy pandas solders
 
 # Solana CLI Setup
 solana config set --url http://localhost:8899
 solana config set --keypair /opt/campus-blockchain/admin/engineering-admin-keypair.json
+
+# Anchor Framework Setup
+npm install -g @coral-xyz/anchor-cli
+anchor --version
 
 # Engineering Docker Setup
 docker compose up -d engineering-validator
@@ -354,7 +361,7 @@ solana balance --url http://localhost:8899
 curl -s http://localhost:8899/api/engineering/meter-summary
 ```
 
-## การทดสอบ (Testing)
+## Testing
 
 ### **Engineering Department Unit Tests**
 ```python
@@ -381,17 +388,17 @@ def test_engineering_api_submission():
 # Test Engineering Department full pipeline
 python test_engineering_simulation_pipeline.py
 
-# Test Solana Anchor program integration
-anchor test --program-name oracle
-anchor test --program-name energy_token
-anchor test --program-name trading
-anchor test --program-name registry
+# Test SPL token minting
+anchor test --program-name energy-token
 
 # Test Engineering validator connectivity
 solana ping --url http://localhost:8899
+
+# Test SPL Token Program functionality
+spl-token accounts --url http://localhost:8899
 ```
 
-## ข้อมูลที่สร้าง (Generated Data)
+## Generated Data
 
 ### **Engineering Department Sample Output**
 ```json

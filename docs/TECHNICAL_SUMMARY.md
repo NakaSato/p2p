@@ -1,134 +1,174 @@
 # P2P Energy Trading Platform - Technical Summary
 
+**Last Updated**: September 12, 2025  
+**Platform**: Solana Blockchain with Anchor Framework  
+**Deployment**: Engineering Department Single Validator  
+
 ## Overview
 
-The P2P Energy Trading Platform is a comprehensive blockchain-based solution for peer-to-peer solar energy trading within university campuses. Built using ink! smart contracts on the Substrate framework, the platform enables prosumers to trade excess solar energy directly with consumers through a decentralized marketplace.
+The P2P Energy Trading Platform is a comprehensive blockchain-based solution for peer-to-peer solar energy trading within university campuses. Built using Anchor smart contracts on the Solana blockchain, the platform enables prosumers to trade excess solar energy directly with consumers through a decentralized marketplace under Engineering Department authority.
 
 ## System Architecture
 
 ### Technology Stack
 
-- **Smart Contract Framework**: ink! 4.3
-- **Blockchain Platform**: Substrate-based chains with contracts pallet
-- **Token Standard**: PSP22 (Polkadot Standard Proposal 22) with OpenBrush
+- **Smart Contract Framework**: Anchor Framework 0.29.0
+- **Blockchain Platform**: Solana with single Engineering Department validator
+- **Token Standard**: SPL Token (Solana Program Library)
 - **Programming Language**: Rust (Edition 2021)
-- **Oracle Integration**: Chainlink-compatible oracle client
-- **Storage**: ink! storage with Mapping data structures
+- **Consensus Mechanism**: Proof of Stake (Single Validator)
+- **Oracle Integration**: Custom oracle program for AMI data
+- **Storage**: Solana account-based storage model
 
 ### Core Components
 
-The platform consists of four interoperable smart contracts:
+The platform consists of five interoperable Anchor programs:
 
 ```mermaid
 graph TD
-    subgraph "Core Contracts"
-        Registry("Registry Contract")
-        GridToken("GridToken Contract (PSP22)")
-        Trading("Trading Contract")
-        OracleClient("OracleClient Contract")
+    subgraph "Engineering Department Validator"
+        subgraph "Core Programs"
+            Registry("Registry Program")
+            EnergyToken("Energy Token Program (SPL)")
+            Trading("Trading Program")
+            Oracle("Oracle Program")
+            Governance("Governance Program")
+        end
     end
 
     subgraph "Interactions"
-        OracleClient -- "triggers" --> Trading
-        OracleClient -- "mints" --> GridToken
-        Trading -- "transfers" --> GridToken
+        Oracle -- "triggers" --> Trading
+        Oracle -- "mints" --> EnergyToken
+        Trading -- "transfers" --> EnergyToken
         Trading -- "verifies users" --> Registry
-        GridToken -- "verifies users" --> Registry
-        OracleClient -- "verifies users" --> Registry
+        EnergyToken -- "verifies users" --> Registry
+        Oracle -- "verifies users" --> Registry
+        Governance -- "manages all" --> Registry
+        Governance -- "manages all" --> EnergyToken
+        Governance -- "manages all" --> Trading
+        Governance -- "manages all" --> Oracle
     end
 ```
 
-## Contract Details
+## Program Details
 
-### 1. Registry Contract
+### 1. Registry Program
 
-**Purpose**: Identity and access management layer
+**Purpose**: Identity and access management for Engineering Department authority
 
-**Key Data Structures**:
-- **UserInfo**: Contains user type (Prosumer/Consumer), physical location, status (Active/Suspended), and registration timestamp
+**Program ID**: `RegEngDeptEnergyP2P1234567890123456789`
+
+**Key Account Structures**:
+- **UserAccount**: Contains user type (Prosumer/Consumer), physical location, status (Active/Suspended), and registration timestamp
 - **UserType**: Enum defining Prosumer (can generate and consume energy) vs Consumer (consume only)
 - **UserStatus**: Active, Suspended, or Inactive states
-- **MeterId**: String-based identifier for smart meters
+- **MeterAccount**: Account structure for smart meter assignments
 
-**Core Functions**:
-- `register_user()` - REC regulator registers new users
+**Core Instructions**:
+- `register_user()` - Engineering Department registers new users
 - `assign_meter()` - Links smart meters to users
-- `is_user_verified()` - Validates user status
-- `add_rec_regulator()` - Adds new REC regulators
-- `remove_rec_regulator()` - Removes REC regulators
+- `verify_user()` - Validates user status
+- `update_user_status()` - Manages user account states
+- `add_authority()` - Adds new Engineering Department authorities
 
 **Access Control**:
-- REC Regulators: Can register users, assign meters, manage system
+- Engineering Department: Can register users, assign meters, manage system
 - Users: Can view their own information and meter assignments
 
-### 2. GridToken Contract (PSP22 Compatible)
+### 2. Energy Token Program (SPL Token)
 
-**Purpose**: Energy tokenization and transfer mechanism
+**Purpose**: Energy tokenization using Solana's native token standard
+
+**Program ID**: `EnergyTokenEngDept1234567890123456789`
 
 **Token Economics**:
 - 1 kWh solar generation = 1 GRID token
-- 18 decimal places for precision
-- Mintable by authorized minters (AMI Integration Service)
+- 9 decimal places for precision (Solana standard)
+- Mintable by authorized mint authority (Oracle Program)
 - Burnable for energy consumption tracking
 
 **Key Features**:
-- **PSP22 Standard Implementation**: Complete compatibility with Polkadot Standard Proposal 22
-- **Transfer Operations**: Standard token transfers between accounts
-- **Approval System**: Allowance-based spending authorization
-- **Delegated Transfers**: Third-party transfers with approval
+- **SPL Token Standard**: Native Solana token compatibility
+- **Transfer Operations**: Standard SPL token transfers between accounts
+- **Associated Token Accounts**: Automatic account creation for users
+- **Mint Authority**: Controlled by Engineering Department
 - **Custom Energy Trading Features**: Specialized minting and burning for energy operations
-- **Authorization Management**: Role-based minter and burner permissions
+- **Authorization Management**: Role-based minting permissions
 
 **Authorization Levels**:
-- Minters: AMI Integration Service, Oracle Client
-- Burners: Trading Contract for energy consumption
-- Users: Standard PSP22 token operations
+- Mint Authority: Oracle Program for verified energy generation
+- Burn Authority: Trading Program for energy consumption
+- Users: Standard SPL token operations (transfer, approve)
 
-### 3. Trading Contract
+### 3. Trading Program
 
 **Purpose**: Order book management and automated market clearing
+
+**Program ID**: `TradingEngDeptP2P1234567890123456789`
 
 **Market Structure**:
 - **Epoch Duration**: 15 minutes (900 seconds)
 - **Order Types**: Buy orders (consumers), Sell orders (prosumers)
-- **Matching Algorithm**: Price-time priority
-- **Settlement**: Automatic GRID token transfers
+- **Matching Algorithm**: Price-time priority with FIFO
+- **Settlement**: Automatic SPL token transfers
+- **Market Clearing**: Automated by Oracle Program
 
 **Order Management**:
-- **Order Structure**: Contains user account, energy amount (kWh), price per kWh (GRID tokens), timestamp, and status
+- **Order Account Structure**: Contains user pubkey, energy amount (kWh), price per kWh, timestamp, and status
 - **Order Status Types**: Active, Filled, Cancelled, Expired
 - **Order Lifecycle**: Creation → Active → Matched/Cancelled/Expired
 - **Price Discovery**: Market-driven pricing through order book
 
-**Market Operations**:
+**Market Instructions**:
 - `create_sell_order()` - Prosumers offer energy
 - `create_buy_order()` - Consumers request energy
-- `match_orders()` - Automated order matching
+- `match_orders()` - Automated order matching (Oracle only)
 - `cancel_order()` - User cancellation
-- `get_market_price()` - Current market rate
+- `get_market_data()` - Current market information
 
-### 4. OracleClient Contract
+### 4. Oracle Program
 
-**Purpose**: External data integration and automated operations
+**Purpose**: AMI data integration and automated market operations
+
+**Program ID**: `OracleEngDeptAMI1234567890123456789`
 
 **Oracle Integration**:
-- **Data Sources**: Smart meter readings, market data
-- **Automation**: Chainlink Keepers for periodic operations
-- **Funding Model**: Prepaid oracle operations
+- **Data Sources**: Engineering Complex smart meter readings
+- **Automation**: 15-minute interval market clearing
+- **Authority Model**: Engineering Department controlled
 
-**Key Functions**:
-- **Oracle Data Requests**: Request energy data from specific meters with unique request IDs
-- **Data Fulfillment**: Oracle callback system for external data integration
-- **Automation Functions**: Chainlink Keepers integration for periodic operations
-- **Upkeep Management**: Automated market clearing and system maintenance
-- **Funding Management**: Payable funding system for oracle operations
+**Key Instructions**:
+- **Submit Meter Data**: Process AMI data and mint energy tokens
+- **Trigger Market Clearing**: Automated order matching every 15 minutes
+- **Update Energy Prices**: Market price discovery and updates
+- **Validate Certificates**: REC validation for renewable energy
+- **System Maintenance**: Automated system health checks
 
-**Oracle Request Flow**:
-1. User requests energy data for their meter
-2. Oracle balance checked (must be > 0)
-3. Request created with unique ID
-4. External oracle fulfills request
-5. Data callback triggers automated operations
+**Oracle Data Flow**:
+1. AMI system submits meter readings (15-minute intervals)
+2. Oracle validates data authenticity and format
+3. Energy tokens minted for verified generation
+4. Market clearing triggered if epoch complete
+5. Price data updated for next trading period
+
+### 5. Governance Program
+
+**Purpose**: Engineering Department system administration
+
+**Program ID**: `GovernanceEngDeptPoA1234567890123456789`
+
+**Governance Features**:
+- **System Parameters**: Update market clearing intervals, fees, limits
+- **Program Upgrades**: Manage program version updates
+- **Emergency Controls**: Pause/resume market operations
+- **Authority Management**: Add/remove Engineering Department authorities
+- **Policy Updates**: Modify energy trading rules and compliance requirements
+
+**Governance Instructions**:
+- `update_parameters()` - Modify system configuration
+- `emergency_pause()` - Halt trading operations
+- `upgrade_program()` - Deploy program updates
+- `manage_authorities()` - Update permission structure
 
 ## API and Integration Layer
 
@@ -147,27 +187,28 @@ graph TD
 - **Energy Analytics**: Generation/consumption patterns, carbon footprint, savings calculations
 - **System Monitoring**: Network status, oracle health, contract state
 
-### Blockchain Integration Services
+### Solana Integration Services
 
-**Smart Contract Interaction Layer**:
-- **Contract Abstractions**: High-level interfaces for each smart contract
-- **Transaction Management**: Gas optimization, nonce management, transaction queuing
-- **Event Processing**: Real-time blockchain event monitoring and database updates
-- **State Synchronization**: Periodic verification of blockchain vs database consistency
+**Program Interaction Layer**:
+- **Anchor Client**: High-level interfaces for each Anchor program
+- **Transaction Management**: Priority fee optimization, compute unit management, transaction queuing
+- **Account Management**: Program Derived Address (PDA) handling and account creation
+- **Event Processing**: Real-time Solana transaction log monitoring and database updates
+- **State Synchronization**: Periodic verification of program state vs database consistency
 
-**Oracle Integration**:
-- **Smart Meter APIs**: Direct integration with campus IoT infrastructure
-- **External Price Feeds**: Integration with energy market price oracles
-- **Weather Data**: Solar generation forecasting based on weather conditions
-- **Grid Status**: Real-time campus energy grid status and demand forecasting
+**RPC Integration**:
+- **Solana RPC**: Direct integration with Engineering Department validator
+- **WebSocket Subscriptions**: Real-time account and program log monitoring
+- **Transaction Confirmation**: Multi-level confirmation tracking (confirmed, finalized)
+- **Cluster Health**: Engineering validator status and performance monitoring
 
 ### Message Queue Integration
 
 **Event-Driven Architecture**:
-- **Blockchain Events**: User registration, token transfers, order matching, meter assignments
-- **IoT Data Streams**: Real-time energy generation and consumption from smart meters
-- **Market Events**: Price changes, order fulfillment, market epoch transitions
-- **System Events**: Oracle updates, contract upgrades, maintenance notifications
+- **Program Events**: User registration, SPL token transfers, order matching, meter assignments
+- **AMI Data Streams**: Real-time energy generation and consumption from Engineering Complex meters
+- **Market Events**: Price changes, order fulfillment, market epoch transitions (15-minute intervals)
+- **System Events**: Oracle updates, program upgrades, governance decisions
 
 **Queue Technologies**:
 - **Apache Kafka**: High-throughput stream processing for IoT data and trading events
@@ -181,16 +222,16 @@ graph TD
 
 ```mermaid
 sequenceDiagram
-    participant R as REC Regulator
-    participant Reg as Registry Contract
+    participant ED as Engineering Dept
+    participant Reg as Registry Program
     participant U as User
     
-    R->>Reg: register_user(user, type, location)
-    Reg->>Reg: Store user info
-    R->>Reg: assign_meter(meter_id, user)
-    Reg->>Reg: Link meter to user
-    U->>Reg: is_user_verified()
-    Reg-->>U: true (if active)
+    ED->>Reg: register_user(user, type, location)
+    Reg->>Reg: Create UserAccount PDA
+    ED->>Reg: assign_meter(meter_id, user)
+    Reg->>Reg: Create MeterAccount PDA
+    U->>Reg: verify_user_status()
+    Reg-->>U: UserAccount data (if active)
 ```
 
 ### 2. Energy Generation and Token Minting
@@ -199,14 +240,16 @@ sequenceDiagram
 sequenceDiagram
     participant SM as Smart Meter
     participant AMI as AMI Service
-    participant GT as GridToken Contract
+    participant OP as Oracle Program
+    participant SPL as SPL Token Program
     participant P as Prosumer
     
     SM->>AMI: Energy generated: 100 kWh
-    AMI->>GT: mint(prosumer, 100_GRID)
-    GT->>GT: Increase prosumer balance
-    P->>GT: balance_of(prosumer)
-    GT-->>P: 100 GRID tokens
+    AMI->>OP: submit_meter_data(prosumer, 100_kWh)
+    OP->>SPL: mint_to(prosumer_ata, 100_000_000_000)
+    SPL->>SPL: Update prosumer token balance
+    P->>SPL: get_account_info(prosumer_ata)
+    SPL-->>P: 100 GRID tokens
 ```
 
 ### 3. Trading Workflow
@@ -215,34 +258,34 @@ sequenceDiagram
 sequenceDiagram
     participant P as Prosumer
     participant C as Consumer
-    participant TC as Trading Contract
-    participant GT as GridToken Contract
-    participant O as Oracle Client
+    participant TP as Trading Program
+    participant SPL as SPL Token Program
+    participant OP as Oracle Program
     
-    P->>GT: approve(trading_contract, 50_GRID)
-    P->>TC: create_sell_order(50_kWh, 150_GRID/kWh)
-    C->>GT: approve(trading_contract, 7500_GRID)
-    C->>TC: create_buy_order(50_kWh, 150_GRID/kWh)
-    O->>TC: perform_upkeep() [Automated]
-    TC->>TC: match_orders()
-    TC->>GT: transfer_from(consumer, prosumer, 7500_GRID)
-    TC->>TC: Mark orders as filled
+    P->>SPL: approve(trading_program, 50_000_000_000)
+    P->>TP: create_sell_order(50_kWh, 150_lamports/kWh)
+    C->>SPL: approve(trading_program, 7500_000_000_000)
+    C->>TP: create_buy_order(50_kWh, 150_lamports/kWh)
+    OP->>TP: match_orders() [15-minute automated]
+    TP->>SPL: transfer(consumer_ata, prosumer_ata, 7500_000_000_000)
+    TP->>TP: Mark orders as filled
 ```
 
 ### 4. Oracle Data Processing
 
 ```mermaid
 sequenceDiagram
-    participant U as User
-    participant OC as Oracle Client
-    participant EO as External Oracle
-    participant TC as Trading Contract
+    participant AMI as AMI Service
+    participant OP as Oracle Program
+    participant TP as Trading Program
+    participant SPL as SPL Token Program
     
-    U->>OC: request_energy_data(meter_id)
-    OC->>OC: Check oracle balance > 0
-    OC->>EO: Forward request to oracle network
-    EO->>OC: fulfill_energy_data(request_id, data)
-    OC->>TC: trigger_market_operations() [If needed]
+    AMI->>OP: submit_meter_data(meter_readings)
+    OP->>OP: Validate data authenticity
+    OP->>SPL: mint_energy_tokens(verified_generation)
+    OP->>TP: trigger_market_clearing() [Every 15 minutes]
+    TP->>TP: Process order matching
+    OP->>OP: Update market statistics
 ```
 
 ## Technical Specifications

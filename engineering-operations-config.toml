@@ -1,10 +1,20 @@
 # Engineering Department Operations Configuration
 # University P2P Energy Trading System
+# Updated: September 12, 2025
+# Platform: Solana/Anchor
+
+[system]
+platform = "solana"
+network_type = "private"
+deployment_date = "2025-09-12"
+version = "1.0.0"
 
 [validator]
 department = "engineering"
 authority_level = "FULL_AUTHORITY"
 network_role = "sole_validator"
+consensus_mechanism = "proof_of_stake"
+rpc_endpoint = "http://localhost:8899"
 
 [rec_validation]
 enabled = true
@@ -44,3 +54,19 @@ price_discovery = "automatic"
 order_matching = "fifo"  # First In, First Out
 settlement = "automatic"
 escrow_management = true
+platform_integration = "solana_anchor"
+
+[programs]
+# Solana Program IDs for Engineering Department
+registry = "RegEngDeptEnergyP2P1234567890123456789"
+energy_token = "EnergyTokenEngDept1234567890123456789"
+trading = "TradingEngDeptP2P1234567890123456789"
+oracle = "OracleEngDeptAMI1234567890123456789"
+governance = "GovernanceEngDeptPoA1234567890123456789"
+
+[monitoring]
+enabled = true
+metrics_collection = true
+performance_tracking = true
+alert_system = true
+dashboard_url = "http://localhost:3000"
