@@ -22,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       contracts: ${{ steps.changes.outputs.contracts }}
+      api-gateway: ${{ steps.changes.outputs.api-gateway }}
       docker: ${{ steps.changes.outputs.docker }}
       frontend: ${{ steps.changes.outputs.frontend }}
       docs: ${{ steps.changes.outputs.docs }}
@@ -39,6 +40,10 @@ jobs:
             - 'contracts/**'
             - 'Cargo.toml'
             - 'Cargo.lock'
+          api-gateway:
+            - 'api-gateway/**'
+            - 'api-gateway/Cargo.toml'
+            - 'api-gateway/Cargo.lock'
           docker:
             - 'docker/**'
             - 'docker-compose.yml'
@@ -53,6 +58,13 @@ jobs:
     needs: changes
     if: needs.changes.outputs.contracts == 'true'
     uses: ./.github/workflows/contracts.yml
+    secrets: inherit
+
+  api-gateway-ci:
+    name: API Gateway CI
+    needs: changes
+    if: needs.changes.outputs.api-gateway == 'true'
+    uses: ./.github/workflows/api-gateway.yml
     secrets: inherit
 
   frontend-ci:

@@ -1,0 +1,57 @@
+version: '3.8'
+
+# Development-specific docker-compose override
+# Use with: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile.dev
+    volumes:
+      - ./api-gateway/src:/app/api-gateway/src:delegated
+      - ./api-gateway/migrations:/app/api-gateway/migrations:delegated
+      - ./api-gateway/Cargo.toml:/app/api-gateway/Cargo.toml:delegated
+    environment:
+      RUST_LOG: api_gateway=debug,tower_http=debug,sqlx=debug
+      LOG_LEVEL: debug
+    command: ["cargo", "watch", "-x", "run"]
+  
+  # Override for faster development cycles
+  postgres:
+    environment:
+      POSTGRES_DB: p2p_energy_trading_dev
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_password
+
+  # Add pgAdmin for database management in development
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: p2p-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@engineering.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - p2p-network
+    profiles:
+      - dev-tools
+
+  # Redis Commander for Redis management
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: p2p-redis-commander
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - p2p-network
+    profiles:
+      - dev-tools

@@ -4,7 +4,8 @@ members = [
     "programs/energy-token", 
     "programs/oracle",
     "programs/trading",
-    "programs/governance"
+    "programs/governance",
+    "api-gateway"
 ]
 resolver = "2"
 
