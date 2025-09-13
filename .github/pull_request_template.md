@@ -13,7 +13,7 @@ Fixes #(issue number)
 - [ ] 🧪 Test improvements
 
 ## 📋 Component Changes
-- [ ] Smart Contracts (Rust/ink!)
+- [ ] Smart Contracts (Rust/Anchor)
 - [ ] API Gateway (Node.js)
 - [ ] Oracle Simulator (Node.js)
 - [ ] Smart Meter Simulator (Python)

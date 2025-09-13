@@ -4,10 +4,10 @@ target/
 *.pdb
 Cargo.lock
 
-# ink! Smart Contracts
-*.contract
-*.wasm
-metadata.json
+# Solana/Anchor Smart Contracts
+*.so
+test-ledger/
+validator-keys/
 
 # IDE and Editor files
 .vscode/
@@ -129,11 +129,10 @@ config/local.toml
 book/
 docs/build/
 
-# Substrate specific
-.substrate/
-runtime/wasm/target/
-polkadot-launch/
-zombienet/
+# Solana specific
+.anchor/
+migrations/
+test-ledger/
 
 # Contract artifacts
 artifacts/

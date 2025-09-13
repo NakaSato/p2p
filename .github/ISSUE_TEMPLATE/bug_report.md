@@ -30,7 +30,7 @@ A clear and concise description of what actually happened.
 
 ## 📋 Component
 Which component is affected?
-- [ ] Smart Contracts (Rust/ink!)
+- [ ] Smart Contracts (Rust/Anchor)
 - [ ] API Gateway (Node.js)
 - [ ] Oracle Simulator (Node.js)
 - [ ] Smart Meter Simulator (Python)

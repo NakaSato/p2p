@@ -25,13 +25,14 @@ This project has been migrated from ink!/Substrate to Solana Anchor, implementin
 
 ### Prerequisites
 
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (required)
 - [Rust](https://rustup.rs/) (latest stable)
 - [Solana CLI](https://docs.solana.com/cli/install-solana-cli-tools) (v1.17+)
 - [Anchor CLI](https://www.anchor-lang.com/docs/installation) (v0.29+)
 - [Node.js](https://nodejs.org/) (v18+)
 - [Yarn](https://yarnpkg.com/)
 
-### Installation
+### Quick Setup
 
 1. Clone and setup:
 ```bash
@@ -39,13 +40,24 @@ git clone <repository-url>
 cd p2p
 ```
 
-2. Install dependencies:
+2. **Complete automated setup** (recommended):
 ```bash
-# Install Rust dependencies
-cargo build
+./scripts/dev-setup.sh
+```
 
-# Install Node.js dependencies for testing
-yarn install
+3. **Or manual step-by-step setup**:
+```bash
+# Setup environment and start services
+./scripts/setup-dev.sh
+
+# Validate Docker infrastructure
+./scripts/validate-docker.sh
+
+# Deploy Anchor programs
+./scripts/deploy-programs.sh
+
+# Run integration tests
+./scripts/test-integration.sh
 ```
 
 3. Build the Anchor programs:

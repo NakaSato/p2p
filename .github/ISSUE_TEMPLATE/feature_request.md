@@ -20,7 +20,7 @@ Provide a detailed description of the feature, including:
 
 ## 📱 Component
 Which component should implement this feature?
-- [ ] Smart Contracts (Rust/ink!)
+- [ ] Smart Contracts (Rust/Anchor)
 - [ ] API Gateway (Node.js)
 - [ ] Oracle Simulator (Node.js)
 - [ ] Smart Meter Simulator (Python)

@@ -19,7 +19,7 @@ The contracts workflow includes several performance optimizations:
 
 #### 🚀 Caching Strategy
 - **Cargo Registry**: Caches Rust dependencies and compilation artifacts
-- **Tool Binaries**: Caches `cargo-contract` and `cargo-audit` binaries
+- **Tool Binaries**: Caches `anchor` CLI and `cargo-audit` binaries
 - **Source-Aware**: Cache keys include source file hashes for precision
 - **Multi-Level Fallbacks**: Progressive cache degradation for reliability
 

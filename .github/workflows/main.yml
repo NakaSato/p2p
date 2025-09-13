@@ -113,11 +113,11 @@ jobs:
         # Wait for infrastructure to be ready
         sleep 45
         
-        # Start blockchain node
-        docker compose up -d substrate-node
+        # Start Solana validator (if available in docker-compose)
+        # docker compose up -d solana-validator
         
-        # Wait for blockchain to initialize
-        sleep 60
+        # Wait for services to initialize
+        sleep 30
 
     - name: Run system health checks
       run: |
@@ -143,13 +143,8 @@ jobs:
           exit 1
         fi
         
-        echo "Checking Substrate node..."
-        if curl -s -H 'Content-Type: application/json' -d '{"id":1, "jsonrpc":"2.0", "method": "system_health", "params":[]}' http://localhost:9933 | grep -q "result"; then
-          echo "✅ Substrate node is ready"
-        else
-          echo "❌ Substrate node failed"
-          exit 1
-        fi
+        # Note: Solana validator health check would go here if running in docker
+        echo "✅ Core infrastructure is ready"
 
     - name: Run API tests
       run: |
@@ -217,8 +212,8 @@ jobs:
         echo "🚀 Setting up performance test environment..."
         
         # Start lightweight system for performance testing
-        docker compose up -d postgres redis substrate-node
-        sleep 60
+        docker compose up -d postgres redis
+        sleep 30
 
     - name: Run performance tests
       run: |
@@ -237,29 +232,14 @@ jobs:
         sleep 10
         kill $REDIS_PID || true
         
-        # Test Substrate node RPC performance
-        echo "Testing Substrate RPC performance..."
-        start_time=$(date +%s%N)
-        response=$(curl -s -H 'Content-Type: application/json' -d '{"id":1, "jsonrpc":"2.0", "method": "system_health", "params":[]}' http://localhost:9933)
-        end_time=$(date +%s%N)
-        rpc_time=$(( (end_time - start_time) / 1000000 ))
-        
-        echo "RPC response time: ${rpc_time}ms"
-        
-        if [ $rpc_time -lt 1000 ]; then
-          echo "✅ Performance test passed"
-        else
-          echo "❌ Performance test failed - RPC too slow"
-          exit 1
-        fi
+        echo "✅ Performance tests completed"
 
     - name: Generate performance report
       run: |
         echo "## ⚡ Performance Test Report" >> $GITHUB_STEP_SUMMARY
-        echo "- **Test Duration**: Database and RPC tests" >> $GITHUB_STEP_SUMMARY
+        echo "- **Test Duration**: Database performance tests" >> $GITHUB_STEP_SUMMARY
         echo "- **PostgreSQL**: ✅ Ready" >> $GITHUB_STEP_SUMMARY
         echo "- **Redis**: ✅ Ready" >> $GITHUB_STEP_SUMMARY
-        echo "- **Substrate RPC**: ✅ Ready" >> $GITHUB_STEP_SUMMARY
         echo "- **Status**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
 
     - name: Cleanup

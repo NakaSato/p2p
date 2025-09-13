@@ -1,141 +1,149 @@
-# การพัฒนาระบบการซื้อขายพลังงานแสงอาทิตย์แบบ Peer-to-Peer ด้วยเทคโนโลยี Blockchain และ Smart Contracts: กรณีศึกษามหาวิทยาลัย
+# การพัฒนาระบบการซื้อขายพลังงานแสงอาทิตย์แบบ Peer-to-Peer ด้วยเทคโนโลยี Solana Blockchain และ Anchor Smart Contracts: กรณีศึกษาคณะวิศวกรรมศาสตร์
 
 ## หัวข้อโครงงาน (Project Title)
-**"Development of Peer-to-Peer Solar Energy Trading System using Blockchain Technology and Smart Contracts: A University Campus Case Study"**
+**"Development of Peer-to-Peer Solar Energy Trading System using Solana Blockchain Technology and Anchor Smart Contracts: An Engineering Department Case Study"**
 
-**หัวข้อภาษาไทย:** "การพัฒนาระบบการซื้อขายพลังงานแสงอาทิตย์แบบ Peer-to-Peer ด้วยเทคโนโลยี Blockchain และ Smart Contracts: กรณีศึกษามหาวิทยาลัย"
+**หัวข้อภาษาไทย:** "การพัฒนาระบบการซื้อขายพลังงานแสงอาทิตย์แบบ Peer-to-Peer ด้วยเทคโนโลยี Solana Blockchain และ Anchor Smart Contracts: กรณีศึกษาคณะวิศวกรรมศาสตร์"
 
 ## ข้อมูลโปรเจค (Project Information)
 
 ### **สาขาวิชา:** วิศวกรรมคอมพิวเตอร์ / วิทยาการคอมพิวเตอร์
-### **ประเภทโครงงาน:** การพัฒนาซอฟต์แวร์และระบบ Blockchain
-### **คำสำคัญ:** Blockchain, Smart Contracts, P2P Energy Trading, Substrate, ink!, Solar Energy, IoT
-### **ระดับความยาก:** สูง - ใช้เทคโนโลยีใหม่และซับซ้อน
+### **ประเภทโครงงาน:** การพัฒนาซอฟต์แวร์และระบบ Solana Blockchain
+### **คำสำคัญ:** Solana, Anchor Framework, SPL Tokens, P2P Energy Trading, Engineering Department, Solar Energy, AMI Integration
+### **ระดับความยาก:** สูง - ใช้เทคโนโลยี Solana Blockchain และ Anchor Framework ขั้นสูง
 
 ## บทคัดย่อ (Abstract)
 
-โปรเจคนี้เป็นการพัฒนาระบบการซื้อขายพลังงานแสงอาทิตย์แบบ Peer-to-Peer (P2P Energy Trading System) ที่ใช้เทคโนโลยี Blockchain และ Smart Contracts เพื่อให้ผู้ใช้ในมหาวิทยาลัยสามารถซื้อขายพลังงานแสงอาทิตย์ส่วนเกินได้โดยตรงกับกัน ผ่านระบบที่มีการจัดการแบบรวมศูนย์
+โปรเจคนี้เป็นการพัฒนาระบบการซื้อขายพลังงานแสงอาทิตย์แบบ Peer-to-Peer (P2P Energy Trading System) ที่ใช้เทคโนโลยี Solana Blockchain และ Anchor Smart Contracts เพื่อให้นักศึกษาและอาจารย์ในคณะวิศวกรรมศาสตร์สามารถซื้อขายพลังงานแสงอาทิตย์ส่วนเกินได้โดยตรงกับกัน ผ่านระบบที่ควบคุมโดยคณะวิศวกรรมศาสตร์ในฐานะ Single Validator Authority
 
 ### วัตถุประสงค์หลัก (Main Objectives)
-1. **พัฒนาระบบ Blockchain**: สร้างระบบการซื้อขายพลังงานแบบ P2P บนเทคโนโลยี Blockchain
-2. **สร้าง Smart Contracts**: พัฒนา Smart Contracts ด้วยภาษา ink! บน Substrate Framework
-3. **ออกแบบ Token Economy**: สร้างระบบเศรษฐกิจ Token สำหรับการแลกเปลี่ยนพลังงาน (1 GRID = 1 kWh)
-4. **พัฒนา Oracle System**: สร้างระบบ Oracle เพื่อเชื่อมต่อข้อมูลจาก Smart Meter Simulation
-5. **สร้าง Full-Stack Application**: พัฒนา API Gateway และ Frontend สำหรับผู้ใช้งาน
+1. **พัฒนาระบบ Solana Blockchain**: สร้างระบบการซื้อขายพลังงานแบบ P2P บน Solana ด้วย Single Validator
+2. **สร้าง Anchor Programs**: พัฒนา Smart Contracts ด้วย Anchor Framework บน Solana
+3. **ออกแบบ SPL Token Economy**: สร้างระบบเศรษฐกิจ SPL Token สำหรับการแลกเปลี่ยนพลังงาน (1 GRID = 1 kWh)
+4. **พัฒนา Oracle System**: สร้างระบบ Oracle เพื่อเชื่อมต่อข้อมูลจาก AMI Smart Meter ในอาคารวิศวกรรม
+5. **สร้าง Full-Stack Application**: พัฒนา API Gateway และ Frontend สำหรับการใช้งานในคณะวิศวกรรม
 
 ### วัตถุประสงค์รอง (Secondary Objectives)
-1. ศึกษาและเปรียบเทียบประสิทธิภาพของ Blockchain Frameworks
-2. ออกแบบระบบที่สามารถขยายผลไปใช้ในมหาวิทยาลัยอื่น ๆ
-3. พัฒนาต้นแบบที่สามารถนำไปใช้งานจริงได้
-4. วิเคราะห์ผลกระทบทางเศรษฐกิจและสิ่งแวดล้อม
+1. ศึกษาและประยุกต์ใช้ Solana Blockchain ในงานด้านพลังงาน
+2. ออกแบบระบบที่สามารถขยายผลไปใช้ในคณะอื่น ๆ ของมหาวิทยาลัย
+3. พัฒนาต้นแบบที่สามารถใช้เป็นเครื่องมือการเรียนการสอนในคณะวิศวกรรม
+4. วิเคราะห์ประสิทธิภาพของ Single Validator Architecture
 
 ### เทคโนโลยีที่ใช้ (Technologies Used)
-- **Blockchain**: Substrate Framework with ink! Smart Contracts
+- **Blockchain**: Solana with Engineering Department Single Validator
+- **Smart Contracts**: Anchor Framework 0.29.0
+- **Token Standard**: SPL Token (Solana Program Library)
 - **Backend**: Rust API Gateway with Axum framework
 - **Frontend**: React TypeScript with Vite
 - **Database**: PostgreSQL with TimescaleDB extension
 - **Containerization**: Docker & Docker Compose
-- **Token Standard**: PSP22 (Polkadot Standard Proposal 22)
+- **Programming Language**: Rust (Edition 2021)
 
 ### สถาปัตยกรรมระบบ (System Architecture)
-ระบบประกอบด้วย 4 Smart Contracts หลัก และ Smart Meter Simulation:
+ระบบประกอบด้วย 5 Anchor Programs หลัก และ Engineering Complex Smart Meter Simulation:
 
-1. **Registry Contract**: จัดการการลงทะเบียนผู้ใช้และ Smart Meters แบบรวมศูนย์
-2. **GridToken Contract**: Token มาตรฐาน PSP22 สำหรับการซื้อขายพลังงาน
-3. **Trading Contract**: ระบบตลาดการซื้อขายแบบ Order Book ที่มีการควบคุม
-4. **Oracle Client Contract**: เชื่อมต่อข้อมูลจากภายนอกและทำ Market Clearing อัตโนมัติ
-5. **Smart Meter Simulator**: จำลองการทำงานของ Smart Meter ส่งข้อมูลผ่าน API เข้า Blockchain
+1. **Registry Program**: จัดการการลงทะเบียนผู้ใช้และ Smart Meters ภายใต้อำนาจคณะวิศวกรรม
+2. **Energy Token Program**: SPL Token มาตรฐาน Solana สำหรับการซื้อขายพลังงาน
+3. **Trading Program**: ระบบตลาดการซื้อขายแบบ Order Book ที่มีการ Automated Clearing
+4. **Oracle Program**: เชื่อมต่อข้อมูลจาก AMI และทำ Market Clearing อัตโนมัติ
+5. **Governance Program**: การจัดการระบบโดยคณะวิศวกรรมศาสตร์
+6. **Engineering Smart Meter Simulator**: จำลองการทำงานของ Smart Meter ในอาคารวิศวกรรม
 
 ### คุณสมบัติหลัก (Key Features)
-- การซื้อขายพลังงานแบบ Real-time ทุก 15 นาที
-- ระบบ Automated Market Clearing ด้วย Oracle
-- การรับรองตัวตนแบบ Centralized Identity Management
-- ระบบ Token Economy: 1 kWh = 1 GRID Token
-- Cross-Contract Communication
-- RESTful API สำหรับ Integration
-- Responsive Web Interface
-- **Smart Meter Simulation**: การจำลองข้อมูลพลังงานแบบ Real-time
-- **API-to-Blockchain Integration**: การส่งข้อมูลจากจำลอง Smart Meter เข้าสู่ Blockchain
+- การซื้อขายพลังงานแบบ Real-time ทุก 15 นาที (Market Epoch)
+- ระบบ Automated Market Clearing ด้วย Oracle Program
+- การควบคุมโดยคณะวิศวกรรมศาสตร์ในฐานะ Single Validator Authority
+- ระบบ SPL Token Economy: 1 kWh = 1 GRID Token (9 decimal precision)
+- Cross Program Invocation (CPI) Communication
+- RESTful API สำหรับ Integration กับ Engineering Complex AMI
+- Responsive Web Interface สำหรับนักศึกษาและอาจารย์วิศวกรรม
+- **Engineering Complex AMI Integration**: การเชื่อมต่อกับ AMI ในอาคารวิศวกรรม
+- **API-to-Blockchain Integration**: การส่งข้อมูลจาก AMI เข้าสู่ Solana Blockchain
 
 ### ผลลัพธ์ที่คาดหวัง (Expected Outcomes)
-1. ระบบ P2P Energy Trading ที่ทำงานได้จริง
-2. การลดต้นทุนในการซื้อขายพลังงาน
-3. การเพิ่มประสิทธิภาพการใช้พลังงานหมุนเวียน
-4. ต้นแบบสำหรับการนำไปใช้ในมหาวิทยาลัยอื่น ๆ
-5. การศึกษาเปรียบเทียบ Blockchain Frameworks
+1. ระบบ P2P Energy Trading บน Solana ที่ทำงานได้จริงในคณะวิศวกรรม
+2. การลดต้นทุนในการซื้อขายพลังงานภายในคณะวิศวกรรม
+3. การเพิ่มประสิทธิภาพการใช้พลังงานหมุนเวียนในอาคารวิศวกรรม
+4. ต้นแบบระบบ Solana Blockchain สำหรับการนำไปใช้ในคณะอื่น ๆ
+5. การศึกษาประสิทธิภาพของ Single Validator Architecture
 
 ### การประยุกต์ใช้ (Applications)
-- มหาวิทยาลัยที่มีระบบ Solar Cells
-- หมู่บ้านที่ใช้พลังงานหมุนเวียน
-- โครงการ Smart City
-- ระบบ Microgrid ในชุมชน
+- คณะวิศวกรรมศาสตร์ที่มีระบบ Solar Cells
+- การขยายผลไปยังคณะอื่น ๆ ในมหาวิทยาลัย
+- โครงการ Smart Campus Engineering Complex
+- ระบบ Microgrid ในชุมชนวิศวกรรม
+- การเรียนการสอนเรื่อง Blockchain ในคณะวิศวกรรม
 
 ---
 
-## Project: Development of Peer-to-Peer Solar Energy Trading System using Blockchain Technology and Smart Contracts: A University Campus Case Study
+## Project: Development of Peer-to-Peer Solar Energy Trading System using Solana Blockchain Technology and Anchor Smart Contracts: An Engineering Department Case Study
 
 ### Abstract
 
-This project develops a peer-to-peer (P2P) energy trading system using blockchain technology and smart contracts, enabling university users to directly trade surplus solar energy through a centrally managed platform. The system leverages the Substrate framework with ink! smart contracts to create a transparent, secure, and efficient energy marketplace.
+This project develops a peer-to-peer (P2P) energy trading system using Solana blockchain technology and Anchor smart contracts, enabling engineering students and faculty to directly trade surplus solar energy through a platform controlled by the Engineering Department as a single validator authority. The system leverages the Solana blockchain with Anchor framework to create a transparent, secure, and efficient energy marketplace within the Engineering Complex.
 
 ### Objectives
-1. Develop a P2P energy trading system on blockchain technology
-2. Create smart contracts using ink! language on Substrate framework
-3. Design a token economy system for energy exchange (1 GRID = 1 kWh)
-4. Develop an Oracle system to integrate Smart Meter data
-5. Build API Gateway and Frontend for user interaction
+1. Develop a P2P energy trading system on Solana blockchain technology
+2. Create Anchor programs using Rust language on Solana framework
+3. Design an SPL token economy system for energy exchange (1 GRID = 1 kWh)
+4. Develop an Oracle system to integrate AMI Smart Meter data from Engineering Complex
+5. Build API Gateway and Frontend for Engineering Department users
 
 ### Technologies Used
-- **Blockchain**: Substrate Framework with ink! Smart Contracts
+- **Blockchain**: Solana with Engineering Department Single Validator
+- **Smart Contracts**: Anchor Framework 0.29.0
+- **Token Standard**: SPL Token (Solana Program Library)
 - **Backend**: Rust API Gateway with Axum framework
 - **Frontend**: React TypeScript with Vite
 - **Database**: PostgreSQL with TimescaleDB extension
 - **Containerization**: Docker & Docker Compose
-- **Token Standard**: PSP22 (Polkadot Standard Proposal 22)
+- **Programming Language**: Rust (Edition 2021)
 
 ### System Architecture
-The system consists of 4 core smart contracts and Smart Meter Simulation:
+The system consists of 5 core Anchor programs and Engineering Complex Smart Meter Simulation:
 
-1. **Registry Contract**: Centrally manages user registration and Smart Meter assignments
-2. **GridToken Contract**: PSP22 standard token for energy trading
-3. **Trading Contract**: Controlled order book-based trading marketplace
-4. **Oracle Client Contract**: External data integration and automated market clearing
-5. **Smart Meter Simulator**: Simulates Smart Meter operations, sending data via API to Blockchain
+1. **Registry Program**: Manages user registration and Smart Meter assignments under Engineering Department authority
+2. **Energy Token Program**: SPL token standard for energy trading
+3. **Trading Program**: Automated order book-based trading marketplace with 15-minute clearing
+4. **Oracle Program**: AMI data integration and automated market operations
+5. **Governance Program**: Engineering Department system administration
+6. **Engineering Smart Meter Simulator**: Simulates Smart Meter operations in Engineering Complex
 
 ### Key Features
-- Real-time energy trading every 15 minutes
-- Automated Market Clearing with Oracle integration
-- Centralized Identity verification
-- Token Economy: 1 kWh = 1 GRID Token
-- Cross-Contract Communication
-- RESTful API for integration
-- Responsive Web Interface
-- **Smart Meter Simulation**: Real-time energy data simulation
-- **API-to-Blockchain Integration**: Data transmission from Smart Meter simulator to Blockchain
+- Real-time energy trading every 15 minutes (Market Epochs)
+- Automated Market Clearing with Oracle Program integration
+- Engineering Department Single Validator Authority
+- SPL Token Economy: 1 kWh = 1 GRID Token (9 decimal precision)
+- Cross Program Invocation (CPI) Communication
+- RESTful API for Engineering Complex AMI integration
+- Responsive Web Interface for Engineering students and faculty
+- **Engineering Complex AMI Integration**: Real-time energy data from Engineering building
+- **API-to-Blockchain Integration**: Data transmission from AMI to Solana Blockchain
 
 ### Expected Outcomes
-1. Functional P2P Energy Trading System
-2. Reduced energy trading costs
-3. Improved renewable energy utilization efficiency
-4. Prototype for implementation in other universities
-5. Comparative study of Blockchain Frameworks
+1. Functional P2P Energy Trading System on Solana for Engineering Department
+2. Reduced energy trading costs within Engineering Complex
+3. Improved renewable energy utilization efficiency in Engineering building
+4. Prototype Solana Blockchain system for implementation in other university departments
+5. Performance study of Single Validator Architecture
 
 ### Applications
-- Universities with Solar Cell systems
-- Communities using renewable energy
-- Smart City projects
-- Community Microgrid systems
+- Engineering departments with Solar Cell systems
+- Expansion to other university departments
+- Smart Campus Engineering Complex projects
+- Community Microgrid systems in engineering communities
+- Blockchain education in Engineering curriculum
 
 ---
 
 ## ข้อมูลเพิ่มเติมสำหรับการนำเสนอ (Additional Information for Presentation)
 
 ### จุดเด่นของโปรเจค (Project Highlights)
-1. **นวัตกรรม**: ใช้เทคโนโลยี Substrate ที่ทันสมัย
-2. **ความปลอดภัย**: Smart Contracts ที่ผ่านการ Audit
-3. **ประสิทธิภาพ**: ระบบ Real-time trading
-4. **ความยั่งยืน**: ส่งเสริมการใช้พลังงานหมุนเวียน
-5. **ความสามารถในการขยาย**: Modular architecture
+1. **นวัตกรรม**: ใช้เทคโนโลยี Solana และ Anchor Framework ที่ทันสมัย
+2. **ความปลอดภัย**: Anchor Programs ที่ผ่านการ Type-safe validation
+3. **ประสิทธิภาพ**: ระบบ Real-time trading บน Solana high-performance blockchain
+4. **ความยั่งยืน**: ส่งเสริมการใช้พลังงานหมุนเวียนในคณะวิศวกรรม
+5. **การควบคุมโดยคณะวิศวกรรม**: Single Validator Authority ที่ชัดเจนและมีประสิทธิภาพ
 
 ### ความท้าทายที่แก้ไข (Challenges Addressed)
 1. การขาดระบบการซื้อขายพลังงานที่โปร่งใส
@@ -143,143 +151,147 @@ The system consists of 4 core smart contracts and Smart Meter Simulation:
 3. การไม่มีระบบติดตามพลังงานหมุนเวียนแบบ Real-time
 4. ปัญหาความน่าเชื่อถือในการซื้อขาย P2P
 
-## รายละเอียดเทคนิค Smart Meter Simulation
+## รายละเอียดเทคนิค Engineering Complex AMI Integration
 
-### Smart Meter Simulator Architecture
-ระบบจำลอง Smart Meter ประกอบด้วย:
+### Engineering Complex Smart Meter Architecture
+ระบบจำลอง Smart Meter ในอาคารวิศวกรรมประกอบด้วย:
 
-#### 1. **Python Simulation Engine**
-- จำลองการผลิตและใช้พลังงานแสงอาทิตย์
-- สร้างข้อมูลแบบ Real-time ทุก 15 นาที
-- จำลองสภาพอากาศและรูปแบบการใช้พลังงาน
+#### 1. **Python Simulation Engine สำหรับคณะวิศวกรรม**
+- จำลองการผลิตและใช้พลังงานแสงอาทิตย์จาก 50kW solar array บนหลังคาอาคารวิศวกรรม
+- สร้างข้อมูลแบบ Real-time ทุก 15 นาที (Market Epoch)
+- จำลองรูปแบบการใช้พลังงานของห้องเรียน ห้องปฏิบัติการ และสำนักงานในคณะวิศวกรรม
+- ข้อมูล 15 Smart Meters ในอาคารวิศวกรรม (ENG_001 ถึง ENG_015)
 
-#### 2. **API Integration Layer**
-- **RESTful API**: ส่งข้อมูลจาก Simulator ไปยัง API Gateway
-- **Data Format**: JSON format ที่มี meter_id, energy_generated, energy_consumed, timestamp
-- **Authentication**: API key และ digital signature verification
+#### 2. **API Integration Layer สำหรับ Engineering Department**
+- **RESTful API**: ส่งข้อมูลจาก Engineering AMI ไปยัง Engineering Department API Gateway
+- **Data Format**: JSON format ที่มี meter_id, energy_generated, energy_consumed, timestamp, engineering_authority
+- **Authentication**: Engineering Department API key และ digital signature verification
 
-#### 3. **Blockchain Data Flow**
+#### 3. **Solana Blockchain Data Flow**
 ```
-Smart Meter Simulator → API Gateway → Oracle Client Contract → GridToken Contract
+Engineering AMI → Engineering API Gateway → Oracle Program → SPL Token Program
 ```
 
 #### 4. **Data Processing Pipeline**
-1. **Data Generation**: Simulator สร้างข้อมูลพลังงาน
-2. **API Call**: POST ข้อมูลไปยัง `/api/meter-reading` endpoint
-3. **Validation**: API Gateway ตรวจสอบความถูกต้องของข้อมูล
-4. **Oracle Processing**: Oracle Client รับข้อมูลและประมวลผล
-5. **Token Minting**: สร้าง GRID Token สำหรับพลังงานที่ผลิตได้
-6. **Market Integration**: นำข้อมูลเข้าสู่ระบบการซื้อขาย
+1. **Data Generation**: Engineering Simulator สร้างข้อมูลพลังงานจาก 15 meters ในอาคารวิศวกรรม
+2. **API Call**: POST ข้อมูลไปยัง `/api/engineering/meter-reading` endpoint
+3. **Engineering Validation**: API Gateway ตรวจสอบความถูกต้องและ Engineering Department authority
+4. **Oracle Processing**: Oracle Program รับข้อมูลและประมวลผลภายใต้ Engineering authority
+5. **SPL Token Minting**: สร้าง SPL GRID Tokens สำหรับพลังงานที่ผลิตได้ (9 decimal precision)
+6. **Trading Integration**: นำข้อมูลเข้าสู่ระบบการซื้อขายภายในคณะวิศวกรรม
 
 ### ข้อมูลที่จำลอง (Simulated Data)
 
-#### **Energy Generation Data**
-- ข้อมูลการผลิตพลังงานจากแผงโซลาร์เซลล์
+#### **Engineering Complex Energy Generation Data**
+- ข้อมูลการผลิตพลังงานจาก 50kW solar array บนหลังคาอาคารวิศวกรรม
 - รูปแบบการผลิตตามช่วงเวลา (เช้า-เย็น) แบบ Sine Curve
-- ข้อมูลที่ปรับตามฤดูกาล และวันทำงาน/วันหยุด
+- ข้อมูลที่ปรับตามฤดูกาล และตารางเรียนในคณะวิศวกรรม
 
-#### **Energy Consumption Data**
-- ข้อมูลการใช้พลังงานของอาคาร/หอพัก
-- รูปแบบการใช้งานตามกิจกรรมของมหาวิทยาลัย
-- ข้อมูลการใช้เครื่องปรับอากาศ เครื่องใช้ไฟฟ้า
+#### **Engineering Complex Energy Consumption Data**
+- ข้อมูลการใช้พลังงานของห้องเรียนวิศวกรรม ห้องปฏิบัติการ และสำนักงานอาจารย์
+- รูปแบบการใช้งานตามตารางการเรียนการสอนของคณะวิศวกรรม
+- ข้อมูลการใช้เครื่องปรับอากาศ เครื่องมือปฏิบัติการ และอุปกรณ์การเรียนการสอน
 
-#### **Smart Meter Metadata**
-- Meter ID และ Location
-- Owner Information (เชื่อมโยงกับ Registry Contract)
+#### **Engineering Department Smart Meter Metadata**
+- Meter ID (ENG_001 ถึง ENG_015) และ Location ในอาคารวิศวกรรม
+- Owner Information (เชื่อมโยงกับ Registry Program)
+- Engineering Department Authority Signature
 - Timestamp และ Digital Signature
 
 ## ประโยชน์และนวัตกรรม (Benefits & Innovation)
 
-### **ประโยชน์ต่อมหาวิทยาลัย**
-1. **ลดค่าไฟฟ้า**: การซื้อขายภายในลดการพึ่งพาระบบไฟฟ้าหลัก
-2. **ส่งเสริมพลังงานสะอาด**: จูงใจให้ติดตั้งแผงโซลาร์เซลล์
-3. **การศึกษาวิจัย**: เป็นแหล่งข้อมูลสำหรับการวิจัยต่อยอด
-4. **ภาพลักษณ์**: แสดงความเป็นผู้นำด้านเทคโนโลยีสีเขียว
-5. **การควบคุมและจัดการ**: มีระบบจัดการแบบรวมศูนย์ที่ปลอดภัยและเชื่อถือได้
+### **ประโยชน์ต่อคณะวิศวกรรมศาสตร์**
+1. **ลดค่าไฟฟ้า**: การซื้อขายภายในคณะลดการพึ่งพาระบบไฟฟ้าหลัก
+2. **ส่งเสริมพลังงานสะอาด**: จูงใจให้ติดตั้งแผงโซลาร์เซลล์ในอาคารวิศวกรรม
+3. **การศึกษาวิจัย**: เป็นแหล่งข้อมูลสำหรับการวิจัยด้าน Blockchain และพลังงาน
+4. **ภาพลักษณ์**: แสดงความเป็นผู้นำด้านเทคโนโลยีสีเขียวของคณะวิศวกรรม
+5. **การเรียนการสอน**: ใช้เป็นเครื่องมือการเรียนการสอนเรื่อง Blockchain
 
-### **ข้อดีของระบบแบบรวมศุนย์ (Centralized Approach Benefits)**
-1. **ความปลอดภัย**: การควบคุมการเข้าถึงและการจัดการที่เข้มงวด
-2. **การจัดการที่ง่าย**: มีจุดควบคุมหลักสำหรับการบริหารจัดการ
-3. **ความเชื่อถือได้**: ระบบมีการตรวจสอบและควบคุมคุณภาพ
-4. **การปฏิบัติตามกฎหมาย**: ง่ายต่อการปฏิบัติตามข้อกำหนดและกฎระเบียบ
-5. **การสนับสนุนผู้ใช้**: มีจุดติดต่อหลักสำหรับการขอความช่วยเหลือ
+### **ข้อดีของ Engineering Department Single Validator Architecture**
+1. **ความปลอดภัย**: การควบคุมการเข้าถึงและการจัดการโดยคณะวิศวกรรมโดยตรง
+2. **การจัดการที่ง่าย**: มีจุดควบคุมเดียวสำหรับการบริหารจัดการ
+3. **ความเชื่อถือได้**: ระบบมีการตรวจสอบและควบคุมโดยคณะวิศวกรรม
+4. **ประสิทธิภาพสูง**: Single validator ทำให้ transaction processing เร็วกว่า
+5. **ต้นทุนต่ำ**: ลดต้นทุนการดำเนินงานเมื่อเทียบกับ multi-validator networks
 
 ### **นวัตกรรมทางเทคนิค**
-1. **Substrate + ink!**: ใช้เทคโนโลยี Blockchain รุ่นใหม่
-2. **Cross-Contract Communication**: Smart Contracts ที่ทำงานร่วมกัน
-3. **Real-time Oracle Integration**: การเชื่อมต่อข้อมูลแบบเรียลไทม์
-4. **PSP22 Token Standard**: มาตรฐาน Token ที่ทันสมัย
-5. **Centralized Management**: ระบบจัดการแบบรวมศูนย์เพื่อความปลอดภัยและควบคุม
+1. **Solana + Anchor**: ใช้เทคโนโลยี Blockchain ประสิทธิภาพสูง
+2. **Cross Program Invocation (CPI)**: Anchor Programs ที่ทำงานร่วมกัน
+3. **Real-time AMI Integration**: การเชื่อมต่อข้อมูล AMI แบบเรียลไทม์
+4. **SPL Token Standard**: มาตรฐาน Token ของ Solana ecosystem
+5. **Engineering Department Authority**: ระบบจัดการแบบ Single Validator เพื่อความปลอดภัยและควบคุม
 
 ## ความเป็นไปได้และความเสี่ยง (Feasibility & Risks)
 
 ### **ความเป็นไปได้**
-- ✅ เทคโนโลยีที่ใช้มีเอกสารและตัวอย่างเพียงพอ
-- ✅ ทีมมีความรู้พื้นฐานด้าน Programming และ Blockchain
+- ✅ เทคโนโลยี Solana และ Anchor มีเอกสารและตัวอย่างเพียงพอ
+- ✅ ทีมมีความรู้พื้นฐานด้าน Rust Programming และ Blockchain
 - ✅ มีเวลาเพียงพอสำหรับการพัฒนา (1-2 เทอม)
-- ✅ สามารถทดสอบได้ด้วย Simulation
+- ✅ สามารถทดสอบได้ด้วย Engineering Complex Simulation
 
 ### **ความเสี่ยงและการแก้ไข**
-1. **ความซับซ้อนของ Substrate**: แก้ไขด้วยการศึกษาเอกสารและ Tutorial
-2. **การ Deploy Blockchain**: ใช้ Local Development Chain
-3. **ปัญหา Performance**: ออกแบบระบบให้เหมาะสมกับการ Demo
+1. **ความซับซ้อนของ Solana/Anchor**: แก้ไขด้วยการศึกษาเอกสารและ Tutorial
+2. **การ Deploy Single Validator**: ใช้ Local Development และ Devnet testing
+3. **ปัญหา Performance**: ออกแบบระบบให้เหมาะสมกับ Engineering Complex scale
 4. **ข้อจำกัดเวลา**: แบ่งงานเป็น Milestone ที่ชัดเจน
 
 ## แผนการดำเนินงาน (Timeline)
 
 ### **Phase 1: การศึกษาและออกแบบ (4 สัปดาห์)**
-- ศึกษา Substrate และ ink! Smart Contracts
-- ออกแบบ System Architecture และ Database Schema
+- ศึกษา Solana และ Anchor Framework
+- ออกแบบ System Architecture และ Database Schema สำหรับคณะวิศวกรรม
 - สร้าง Project Setup และ Development Environment
 
-### **Phase 2: การพัฒนา Smart Contracts (6 สัปดาห์)**
-- พัฒนา Registry Contract
-- พัฒนา GridToken Contract (PSP22)
-- พัฒนา Trading Contract
-- พัฒนา Oracle Client Contract
+### **Phase 2: การพัฒนา Anchor Programs (6 สัปดาห์)**
+- พัฒนา Registry Program สำหรับ Engineering Department authority
+- พัฒนา Energy Token Program (SPL Token)
+- พัฒนา Trading Program with automated clearing
+- พัฒนา Oracle Program สำหรับ AMI integration
+- พัฒนา Governance Program สำหรับ Engineering Department
 - Unit Testing และ Integration Testing
 
 ### **Phase 3: การพัฒนา Backend และ API (4 สัปดาห์)**
-- สร้าง Rust API Gateway ด้วย Axum
-- พัฒนา Smart Meter Simulator
+- สร้าง Rust API Gateway ด้วย Axum สำหรับ Engineering Department
+- พัฒนา Engineering Complex Smart Meter Simulator
 - สร้าง Database Schema และ Data Models
 - API Testing และ Documentation
 
 ### **Phase 4: การพัฒนา Frontend (4 สัปดาห์)**
-- สร้าง React TypeScript Application
-- ออกแบบ UI/UX สำหรับ Energy Trading
-- สร้าง Dashboard สำหรับติดตามการซื้อขาย
+- สร้าง React TypeScript Application สำหรับคณะวิศวกรรม
+- ออกแบบ UI/UX สำหรับ Engineering Energy Trading
+- สร้าง Dashboard สำหรับติดตามการซื้อขายในคณะวิศวกรรม
 - Responsive Design และ Testing
 
 ### **Phase 5: การรวมระบบและทดสอบ (3 สัปดาห์)**
-- Integration Testing ทั้งระบบ
-- Performance Testing
-- Security Testing
+- Integration Testing ทั้งระบบบน Engineering Department validator
+- Performance Testing สำหรับ Single Validator Architecture
+- Security Testing สำหรับ Engineering Department authority
 - Bug Fixes และ Optimization
 
 ### **Phase 6: การเตรียมนำเสนอ (1 สัปดาห์)**
-- สร้างเอกสารโครงงาน
-- เตรียม Presentation และ Demo
-- Video Demonstration
+- สร้างเอกสารโครงงานที่สมบูรณ์
+- เตรียม Presentation และ Demo ระบบ Solana
+- Video Demonstration ใน Engineering Complex context
 
 ## เกณฑ์การประเมินผล (Evaluation Criteria)
 
 ### **เกณฑ์ทางเทคนิค (70%)**
-1. **Smart Contracts (25%)**: ความถูกต้องและประสิทธิภาพ
-2. **System Integration (20%)**: การทำงานร่วมกันของส่วนต่าง ๆ
-3. **User Interface (15%)**: ความใช้งานง่ายและสวยงาม
-4. **Code Quality (10%)**: การเขียนโค้ดที่ดี มี Documentation
+1. **Anchor Programs (25%)**: ความถูกต้องและประสิทธิภาพของ Solana programs
+2. **System Integration (20%)**: การทำงานร่วมกันของส่วนต่าง ๆ บน Solana
+3. **User Interface (15%)**: ความใช้งานง่ายและสวยงามสำหรับผู้ใช้ในคณะวิศวกรรม
+4. **Code Quality (10%)**: การเขียนโค้ด Rust ที่ดี มี Documentation
 
 ### **เกณฑ์การนำเสนอ (30%)**
-1. **การนำเสนอ (15%)**: ความชัดเจนและน่าสนใจ
-2. **การตอบคำถาม (10%)**: ความเข้าใจในโครงงาน
-3. **เอกสาร (5%)**: ความสมบูรณ์ของเอกสาร
+1. **การนำเสนอ (15%)**: ความชัดเจนและน่าสนใจของ Solana implementation
+2. **การตอบคำถาม (10%)**: ความเข้าใจในโครงงานและเทคโนโลยี Solana
+3. **เอกสาร (5%)**: ความสมบูรณ์ของเอกสารและ Engineering Department context
 
 ### การพัฒนาในอนาคต (Future Development)
-1. **Multi-chain Support**: การรองรับ Blockchain หลายเครือข่าย
-2. **AI Price Prediction**: ระบบ AI สำหรับทำนายราคาพลังงาน
-3. **National Grid Integration**: การเชื่อมต่อกับระบบไฟฟ้าหลัก
-4. **Mobile Application**: แอปพลิเคชันมือถือ
-5. **Real IoT Integration**: เชื่อมต่อกับ Smart Meter จริง
-6. **Machine Learning Optimization**: ปรับปรุงประสิทธิภาพด้วย ML
-7. **Carbon Credit Integration**: รวมระบบ Carbon Credit Trading
+1. **Multi-Department Expansion**: การขยายไปยังคณะอื่น ๆ ด้วย Multi-Validator Federation
+2. **AI Energy Prediction**: ระบบ AI สำหรับทำนายการใช้พลังงานในคณะวิศวกรรม
+3. **National Grid Integration**: การเชื่อมต่อกับระบบไฟฟ้าหลักของประเทศ
+4. **Mobile Application**: แอปพลิเคชันมือถือสำหรับนักศึกษาวิศวกรรม
+5. **Real IoT Integration**: เชื่อมต่อกับ Smart Meter จริงในอาคารวิศวกรรม
+6. **Solana DeFi Integration**: การรวมเข้ากับ Solana DeFi ecosystem
+7. **Carbon Credit Trading**: รวมระบบ Carbon Credit Trading บน Solana
+8. **Cross-Chain Bridges**: เชื่อมต่อกับ blockchain อื่น ๆ ผ่าน Solana bridges

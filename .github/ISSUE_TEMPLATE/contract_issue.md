@@ -45,18 +45,18 @@ Paste error messages, stack traces, or transaction logs here
 ```
 
 ## 🔧 Environment
-- **ink! Version**: [e.g. 4.3.0]
-- **cargo-contract Version**: [e.g. 4.1.1]
+- **Anchor Version**: [e.g. 0.29.0]
+- **Solana CLI Version**: [e.g. 1.16.0]
 - **Rust Version**: [e.g. 1.70.0]
-- **Substrate Version**: [if applicable]
+- **Node Version**: [if applicable]
 
 ## 🛠️ Proposed Solution
 If you have ideas on how to fix this issue, please describe them here.
 
-## 📊 Gas Analysis
-If related to gas optimization:
-- **Current Gas Usage**: 
-- **Expected Gas Usage**: 
+## 📊 Compute Units Analysis
+If related to compute optimization:
+- **Current Compute Units**: 
+- **Expected Compute Units**: 
 - **Optimization Ideas**: 
 
 ## 🔒 Security Implications

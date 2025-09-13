@@ -1,28 +1,31 @@
 services:
-  # Solana Validator for Engineering Department
+  # Anchor Development Environment (includes Solana validator)
   solana-validator:
     build:
-      context: ./docker/contracts
+      context: ./docker/solana-validator
       dockerfile: Dockerfile
-    container_name: p2p-solana-validator
+    container_name: p2p-anchor-dev
     ports:
-      - "8899:8899"  # JSON RPC
-      - "8900:8900"  # WebSocket
+      - "8898:8899"  # JSON RPC (avoiding conflict with Anchor tests)
+      - "8901:8900"  # WebSocket
       - "8001:8001"  # Gossip
     volumes:
       - solana_ledger:/opt/solana/ledger
-      - program_deployments:/tmp/program_deployments
+      - .:/workspaces/p2p
+      - ./programs:/workspaces/programs
+      - ./contracts:/workspaces/contracts
     networks:
       - p2p-network
     restart: unless-stopped
     environment:
       RUST_LOG: "solana=info"
-      SOLANA_RUN_SH_VALIDATOR_ARGS: "--rpc-port 8899 --rpc-bind-address 0.0.0.0 --gossip-port 8001 --dynamic-port-range 8002-8020"
+      START_VALIDATOR: "true"  # Set to false for dev mode only
     healthcheck:
       test: ["CMD-SHELL", "solana cluster-version --url http://localhost:8899 || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
+      start_period: 60s
 
   # PostgreSQL Database
   postgres:
@@ -168,34 +171,34 @@ services:
       - p2p-network
     restart: unless-stopped
 
-  # API Gateway (Rust Implementation with Solana)
-  api-gateway:
-    build:
-      context: ./api-gateway
-      dockerfile: Dockerfile
-    container_name: p2p-api-gateway-rust
-    depends_on:
-      - postgres
-      - redis
-      - solana-validator
-    ports:
-      - "3001:3000"  # Changed to avoid Grafana conflict
-    environment:
-      DATABASE_URL: postgresql://p2p_user:p2p_password@postgres:5432/p2p_energy_trading
-      REDIS_URL: redis://redis:6379
-      SOLANA_RPC_URL: http://solana-validator:8899
-      SOLANA_WS_URL: ws://solana-validator:8900
-      JWT_SECRET: dev-secret-key-change-in-production
-      PORT: 3000
-      RUST_LOG: p2p_api_gateway=info,tower_http=info,axum::rejection=trace
-      PROGRAM_DEPLOYMENTS_PATH: /tmp/program_deployments
-      ENGINEERING_AUTHORITY: true
-      VALIDATOR_MODE: single_engineering
-    volumes:
-      - program_deployments:/tmp/program_deployments
-    networks:
-      - p2p-network
-    restart: unless-stopped
+  # API Gateway (Rust Implementation with Solana) - DISABLED until api-gateway directory is created
+  # api-gateway:
+  #   build:
+  #     context: ./api-gateway
+  #     dockerfile: Dockerfile
+  #   container_name: p2p-api-gateway-rust
+  #   depends_on:
+  #     - postgres
+  #     - redis
+  #     - solana-validator
+  #   ports:
+  #     - "3001:3000"  # Changed to avoid Grafana conflict
+  #   environment:
+  #     DATABASE_URL: postgresql://p2p_user:p2p_password@postgres:5432/p2p_energy_trading
+  #     REDIS_URL: redis://redis:6379
+  #     SOLANA_RPC_URL: http://solana-validator:8899
+  #     SOLANA_WS_URL: ws://solana-validator:8900
+  #     JWT_SECRET: dev-secret-key-change-in-production
+  #     PORT: 3000
+  #     RUST_LOG: p2p_api_gateway=info,tower_http=info,axum::rejection=trace
+  #     PROGRAM_DEPLOYMENTS_PATH: /tmp/program_deployments
+  #     ENGINEERING_AUTHORITY: true
+  #     VALIDATOR_MODE: single_engineering
+  #   volumes:
+  #     - program_deployments:/tmp/program_deployments
+  #   networks:
+  #     - p2p-network
+  #   restart: unless-stopped
 
   # Grafana for Monitoring
   grafana:
@@ -257,7 +260,8 @@ services:
     networks:
       - p2p-network
     depends_on:
-      - api-gateway
+      # - api-gateway  # DISABLED until api-gateway is created
+      - solana-validator
     restart: unless-stopped
     profiles:
       - development
@@ -282,7 +286,8 @@ services:
     networks:
       - p2p-network
     depends_on:
-      - api-gateway
+      # - api-gateway  # DISABLED until api-gateway is created
+      - solana-validator
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "/usr/local/bin/healthcheck.sh"]
@@ -296,6 +301,7 @@ services:
 
 volumes:
   solana_ledger:
+  anchor_workspace:
   program_deployments:
   postgres_data:
   timescale_data:

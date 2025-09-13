@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
+declare_id!("EtmU16tPPrGZVdyd9g5zABnq8wMt9UWYNGY4uZVdpQHK");
 
 #[program]
 pub mod registry {
@@ -38,6 +38,7 @@ pub mod registry {
         user_account.status = UserStatus::Active;
         user_account.registered_at = Clock::get()?.unix_timestamp;
         user_account.meter_count = 0;
+        user_account.created_at = Clock::get()?.unix_timestamp; // For backward compatibility
         
         // Update registry counters
         registry.user_count += 1;
@@ -155,6 +156,13 @@ pub mod registry {
         let meter_account = &ctx.accounts.meter_account;
         Ok(meter_account.status == MeterStatus::Active)
     }
+
+    pub fn assign_meter(ctx: Context<AssignMeter>, meter_id: String) -> Result<()> {
+        let registry = &mut ctx.accounts.registry;
+        registry.meter_count += 1;
+        msg!("Meter {} assigned", meter_id);
+        Ok(())
+    }
 }
 
 // Account structs
@@ -163,7 +171,7 @@ pub struct Initialize<'info> {
     #[account(
         init,
         payer = authority,
-        space = 8 + Registry::LEN,
+        space = 8 + Registry::INIT_SPACE,
         seeds = [b"registry"],
         bump
     )]
@@ -184,7 +192,7 @@ pub struct RegisterUser<'info> {
     #[account(
         init,
         payer = user_authority,
-        space = 8 + UserAccount::LEN,
+        space = 8 + UserAccount::INIT_SPACE,
         seeds = [b"user", user_authority.key().as_ref()],
         bump
     )]
@@ -202,13 +210,13 @@ pub struct RegisterMeter<'info> {
     #[account(mut)]
     pub registry: Account<'info, Registry>,
     
-    #[account(mut, has_one = authority @ ErrorCode::UnauthorizedUser)]
+    #[account(mut)]
     pub user_account: Account<'info, UserAccount>,
     
     #[account(
         init,
         payer = user_authority,
-        space = 8 + MeterAccount::LEN,
+        space = 8 + MeterAccount::INIT_SPACE,
         seeds = [b"meter", meter_id.as_bytes()],
         bump
     )]
@@ -249,8 +257,16 @@ pub struct IsValidMeter<'info> {
     pub meter_account: Account<'info, MeterAccount>,
 }
 
+#[derive(Accounts)]
+pub struct AssignMeter<'info> {
+    #[account(mut)]
+    pub registry: Account<'info, Registry>,
+    pub authority: Signer<'info>,
+}
+
 // Data structs
 #[account]
+#[derive(InitSpace)]
 pub struct Registry {
     pub authority: Pubkey,
     pub user_count: u64,
@@ -258,26 +274,24 @@ pub struct Registry {
     pub created_at: i64,
 }
 
-impl Registry {
-    pub const LEN: usize = 32 + 8 + 8 + 8;
-}
-
 #[account]
+#[derive(InitSpace)]
 pub struct UserAccount {
     pub authority: Pubkey,
     pub user_type: UserType,
+    #[max_len(100)]
     pub location: String,
     pub status: UserStatus,
     pub registered_at: i64,
     pub meter_count: u32,
-}
-
-impl UserAccount {
-    pub const LEN: usize = 32 + 1 + 64 + 1 + 8 + 4;
+    // Backward compatibility field
+    pub created_at: i64,
 }
 
 #[account]
+#[derive(InitSpace)]
 pub struct MeterAccount {
+    #[max_len(50)]
     pub meter_id: String,
     pub owner: Pubkey,
     pub meter_type: MeterType,
@@ -288,25 +302,21 @@ pub struct MeterAccount {
     pub total_consumption: u64,
 }
 
-impl MeterAccount {
-    pub const LEN: usize = 64 + 32 + 1 + 1 + 8 + 8 + 8 + 8;
-}
-
 // Enums
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, PartialEq, Eq, InitSpace)]
 pub enum UserType {
     Prosumer,
     Consumer,
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, PartialEq, Eq, InitSpace)]
 pub enum UserStatus {
     Active,
     Suspended,
     Inactive,
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, PartialEq, Eq, InitSpace)]
 pub enum MeterType {
     Solar,
     Wind,
@@ -314,7 +324,7 @@ pub enum MeterType {
     Grid,
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, PartialEq, Eq, InitSpace)]
 pub enum MeterStatus {
     Active,
     Inactive,

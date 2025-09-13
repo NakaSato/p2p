@@ -441,16 +441,16 @@ spl-token accounts --url http://localhost:8899
 ## Engineering Department Performance Metrics
 
 ### **Engineering Complex Throughput**
-- 15 Engineering meters ส่งข้อมูลพร้อมกัน
-- ประมวลผลข้อมูลได้ภายใน 2 วินาที (single validator advantage)
+- 15 Engineering meters transmit data simultaneously
+- Data processing completed within 2 seconds (single validator advantage)
 - Engineering API response time < 50ms
 - Solana transaction confirmation < 1 second
 
 ### **Engineering Simulation Accuracy**
-- การจำลองการผลิตพลังงาน 50kW solar array แม่นยำ 92%
-- การจำลองการใช้พลังงานอาคารวิศวกรรมแม่นยำ 88%
-- ข้อผิดพลาดในการส่งข้อมูล < 0.5%
-- Engineering Department authority validation 100%
+- 50kW solar array generation simulation accuracy: 92%
+- Engineering building consumption simulation accuracy: 88%
+- Data transmission error rate: < 0.5%
+- Engineering Department authority validation: 100%
 
 ### **Engineering Network Performance**
 - Single validator consensus time: < 400ms
@@ -458,27 +458,27 @@ spl-token accounts --url http://localhost:8899
 - Transaction throughput: 150+ TPS
 - Network latency within campus: < 10ms
 
-## การพัฒนาในอนาคต (Future Enhancements)
+## Future Enhancements
 
 ### **Engineering Department Phase 1 Enhancements**
-1. **Advanced Engineering Building Modeling**: โมเดลการใช้พลังงานที่แม่นยำกว่าสำหรับห้องปฏิบัติการต่างๆ
-2. **Real-time Market Response**: ปรับการผลิต/ใช้พลังงานตามราคาตลาดภายในคณะ
-3. **IoT Integration**: เชื่อมต่อกับ Smart Meter จริงในอาคารวิศวกรรม
-4. **Engineering Mobile App**: แอปสำหรับนักศึกษาและอาจารย์คณะวิศวกรรม
-5. **Research Integration**: เชื่อมต่อข้อมูลกับโครงการวิจัยด้านพลังงาน
+1. **Advanced Engineering Building Modeling**: More accurate energy usage models for different laboratories
+2. **Real-time Market Response**: Adjust energy production/consumption based on campus market prices
+3. **IoT Integration**: Connect with actual Smart Meters in Engineering Complex
+4. **Engineering Mobile App**: Application for engineering students and faculty
+5. **Research Integration**: Connect data with energy research projects
 
 ### **Potential Campus Expansion (Future Phases)**
-1. **Multi-Building Integration**: ขยายไปยังอาคารอื่นในมหาวิทยาลัย
-2. **Multi-Validator Federation**: เพิ่ม validator จากคณะอื่นๆ
-3. **Advanced Analytics**: AI/ML สำหรับการทำนายและการจัดการพลังงาน  
-4. **Carbon Credit Integration**: ระบบ Carbon Credit Trading
-5. **Inter-University Network**: เชื่อมต่อกับมหาวิทยาลัยอื่น
+1. **Multi-Building Integration**: Expand to other campus buildings
+2. **Multi-Validator Federation**: Add validators from other colleges
+3. **Advanced Analytics**: AI/ML for energy prediction and management
+4. **Carbon Credit Integration**: Carbon Credit Trading system
+5. **Inter-University Network**: Connect with other universities
 
 ### **Academic Integration Enhancements**
-1. **Blockchain Course Integration**: ใช้เป็นกรณีศึกษาในวิชา Blockchain
-2. **Energy Systems Research**: แพลตฟอร์มสำหรับการวิจัยระบบพลังงาน
-3. **Student Projects**: โครงการนักศึกษาพัฒนาฟีเจอร์เพิ่มเติม
-4. **Publication Opportunities**: การตีพิมพ์ผลงานวิจัยจากข้อมูลระบบ
+1. **Blockchain Course Integration**: Use as case study in Blockchain courses
+2. **Energy Systems Research**: Platform for energy systems research
+3. **Student Projects**: Student projects to develop additional features
+4. **Publication Opportunities**: Research publications from system data
 
 ---
 
@@ -574,8 +574,8 @@ engineering_department:
 ```
 
 ### **Engineering Department Advantages**
-1. **Complete Control**: คณะวิศวกรรมมีอำนาจเต็มในการจัดการระบบ
-2. **Academic Integration**: เชื่อมต่อโดยตรงกับหลักสูตรและการวิจัย
-3. **Technical Expertise**: ใช้ความเชี่ยวชาญของอาจารย์และนักศึกษาวิศวกรรม
-4. **Research Opportunities**: เป็นแพลตฟอร์มสำหรับการวิจัยด้าน Blockchain และพลังงาน
-5. **Cost Efficiency**: ลดต้นทุนการจัดการเมื่อเทียบกับระบบหลาย validator
+1. **Complete Control**: Engineering Department has full authority over system management
+2. **Academic Integration**: Direct integration with curriculum and research programs
+3. **Technical Expertise**: Leverages expertise of engineering faculty and students
+4. **Research Opportunities**: Platform for blockchain and energy systems research
+5. **Cost Efficiency**: Reduced management costs compared to multi-validator systems

@@ -1,17 +1,21 @@
 use anchor_lang::prelude::*;
 
-declare_id!("11111111111111111111111111111111");
+declare_id!("D5qmDv77pmtebp3MM78HienoXWMfSa8JFzxw1Sj2rNQc");
 
-/// University authority public key (compile-time constant)
-pub const UNIVERSITY_AUTHORITY_PUBKEY: Pubkey = solana_program::pubkey!("UniversityAuthorityKey1234567890123456789");
+/// University authority public key (hardcoded for demo)
+pub const UNIVERSITY_AUTHORITY_PUBKEY: Pubkey = Pubkey::new_from_array([1u8; 32]);
 
 #[program]
 pub mod governance {
     use super::*;
     
-    /// Initialize PoA governimpl RecValidatorInfo {
-    pub const LEN: usize = 32 + 64 + 1 + 1; // pubkey + authority_name + certification_authority + active
-}e with REC validators
+    /// Simple initialization for testing
+    pub fn initialize(_ctx: Context<Initialize>) -> Result<()> {
+        msg!("Governance program initialized");
+        Ok(())
+    }
+    
+    /// Initialize PoA governance with REC validators
     pub fn initialize_poa_with_rec(ctx: Context<InitializePoAWithRec>) -> Result<()> {
         let poa_config = &mut ctx.accounts.poa_config;
         
@@ -29,18 +33,21 @@ pub mod governance {
                 authority_name: "University Sustainability Office".to_string(),
                 certification_authority: true,
                 active: true,
+                added_at: Clock::get()?.unix_timestamp,
             },
             RecValidatorInfo {
                 pubkey: ctx.accounts.engineering_validator.key(),
                 authority_name: "University Engineering Department".to_string(),
                 certification_authority: true,
                 active: true,
+                added_at: Clock::get()?.unix_timestamp,
             },
             RecValidatorInfo {
                 pubkey: ctx.accounts.facilities_validator.key(),
                 authority_name: "University Facilities Management".to_string(),
                 certification_authority: true,
                 active: true,
+                added_at: Clock::get()?.unix_timestamp,
             },
         ];
         poa_config.min_rec_validators = 2; // Minimum for REC consensus
@@ -82,7 +89,7 @@ pub mod governance {
         
         let new_validator = RecValidatorInfo {
             pubkey: validator_pubkey,
-            department,
+            authority_name: department,
             certification_authority: true,
             active: true,
             added_at: Clock::get()?.unix_timestamp,
@@ -327,6 +334,9 @@ pub struct IsAuthorizedRecValidator<'info> {
     pub poa_config: Account<'info, PoAConfig>,
 }
 
+#[derive(Accounts)]
+pub struct Initialize {}
+
 // Data structs
 #[account]
 pub struct PoAConfig {
@@ -347,10 +357,11 @@ pub struct RecValidatorInfo {
     pub authority_name: String, // e.g., "University Sustainability Office"
     pub certification_authority: bool,
     pub active: bool,
+    pub added_at: i64,
 }
 
 impl RecValidatorInfo {
-    pub const LEN: usize = 32 + 64 + 1 + 1 + 8; // pubkey + department + certification_authority + active + added_at
+    pub const LEN: usize = 32 + 64 + 1 + 1 + 8; // pubkey + authority_name + certification_authority + active + added_at
 }
 
 // Events

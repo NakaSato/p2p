@@ -1,25 +1,25 @@
 # P2P Energy Trading System - Solana Anchor
 
-This project has been migrated from ink!/Substrate to Solana Anchor, implementing a permissioned Proof of Authority (PoA) consensus system with university departments as REC (Renewable Energy Certificate) validators for campus energy trading.
+This project implements a P2P energy trading platform using Solana Anchor framework with Engineering Department single validator authority for campus energy trading within the Engineering Complex.
 
 ## Architecture Overview
 
 ### Programs
 
-1. **Registry** (`programs/registry/`) - User and smart meter registration
-2. **Energy Token** (`programs/energy-token/`) - SPL token with REC validation
-3. **Trading** (`programs/trading/`) - Order book and matching engine
-4. **Oracle** (`programs/oracle/`) - External data integration and market clearing
-5. **Governance** (`programs/governance/`) - PoA consensus and REC validator management
+1. **Registry** (`programs/registry/`) - User and smart meter registration under Engineering Department authority
+2. **Energy Token** (`programs/energy-token/`) - SPL token with Engineering Department mint authority
+3. **Trading** (`programs/trading/`) - Order book and automated market clearing
+4. **Oracle** (`programs/oracle/`) - AMI data integration and automated operations
+5. **Governance** (`programs/governance/`) - Engineering Department system administration
 
 ### Key Features
 
-- **Permissioned Network**: University-controlled environment with authorized participants
-- **PoA Consensus**: University departments act as REC validators and certification authority
-- **REC Integration**: University-issued Renewable Energy Certificate validation for token minting
-- **AMI Integration**: Advanced Metering Infrastructure for real-time energy monitoring
-- **Automated Market Clearing**: Oracle-driven periodic market settlement
-- **University Governance**: Multi-signature validation by university REC authorities
+- **Single Validator Network**: Engineering Department operated Solana validator
+- **Proof of Stake Consensus**: Single validator Proof of Stake with Engineering Department authority
+- **SPL Token Standard**: Native Solana token standard for energy representation
+- **AMI Integration**: Advanced Metering Infrastructure for Engineering Complex smart meters
+- **Automated Market Clearing**: 15-minute epoch-based market settlement
+- **Engineering Department Governance**: Complete system control by Engineering Department
 
 ## Quick Start
 
@@ -48,21 +48,16 @@ cargo build
 yarn install
 ```
 
-3. Build the Anchor programs:
+3. Start local Engineering Department validator (in separate terminal):
 ```bash
-anchor build
+solana-test-validator --reset
 ```
 
-4. Start local validator (in separate terminal):
-```bash
-solana-test-validator
-```
-
-5. Deploy programs:
+4. Deploy programs to Engineering Department validator:
 ```bash
 ./deploy.sh
 # or manually:
-anchor deploy
+anchor deploy --provider.cluster localnet
 ```
 
 ### Testing
@@ -79,121 +74,153 @@ yarn test
 ## Program Architecture
 
 ### Registry Program
-- **Purpose**: Manages user registration and smart meter onboarding
-- **Key Functions**: `register_user()`, `register_meter()`, `update_status()`
-- **Data**: User profiles, meter configurations, authorization states
+- **Purpose**: Manages user registration and smart meter onboarding within Engineering Complex
+- **Key Functions**: `register_user()`, `assign_meter()`, `verify_user()`
+- **Authority**: Engineering Department controls all registrations
+- **Data**: Engineering student/faculty profiles, Engineering Complex meter configurations
 
 ### Energy Token Program
-- **Purpose**: SPL token implementation with REC validation
-- **Key Functions**: `mint_tokens()`, `validate_rec()`, `retire_tokens()`
-- **Features**: REC validator integration, renewable energy verification
+- **Purpose**: SPL token implementation with Engineering Department mint authority
+- **Key Functions**: `mint_to()`, `transfer()`, `burn()` (standard SPL token operations)
+- **Features**: Engineering Department controlled minting, 9 decimal precision, associated token accounts
 
 ### Trading Program
-- **Purpose**: Decentralized order book and matching engine
-- **Key Functions**: `create_order()`, `match_orders()`, `settle_trade()`
-- **Features**: Automated matching, escrow management, fee collection
+- **Purpose**: Automated order book and market clearing within Engineering Complex
+- **Key Functions**: `create_sell_order()`, `create_buy_order()`, `match_orders()`
+- **Features**: 15-minute epoch clearing, Engineering Department oversight, automated settlement
 
 ### Oracle Program
-- **Purpose**: External data integration and automated operations
-- **Key Functions**: `submit_meter_reading()`, `trigger_market_clearing()`
-- **Features**: AMI integration, periodic settlement, price discovery
+- **Purpose**: AMI data integration and automated market operations
+- **Key Functions**: `submit_meter_data()`, `trigger_market_clearing()`, `validate_energy_data()`
+- **Features**: Engineering Complex AMI integration, automated token minting, market triggers
 
 ### Governance Program
-- **Purpose**: PoA consensus and REC validator management
-- **Key Functions**: `add_rec_validator()`, `authorize_operation()`, `manage_consensus()`
-- **Features**: Multi-signature validation, university authority control
+- **Purpose**: Engineering Department system administration and parameter management
+- **Key Functions**: `update_parameters()`, `emergency_pause()`, `manage_authorities()`
+- **Features**: Engineering Department exclusive control, system configuration, emergency operations
 
 ## Deployment
 
 ### Local Development
 ```bash
-# Start local validator
+# Start local Engineering Department validator
 solana-test-validator --reset
 
-# Deploy to local
+# Deploy to local validator
 anchor deploy --provider.cluster localnet
 ```
 
-### Devnet Deployment
+### Devnet Testing
 ```bash
 # Configure for devnet
 solana config set --url devnet
 
-# Deploy to devnet
+# Deploy to devnet for testing
 anchor deploy --provider.cluster devnet
 ```
 
-### Production (University Network)
+### Production (Engineering Department Validator)
 ```bash
-# Configure custom RPC endpoint
-solana config set --url <university-rpc-endpoint>
+# Configure Engineering Department RPC endpoint
+solana config set --url <engineering-department-rpc-endpoint>
 
-# Deploy with governance approval
-./deploy.sh --production
+# Deploy with Engineering Department authority
+./deploy.sh --production --authority engineering-department
 ```
 
 ## Configuration
 
-### REC Validators Setup
-REC validators (university departments) must be initialized during deployment:
+### Engineering Department Authority Setup
+Engineering Department authority must be configured during deployment:
 
 ```typescript
-// Example REC validator configuration
-const recValidators = [
-  { pubkey: sustainabilityValidatorKey, authority_name: "University Sustainability Office" },
-  { pubkey: engineeringValidatorKey, authority_name: "University Engineering Department" },
-  { pubkey: facilitiesValidatorKey, authority_name: "University Facilities Management" }
-];
+// Engineering Department authority configuration
+const engineeringAuthority = {
+  pubkey: engineeringDepartmentKey,
+  authority_name: "Engineering Department",
+  validator_endpoint: "http://engineering-validator.campus.local:8899",
+  mint_authority: true,
+  governance_authority: true
+};
 ```
 
 ### Oracle Configuration
-Configure oracle operators for different data sources:
+Configure oracle operators for Engineering Complex AMI data:
 
 ```typescript
-// Example oracle operator setup
+// Engineering Complex oracle operator setup
 const oracleOperators = [
-  { pubkey: amiOperatorKey, source: "AMI_INTEGRATION" },
-  { pubkey: weatherOperatorKey, source: "WEATHER_DATA" },
-  { pubkey: priceOperatorKey, source: "EXTERNAL_PRICING" }
+  { 
+    pubkey: amiOperatorKey, 
+    source: "ENGINEERING_AMI_INTEGRATION",
+    meters: ["ENG_001", "ENG_002", "...", "ENG_015"]
+  },
+  { 
+    pubkey: engineeringWeatherKey, 
+    source: "ENGINEERING_WEATHER_DATA",
+    location: "Engineering Complex Rooftop"
+  }
 ];
 ```
 
 ## Monitoring and Operations
 
 ### Health Checks
-- Monitor program account states
-- Verify REC validator consensus
-- Check oracle data freshness
-- Validate token mint/burn operations
+- Monitor Engineering Department validator status
+- Verify Engineering Department authority operations
+- Check oracle data freshness from Engineering Complex AMI
+- Validate SPL token mint/burn operations
+- Monitor 15-minute market clearing cycles
 
-### Governance Operations
-- Add/remove REC validators requires university authority approval
-- System parameter updates controlled by university administration
-- Emergency pause functionality for critical issues
-- All REC certifications issued and validated by university departments
+### Engineering Department Operations
+- Engineering Department has exclusive control over all system parameters
+- User registration and meter assignment controlled by Engineering Department
+- System upgrades and maintenance managed by Engineering Department
+- Emergency pause functionality available to Engineering Department
+- All energy token minting authorized by Engineering Department
 
 ## Migration Notes
 
-This system has been migrated from ink!/Substrate with the following changes:
+This system implements a Solana Anchor-based architecture with the following design:
 
-1. **Consensus**: Moved from Substrate's configurable consensus to Solana's PoS with PoA overlay
-2. **Smart Contracts**: Converted from ink! to Anchor framework
-3. **Token Standard**: Migrated from custom tokens to SPL standard
-4. **Storage**: Adapted from Substrate storage to Solana account model
-5. **Governance**: Enhanced with university-specific REC validator system
+1. **Consensus**: Single validator Proof of Stake operated by Engineering Department
+2. **Smart Contracts**: Anchor framework programs with Engineering Department authority
+3. **Token Standard**: SPL Token standard with Engineering Department mint authority
+4. **Storage**: Solana account model with Program Derived Addresses (PDAs)
+5. **Governance**: Engineering Department exclusive control and administration
 
 ## Security Considerations
 
-- All operations require appropriate authority validation
-- REC validators use multi-signature consensus for critical operations
-- Token minting requires REC certificate validation
-- Trading operations include escrow and dispute resolution
-- Oracle data includes freshness validation and consensus mechanisms
+- All operations require Engineering Department authority validation
+- Engineering Department controls all critical system functions
+- SPL token minting requires Engineering Department authorization
+- Trading operations include automated settlement and Engineering Department oversight
+- Oracle data includes freshness validation and Engineering Department consensus
+- Emergency controls available exclusively to Engineering Department
+
+## Academic Integration
+
+### Educational Benefits
+- Real-world Solana blockchain implementation for Engineering students
+- Hands-on experience with Anchor framework development
+- SPL Token standard integration and usage
+- Campus energy systems and blockchain intersection
+- Research opportunities in decentralized energy trading
+
+### Engineering Department Advantages
+- Complete operational control and system governance
+- Integration with Engineering curriculum and research programs
+- Demonstration of blockchain technology in practical applications
+- Cost-effective single validator operation
+- Direct control over energy trading policies and parameters
 
 ## Support and Documentation
 
 - [Anchor Documentation](https://www.anchor-lang.com/)
 - [Solana Developer Resources](https://docs.solana.com/)
 - [SPL Token Documentation](https://spl.solana.com/token)
+- [Engineering Department Technical Documentation](./TECHNICAL_SUMMARY.md)
+- [System Architecture Documentation](./SYSTEM_ARCHITECTURE.md)
+- [Smart Meter Simulation Guide](./SMART_METER_SIMULATION.md)
 
-For university-specific deployment questions, contact the system administrators.
+For Engineering Department specific deployment questions and system administration, contact the Engineering Department IT administrators.

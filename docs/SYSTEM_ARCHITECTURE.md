@@ -1,95 +1,93 @@
-# System Architecture: University P2P Energy Trading with Engineering Department Authority
+# System Architecture: Engineering Complex P2P Energy Trading Platform
 
 ## Overview
 
-The P2P Energy Trading System operates within a university campus environment with the Engineering Department acting as the sole blockchain authority for the campus energy trading network. Built on Solana blockchain with Anchor framework, the system features a single validator operated by the Engineering Department. The university infrastructure consists of Advanced Metering Infrastructure (AMI) smart meters for energy monitoring and oracle integration managed by the Engineering Department.
+The Engineering Complex P2P Energy Trading Platform operates within the university's Engineering Department facilities with the Engineering Department acting as the sole blockchain authority. Built on Solana blockchain with Anchor framework v0.29.0, the system features a single validator operated by the Engineering Department. The Engineering Complex infrastructure consists of 15 Advanced Metering Infrastructure (AMI) smart meters (ENG_001-015) for energy monitoring and oracle integration managed exclusively by the Engineering Department.
 
 ## Architecture Components
 
-### 1. University Campus Infrastructure
+### 1. Engineering Complex Infrastructure
 
-#### **AMI Smart Meters Only**
-- **Purpose**: Real-time energy generation and consumption monitoring
-- **Location**: Distributed across all campus buildings
+#### **AMI Smart Meters (ENG_001-015)**
+- **Purpose**: Real-time energy generation and consumption monitoring within Engineering Complex
+- **Location**: Distributed across Engineering Department buildings and facilities
+- **Scope**: 15 dedicated smart meters serving Engineering students and faculty
 - **Functionality**:
-  - Measure solar panel energy generation
-  - Monitor wind turbine output
-  - Track battery storage charge/discharge
-  - Record building energy consumption
-  - Transmit data to university IT systems
+  - Measure solar panel energy generation from Engineering buildings
+  - Monitor wind turbine output from Engineering research installations
+  - Track battery storage charge/discharge in Engineering labs
+  - Record building energy consumption for Engineering facilities
+  - Transmit data to Engineering Department IT systems via secure network
 
-#### **Campus Buildings with AMI Integration**
+#### **Engineering Complex Buildings with AMI Integration**
 ```
-Dormitory A
+Engineering Building A (ENG_001-005)
 ├── AMI Smart Meters (Generation & Consumption)
-├── Solar Panel Array
-└── Battery Storage System
+├── Rooftop Solar Panel Array
+├── Battery Storage System
+└── Student/Faculty Offices
 
-Dormitory B  
+Engineering Building B (ENG_006-010)
 ├── AMI Smart Meters (Generation & Consumption)
-├── Wind Turbine Installation
-└── Grid Connection Point
+├── Research Wind Turbine Installation
+├── Grid Connection Point
+└── Engineering Laboratories
 
-Faculty Housing
-├── AMI Smart Meters (Generation & Consumption)
-├── Rooftop Solar Panels
-└── Smart Grid Integration
-
-Research Laboratories
+Engineering Research Center (ENG_011-015)
 ├── AMI Smart Meters (Consumption Heavy)
-├── High-Performance Computing
-└── Laboratory Equipment Monitoring
+├── High-Performance Computing Lab
+├── Renewable Energy Research Facility
+└── Graduate Student Workspaces
 ```
 
 ### 2. Engineering Department Blockchain Authority
 
 #### **Engineering Department**
-- **Role**: Sole blockchain validator and system authority
-- **Authority**: Complete control over campus energy trading blockchain
+- **Role**: Sole blockchain validator and system authority for Engineering Complex
+- **Authority**: Complete control over Engineering Complex energy trading blockchain
+- **Scope**: Exclusive governance of Engineering student and faculty energy trading
 - **Responsibilities**:
-  - Operate single Solana validator node
-  - Manage all Anchor program deployments
-  - User registration and meter assignment
-  - Oracle data validation and processing
-  - System maintenance and upgrades
-  - Energy token minting authorization
-  - Trading platform oversight
+  - Operate single Solana validator node for Engineering Complex
+  - Manage all Anchor program deployments and upgrades
+  - Engineering student and faculty registration and meter assignment
+  - Oracle data validation and processing for Engineering AMI systems
+  - System maintenance and security for Engineering operations
+  - Energy token (SPL) minting authorization for Engineering participants
+  - Trading platform oversight and market parameter management
 
 ### 3. System Data Flow
 
 ```mermaid
 flowchart TD
-    subgraph Campus ["University Campus"]
-        subgraph Buildings ["Campus Buildings"]
-            DA["Dormitory A<br/>AMI Smart Meters<br/>Solar + Battery"]
-            DB["Dormitory B<br/>AMI Smart Meters<br/>Wind + Grid"]
-            FH["Faculty Housing<br/>AMI Smart Meters<br/>Solar Panels"]
-            RL["Research Labs<br/>AMI Smart Meters<br/>High Consumption"]
+    subgraph EngComplex ["Engineering Complex"]
+        subgraph Buildings ["Engineering Buildings"]
+            EBA["Engineering Building A<br/>AMI Meters (ENG_001-005)<br/>Solar + Battery"]
+            EBB["Engineering Building B<br/>AMI Meters (ENG_006-010)<br/>Wind + Grid"]
+            ERC["Engineering Research Center<br/>AMI Meters (ENG_011-015)<br/>High Consumption"]
         end
         
         subgraph EngDept ["Engineering Department"]
-            AMI["AMI Data Collector<br/>Campus Network<br/>Oracle Integration"]
-            SOL["Solana Validator<br/>Single Node PoS<br/>Anchor Programs"]
-            API["API Gateway<br/>User Interface<br/>System Management"]
+            AMI["AMI Data Collector<br/>Engineering Network<br/>Oracle Integration"]
+            SOL["Solana Validator<br/>Single Node PoS<br/>Anchor Programs v0.29.0"]
+            API["API Gateway<br/>Engineering Interface<br/>System Management"]
         end
     end
     
     subgraph Programs ["Solana Anchor Programs"]
-        REG["Registry Program<br/>User Management<br/>Meter Assignment"]
-        TKN["Energy Token Program<br/>SPL Token Standard<br/>Mint Authority"]
-        TRD["Trading Program<br/>Order Book<br/>Market Clearing"]
-        ORC["Oracle Program<br/>AMI Integration<br/>Automated Operations"]
-        GOV["Governance Program<br/>System Administration<br/>Parameter Updates"]
+        REG["Registry Program<br/>Engineering User Management<br/>Meter Assignment (ENG_001-015)"]
+        TKN["Energy Token Program<br/>SPL Token Standard<br/>Engineering Mint Authority"]
+        TRD["Trading Program<br/>Engineering Order Book<br/>15-min Market Clearing"]
+        ORC["Oracle Program<br/>Engineering AMI Integration<br/>Automated Operations"]
+        GOV["Governance Program<br/>Engineering Administration<br/>Parameter Updates"]
     end
     
-    %% Data flow from buildings to Engineering Dept
-    DA -->|"Real-time AMI Data"| AMI
-    DB -->|"Real-time AMI Data"| AMI
-    FH -->|"Real-time AMI Data"| AMI
-    RL -->|"Real-time AMI Data"| AMI
+    %% Data flow from Engineering buildings to Engineering Dept
+    EBA -->|"Real-time AMI Data (ENG_001-005)"| AMI
+    EBB -->|"Real-time AMI Data (ENG_006-010)"| AMI
+    ERC -->|"Real-time AMI Data (ENG_011-015)"| AMI
     
     %% Engineering Dept internal flow
-    AMI -->|"Processed Energy Data"| ORC
+    AMI -->|"Processed Engineering Energy Data"| ORC
     SOL -->|"Hosts Programs"| REG
     SOL -->|"Hosts Programs"| TKN
     SOL -->|"Hosts Programs"| TRD
@@ -99,11 +97,11 @@ flowchart TD
     %% Program interactions
     ORC -->|"Submit Meter Data"| TKN
     ORC -->|"Trigger Market Clearing"| TRD
-    TRD -->|"Verify Users"| REG
-    TKN -->|"Verify Users"| REG
-    GOV -->|"Manage System"| REG
-    GOV -->|"Manage System"| TRD
-    GOV -->|"Manage System"| ORC
+    TRD -->|"Verify Engineering Users"| REG
+    TKN -->|"Verify Engineering Users"| REG
+    GOV -->|"Manage Engineering System"| REG
+    GOV -->|"Manage Engineering System"| TRD
+    GOV -->|"Manage Engineering System"| ORC
     
     %% User interface
     API -->|"Program Calls"| SOL
@@ -112,101 +110,104 @@ flowchart TD
     classDef engdept fill:#FF5722,stroke:#D84315,stroke-width:2px,color:#fff
     classDef program fill:#2196F3,stroke:#1565C0,stroke-width:2px,color:#fff
     
-    class DA,DB,FH,RL building
+    class EBA,EBB,ERC building
     class AMI,SOL,API engdept
     class REG,TKN,TRD,ORC,GOV program
 ```
 
-### 4. Energy Token Process
+### 4. SPL Energy Token Process
 
-#### **Step 1: Energy Generation Detection**
-1. AMI smart meters detect renewable energy generation
-2. Real-time data transmitted to Engineering Department oracle
-3. Energy data processed and validated for accuracy
-4. Net energy surplus calculated (generation - consumption)
+#### **Step 1: Engineering Energy Generation Detection**
+1. AMI smart meters (ENG_001-015) detect renewable energy generation within Engineering Complex
+2. Real-time data transmitted to Engineering Department oracle via secure network
+3. Energy data processed and validated for accuracy within Engineering systems
+4. Net energy surplus calculated (generation - consumption) for Engineering participants
 
-#### **Step 2: Token Minting Authorization**
-1. Oracle Program receives validated meter data
-2. Includes: meter ID, energy amount, generation source, timestamp
-3. Data verified against registered user accounts
-4. Oracle triggers SPL token minting for verified generation
+#### **Step 2: SPL Token Minting Authorization**
+1. Oracle Program receives validated meter data from Engineering AMI systems
+2. Includes: meter ID (ENG_001-015), energy amount, generation source, timestamp
+3. Data verified against registered Engineering student/faculty accounts
+4. Oracle triggers SPL token minting for verified energy generation within Engineering Complex
 
 #### **Step 3: Engineering Department Validation**
-1. Engineering Department oracle validates AMI data authenticity
-2. Cross-reference with campus renewable energy installations
-3. Verify meter assignments and user registrations
-4. Validate energy generation data against system parameters
-5. Authorize SPL token minting for verified energy generation
+1. Engineering Department oracle validates AMI data authenticity from Engineering meters
+2. Cross-reference with Engineering Complex renewable energy installations
+3. Verify meter assignments and Engineering user registrations
+4. Validate energy generation data against Engineering system parameters
+5. Authorize SPL token minting for verified energy generation by Engineering participants
 
-#### **Step 4: Token Minting and Trading**
-1. Energy tokens minted directly by Oracle Program
-2. SPL tokens credited to prosumer's associated token account
-3. Tokens immediately available for campus energy trading
-4. Available for trading within 15-minute market epochs
+#### **Step 4: SPL Token Minting and Trading**
+1. SPL energy tokens minted directly by Oracle Program under Engineering authority
+2. SPL tokens credited to Engineering prosumer's associated token account
+3. Tokens immediately available for Engineering Complex energy trading
+4. Available for trading within 15-minute market epochs among Engineering participants
 
 ### 5. Governance Structure
 
 #### **Engineering Department Authority**
-- **Role**: Complete system governance and operations
+- **Role**: Complete system governance and operations for Engineering Complex
+- **Scope**: Exclusive authority over Engineering student and faculty energy trading
 - **Responsibilities**:
-  - Operate single Solana validator node
-  - Manage all Anchor program deployments
-  - Oversee AMI infrastructure integration
-  - User registration and system administration
-  - Market operations and parameter updates
-  - System maintenance and security
+  - Operate single Solana validator node for Engineering Complex
+  - Manage all Anchor program deployments and upgrades
+  - Oversee Engineering AMI infrastructure integration (ENG_001-015)
+  - Engineering user registration and system administration
+  - Engineering Complex market operations and parameter updates
+  - System maintenance and security for Engineering operations
+  - SPL token mint authority for Engineering participants
 
-#### **Single Validator Consensus**
-- **Consensus Mechanism**: Proof of Stake (Single Validator)
-- **Validator**: Engineering Department operated node
-- **Block Production**: Engineering Department has complete authority
-- **Network Security**: Secured by Engineering Department infrastructure
-- **Governance**: Engineering Department controls all system parameters
+#### **Single Validator Consensus (Engineering Department)**
+- **Consensus Mechanism**: Proof of Stake (Single Engineering Validator)
+- **Validator**: Engineering Department operated node exclusively
+- **Block Production**: Engineering Department has complete authority over blockchain
+- **Network Security**: Secured by Engineering Department infrastructure and protocols
+- **Governance**: Engineering Department controls all system parameters and operations
+- **User Base**: Limited to Engineering students and faculty (approximately 15 participants)
 
 ### 6. Technical Implementation
 
-#### **Solana Anchor Programs**
-1. **Registry Program**: User and AMI meter registration under Engineering Department authority
-2. **Energy Token Program**: SPL tokens with Engineering Department mint authority
-3. **Trading Program**: Campus energy marketplace with automated clearing
-4. **Oracle Program**: AMI data integration and automated market operations
-5. **Governance Program**: Engineering Department system administration
+#### **Solana Anchor Programs (v0.29.0)**
+1. **Registry Program**: Engineering student/faculty and AMI meter registration (ENG_001-015) under Engineering Department authority
+2. **Energy Token Program**: SPL tokens with Engineering Department mint authority for Engineering Complex
+3. **Trading Program**: Engineering Complex energy marketplace with automated 15-minute clearing
+4. **Oracle Program**: Engineering AMI data integration and automated market operations
+5. **Governance Program**: Engineering Department system administration and parameter control
 
-#### **AMI Integration**
-- Real-time energy data collection from campus smart meters
-- Secure data transmission to Engineering Department oracle
-- Data validation and processing before token minting
-- Integration with Engineering Department managed systems
+#### **Engineering AMI Integration**
+- Real-time energy data collection from Engineering Complex smart meters (ENG_001-015)
+- Secure data transmission to Engineering Department oracle via dedicated network
+- Data validation and processing before SPL token minting within Engineering systems
+- Integration with Engineering Department managed infrastructure and protocols
 
 #### **Engineering Department Operations**
-- Single validator node operation and maintenance
-- All program deployments and upgrades
-- User registration and meter assignment authority
-- Complete control over energy token minting
-- Market parameter management and oversight
-- System security and operational monitoring
+- Single validator node operation and maintenance for Engineering Complex
+- All program deployments and upgrades under Engineering authority
+- Engineering user registration and meter assignment authority
+- Complete control over SPL energy token minting for Engineering participants
+- Engineering market parameter management and oversight
+- System security and operational monitoring for Engineering Complex
 
 ## Key Benefits
 
-### **Operational Simplicity**
+### **Operational Simplicity for Engineering Complex**
 - Single authority model eliminates complex consensus mechanisms
-- Engineering Department has complete operational control
-- Simplified decision-making and system administration
-- Rapid deployment and maintenance capabilities
-- Clear accountability and responsibility structure
+- Engineering Department has complete operational control over system
+- Simplified decision-making and system administration for Engineering operations
+- Rapid deployment and maintenance capabilities within Engineering infrastructure
+- Clear accountability and responsibility structure under Engineering governance
 
-### **Academic Integration**
-- Seamless integration with university engineering curriculum
-- Real-world blockchain application in controlled environment
-- Hands-on experience with Solana/Anchor development
-- Research opportunities in campus energy systems
-- Demonstration of sustainable engineering practices
+### **Engineering Academic Integration**
+- Seamless integration with Engineering Department curriculum and research
+- Real-world Solana/Anchor blockchain application in controlled Engineering environment
+- Hands-on experience with SPL tokens and Anchor framework v0.29.0 for Engineering students
+- Research opportunities in Engineering Complex energy systems and blockchain technology
+- Demonstration of sustainable engineering practices within Engineering Department
 
-### **Technical Efficiency**
-- Single validator reduces network overhead and complexity
-- Fast transaction processing with minimal latency
-- Lower operational costs compared to multi-validator networks
-- Simplified monitoring and troubleshooting procedures
-- Direct integration with existing campus infrastructure
+### **Technical Efficiency for Engineering Operations**
+- Single validator reduces network overhead and complexity for Engineering use case
+- Fast transaction processing with minimal latency for Engineering participants
+- Lower operational costs compared to multi-validator networks for Engineering scale
+- Simplified monitoring and troubleshooting procedures within Engineering infrastructure
+- Direct integration with existing Engineering Department infrastructure and protocols
 
-This architecture ensures that the university's P2P energy trading system operates efficiently under clear Engineering Department authority while providing valuable educational and research opportunities in blockchain-based energy systems.
+This architecture ensures that the Engineering Complex P2P energy trading system operates efficiently under clear Engineering Department authority while providing valuable educational and research opportunities in blockchain-based energy systems specifically for Engineering students and faculty.

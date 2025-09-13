@@ -46,6 +46,13 @@ describe("Performance Benchmarks", () => {
 
       for (let i = 0; i < userCount; i++) {
         const user = anchor.web3.Keypair.generate();
+        
+        // Airdrop SOL to the user for account creation
+        await provider.connection.requestAirdrop(user.publicKey, 2 * anchor.web3.LAMPORTS_PER_SOL);
+        await provider.connection.confirmTransaction(
+          await provider.connection.requestAirdrop(user.publicKey, 2 * anchor.web3.LAMPORTS_PER_SOL)
+        );
+        
         const [userAccountPda] = anchor.web3.PublicKey.findProgramAddressSync(
           [Buffer.from("user"), user.publicKey.toBuffer()],
           registryProgram.programId
@@ -92,6 +99,13 @@ describe("Performance Benchmarks", () => {
 
       for (let i = 0; i < orderCount; i++) {
         const trader = anchor.web3.Keypair.generate();
+        
+        // Airdrop SOL to the trader for account creation
+        await provider.connection.requestAirdrop(trader.publicKey, 2 * anchor.web3.LAMPORTS_PER_SOL);
+        await provider.connection.confirmTransaction(
+          await provider.connection.requestAirdrop(trader.publicKey, 2 * anchor.web3.LAMPORTS_PER_SOL)
+        );
+        
         const [userAccountPda] = anchor.web3.PublicKey.findProgramAddressSync(
           [Buffer.from("user"), trader.publicKey.toBuffer()],
           registryProgram.programId
@@ -109,19 +123,15 @@ describe("Performance Benchmarks", () => {
           .signers([trader])
           .rpc();
 
-        // Then create order
+        // Then create buy order (using createBuyOrder instead of createOrder)
         const orderPromise = tradingProgram.methods
-          .createOrder(
-            new anchor.BN(1000 + i), // unique order ID
-            i % 2 === 0 ? { sell: {} } : { buy: {} },
+          .createBuyOrder(
             new anchor.BN(100 + i), // amount
-            new anchor.BN(25), // price
-            new anchor.BN(Date.now() / 1000 + 3600) // expires in 1 hour
+            new anchor.BN(25) // max price per kWh
           )
           .accounts({
             market: marketPda,
-            userAccount: userAccountPda,
-            orderCreator: trader.publicKey,
+            authority: trader.publicKey,
             systemProgram: anchor.web3.SystemProgram.programId,
           })
           .signers([trader])
@@ -158,12 +168,12 @@ describe("Performance Benchmarks", () => {
         await oracleProgram.methods
           .submitMeterReading(
             `PERF_METER_${i}`,
-            new anchor.BN(1000 + i),
-            new anchor.BN(Date.now() / 1000),
-            `perf_cert_${i}`
+            new anchor.BN(1000 + i), // energyProduced
+            new anchor.BN(500 + i),  // energyConsumed  
+            new anchor.BN(Date.now() / 1000) // timestamp as i64
           )
           .accounts({
-            oracleConfig: oracleConfigPda,
+            oracleData: oracleConfigPda,
             authority: provider.wallet.publicKey,
           })
           .rpc();
@@ -191,9 +201,7 @@ describe("Performance Benchmarks", () => {
       await oracleProgram.methods
         .triggerMarketClearing()
         .accounts({
-          oracleConfig: oracleConfigPda,
-          market: marketPda,
-          tradingProgram: tradingProgram.programId,
+          oracleData: oracleConfigPda,
           authority: provider.wallet.publicKey,
         })
         .rpc();
@@ -227,6 +235,10 @@ describe("Performance Benchmarks", () => {
 
         for (let i = 0; i < usersPerDepartment; i++) {
           const user = anchor.web3.Keypair.generate();
+          
+          // Airdrop SOL to the user for account creation
+          await provider.connection.requestAirdrop(user.publicKey, 2 * anchor.web3.LAMPORTS_PER_SOL);
+          
           const [userAccountPda] = anchor.web3.PublicKey.findProgramAddressSync(
             [Buffer.from("user"), user.publicKey.toBuffer()],
             registryProgram.programId
@@ -276,6 +288,13 @@ describe("Performance Benchmarks", () => {
       
       // Perform a series of operations to measure costs
       const user = anchor.web3.Keypair.generate();
+      
+      // Airdrop SOL to the user for account creation
+      await provider.connection.requestAirdrop(user.publicKey, 2 * anchor.web3.LAMPORTS_PER_SOL);
+      await provider.connection.confirmTransaction(
+        await provider.connection.requestAirdrop(user.publicKey, 2 * anchor.web3.LAMPORTS_PER_SOL)
+      );
+      
       const [userAccountPda] = anchor.web3.PublicKey.findProgramAddressSync(
         [Buffer.from("user"), user.publicKey.toBuffer()],
         registryProgram.programId
@@ -293,19 +312,15 @@ describe("Performance Benchmarks", () => {
         .signers([user])
         .rpc();
 
-      // Order creation
+      // Order creation (using createSellOrder)
       await tradingProgram.methods
-        .createOrder(
-          new anchor.BN(9999),
-          { sell: {} },
-          new anchor.BN(500),
-          new anchor.BN(25),
-          new anchor.BN(Date.now() / 1000 + 3600)
+        .createSellOrder(
+          new anchor.BN(500), // energy amount
+          new anchor.BN(25)   // price per kWh
         )
         .accounts({
           market: marketPda,
-          userAccount: userAccountPda,
-          orderCreator: user.publicKey,
+          authority: user.publicKey,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
         .signers([user])

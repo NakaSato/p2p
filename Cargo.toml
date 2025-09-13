@@ -2,8 +2,8 @@
 members = [
     "programs/registry",
     "programs/energy-token", 
-    "programs/trading",
     "programs/oracle",
+    "programs/trading",
     "programs/governance"
 ]
 resolver = "2"

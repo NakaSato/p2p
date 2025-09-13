@@ -4,7 +4,7 @@
 # This script provides functions to interact with deployed smart contracts
 
 # Configuration
-NODE_URL="${SUBSTRATE_WS_URL:-ws://substrate-node:9944}"
+NODE_URL="${SOLANA_RPC_URL:-http://solana-validator:8899}"
 ORACLE_ACCOUNT="${ORACLE_ACCOUNT_SEED:-//Alice}"
 CONTRACT_ADDRESSES_PATH="${CONTRACT_ADDRESSES_PATH:-/tmp/contract_addresses}"
 
@@ -146,7 +146,7 @@ get_user_balance() {
 setup_demo_data() {
     echo -e "${GREEN}=== Setting up demo data ===${NC}"
     
-    # Demo accounts (pre-funded accounts in substrate-contracts-node)
+    # Demo accounts (pre-funded accounts in Solana validator)
     ALICE="5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
     BOB="5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty"
     CHARLIE="5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y"

@@ -18,8 +18,8 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-# Install cargo-contract
-RUN cargo install --force --locked cargo-contract --version 4.1.1
+# Install Anchor CLI
+RUN npm install -g @coral-xyz/anchor-cli
 
 WORKDIR /app
 

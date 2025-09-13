@@ -493,7 +493,7 @@ sequenceDiagram
 
 **User Accounts**:
 - **Individual Wallets**: Student/faculty personal wallets for energy trading
-- **Browser-Based**: MetaMask/Polkadot.js extension integration
+- **Browser-Based**: Phantom/Solflare wallet integration
 - **Mobile Wallets**: Dedicated mobile apps with biometric authentication
 - **Social Recovery**: Account recovery through trusted contacts
 
@@ -552,7 +552,7 @@ sequenceDiagram
 - Access control validation
 
 **GridToken Contract** (6 tests):
-- PSP22 standard compliance
+- SPL Token standard compliance
 - Minting authorization
 - Token transfers
 - Burn operations
@@ -588,10 +588,10 @@ sequenceDiagram
 ### Contract Dependencies
 
 **Workspace Dependencies**:
-- **ink! Framework**: Version 4.3 with default features disabled for no_std compatibility
+- **Anchor Framework**: Version 0.29+ with TypeScript client generation
 - **Scale Codec**: Parity Scale Codec v3 with derive features for serialization
 - **Scale Info**: Version 2.6 for metadata generation with derive features
-- **OpenBrush**: Version 4.0.0-beta for PSP22 token standard implementation
+- **Anchor SPL**: Solana program library for SPL Token standard implementation
 
 ### Build Profiles
 
@@ -618,14 +618,14 @@ sequenceDiagram
 - **Trading Contract Configuration**: Registry contract address setting for user verification, Token contract address setting for GRID token operations
 - **Oracle Client Configuration**: Trading contract address setting for automated market operations
 - **Dependency Chain**: Registry → GridToken → Trading → Oracle Client
-- **Interface Standards**: All contracts implement standard ink! traits for cross-contract calls
+- **Interface Standards**: All programs implement standard Anchor traits for cross-program calls
 
 ## Performance Metrics
 
 ### Blockchain Performance
 
 **Transaction Throughput**:
-- **Block Time**: ~6 seconds (Substrate default)
+- **Block Time**: ~400ms (Solana default)
 - **Transactions per Block**: Limited by block gas limit
 - **Contract Call Gas**: 500,000 - 2,000,000 gas units
 
@@ -682,6 +682,6 @@ sequenceDiagram
 
 ## Conclusion
 
-The P2P Energy Trading Platform represents a complete, production-ready solution for decentralized energy trading. Built with modern Rust and ink! smart contracts, it provides a secure, efficient, and scalable foundation for renewable energy marketplaces within campus environments.
+The P2P Energy Trading Platform represents a complete, production-ready solution for decentralized energy trading. Built with modern Rust and Anchor smart contracts on Solana, it provides a secure, efficient, and scalable foundation for renewable energy marketplaces within campus environments.
 
 The modular architecture allows for easy extension and integration with existing energy infrastructure, while the comprehensive testing framework ensures reliability and security for real-world deployment.

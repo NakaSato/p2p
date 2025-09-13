@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial implementation of four core smart contracts:
   - Registry Contract for identity management
-  - GridToken Contract (PSP22-compatible) for energy tokenization
+  - EnergyToken Program (SPL Token-compatible) for energy tokenization
   - Trading Contract for order book and market clearing
   - OracleClient Contract for external data integration
 
@@ -41,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Campus location tracking
 
 - **GridToken Contract (`contracts/grid-token`)**
-  - PSP22 standard compliance with OpenBrush
+  - SPL Token standard compliance with Anchor SPL
   - Energy-backed token minting (1 kWh = 1 GRID)
   - Authorized minting for AMI integration
   - Token burning for energy consumption tracking
@@ -83,15 +83,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Network deployment checklist
 
 ### Technical Specifications
-- **Framework**: ink! 4.3.0 smart contracts
-- **Standard**: PSP22 token implementation
-- **Network**: Substrate-based chains with contracts pallet
-- **Language**: Rust with ink! macros
-- **Dependencies**: OpenBrush for PSP22 standards
+- **Framework**: Anchor 0.29.0 smart programs
+- **Standard**: SPL Token implementation
+- **Network**: Solana blockchain
+- **Language**: Rust with Anchor framework
+- **Dependencies**: anchor-lang, anchor-spl
 
 ### Performance
-- Optimized contract sizes
-- Gas-efficient operations
+- Optimized program sizes
+- Compute-efficient operations
 - Batch processing for market clearing
 - Event indexing for efficient queries
 
@@ -111,22 +111,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Development Notes
 
 ### Testing Environment
-- All tests run with simulated ink! environment
-- Oracle funding simulation using `ink::env::test::set_value_transferred`
+- All tests run with Solana test validator
+- Anchor test framework with TypeScript
 - Comprehensive error handling validation
 - Performance profiling capabilities
 
 ### Deployment Requirements
-- Rust toolchain with `cargo-contract`
-- Substrate node with contracts pallet
-- Sufficient native tokens for contract deployment
-- Oracle operator keys for automated operations
+- Rust toolchain with Anchor CLI
+- Solana CLI and test validator
+- Sufficient SOL for program deployment
+- Anchor workspace configuration
 
 ### Contributing Guidelines
-- Follow ink! best practices
+- Follow Anchor best practices
 - Maintain 100% test coverage for critical paths
 - Document all public APIs
-- Security review required for contract changes
+- Security review required for program changes
 
 ---
 
