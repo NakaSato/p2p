@@ -31,13 +31,16 @@
 
 ### เทคโนโลยีที่ใช้ (Technologies Used)
 - **Blockchain**: Solana with Engineering Department Single Validator
-- **Smart Contracts**: Anchor Framework 0.29.0
+- **Smart Contracts**: Anchor Framework 0.31.1 (Updated from 0.29.0)
 - **Token Standard**: SPL Token (Solana Program Library)
 - **Backend**: Rust API Gateway with Axum framework
 - **Frontend**: React TypeScript with Vite
 - **Database**: PostgreSQL with TimescaleDB extension
 - **Containerization**: Docker & Docker Compose
 - **Programming Language**: Rust (Edition 2021)
+- **Development Environment**: Docker-based Solana validator with Anchor CLI
+- **Cross-Program Communication**: Anchor CPI (Cross Program Invocation)
+- **Wallet Integration**: Solana Wallet Adapter for React
 
 ### สถาปัตยกรรมระบบ (System Architecture)
 ระบบประกอบด้วย 5 Anchor Programs หลัก และ Engineering Complex Smart Meter Simulation:
@@ -91,13 +94,16 @@ This project develops a peer-to-peer (P2P) energy trading system using Solana bl
 
 ### Technologies Used
 - **Blockchain**: Solana with Engineering Department Single Validator
-- **Smart Contracts**: Anchor Framework 0.29.0
+- **Smart Contracts**: Anchor Framework 0.31.1 (Updated from 0.29.0)
 - **Token Standard**: SPL Token (Solana Program Library)
 - **Backend**: Rust API Gateway with Axum framework
 - **Frontend**: React TypeScript with Vite
 - **Database**: PostgreSQL with TimescaleDB extension
 - **Containerization**: Docker & Docker Compose
 - **Programming Language**: Rust (Edition 2021)
+- **Development Environment**: Docker-based Solana validator with Anchor CLI
+- **Cross-Program Communication**: Anchor CPI (Cross Program Invocation)
+- **Wallet Integration**: Solana Wallet Adapter for React
 
 ### System Architecture
 The system consists of 5 core Anchor programs and Engineering Complex Smart Meter Simulation:
@@ -172,6 +178,46 @@ The system consists of 5 core Anchor programs and Engineering Complex Smart Mete
 Engineering AMI → Engineering API Gateway → Oracle Program → SPL Token Program
 ```
 
+#### 4. **Application-to-Blockchain Interaction Architecture**
+```mermaid
+graph TD
+    subgraph "Physical Layer"
+        AMI["Engineering AMI Smart Meters<br/>ENG_001 - ENG_015"]
+        Solar["50kW Solar Array<br/>Engineering Building"]
+    end
+    
+    subgraph "Application Layer"
+        Sim["Smart Meter Simulator<br/>(Python)"]
+        API["API Gateway<br/>(Rust/Axum)"]
+        Frontend["React Frontend<br/>(TypeScript)"]
+    end
+    
+    subgraph "Solana Blockchain"
+        Validator["Engineering Dept<br/>Single Validator"]
+        Registry["Registry Program<br/>(Anchor)"]
+        Token["Energy Token Program<br/>(SPL Token)"]
+        Trading["Trading Program<br/>(Anchor)"]
+        Oracle["Oracle Program<br/>(Anchor)"]
+        Gov["Governance Program<br/>(Anchor)"]
+    end
+    
+    AMI --> Sim
+    Sim --> API
+    API --> Oracle
+    Frontend --> API
+    API --> Registry
+    API --> Token
+    API --> Trading
+    Oracle --> Token
+    Oracle --> Trading
+    Trading --> Token
+    Registry --> Token
+    Gov --> Registry
+    Gov --> Token
+    Gov --> Trading
+    Gov --> Oracle
+```
+
 #### 4. **Data Processing Pipeline**
 1. **Data Generation**: Engineering Simulator สร้างข้อมูลพลังงานจาก 15 meters ในอาคารวิศวกรรม
 2. **API Call**: POST ข้อมูลไปยัง `/api/engineering/meter-reading` endpoint
@@ -179,6 +225,50 @@ Engineering AMI → Engineering API Gateway → Oracle Program → SPL Token Pro
 4. **Oracle Processing**: Oracle Program รับข้อมูลและประมวลผลภายใต้ Engineering authority
 5. **SPL Token Minting**: สร้าง SPL GRID Tokens สำหรับพลังงานที่ผลิตได้ (9 decimal precision)
 6. **Trading Integration**: นำข้อมูลเข้าสู่ระบบการซื้อขายภายในคณะวิศวกรรม
+
+#### 5. **Cross-Program Invocation (CPI) Implementation**
+```rust
+// Oracle Program minting tokens via CPI to SPL Token Program
+pub fn mint_energy_tokens(ctx: Context<MintTokens>, amount: u64) -> Result<()> {
+    let cpi_accounts = anchor_spl::token::MintTo {
+        mint: ctx.accounts.mint.to_account_info(),
+        to: ctx.accounts.user_token_account.to_account_info(),
+        authority: ctx.accounts.mint_authority.to_account_info(),
+    };
+    
+    anchor_spl::token::mint_to(
+        CpiContext::new(ctx.accounts.token_program.to_account_info(), cpi_accounts),
+        amount,
+    )?;
+    
+    Ok(())
+}
+```
+
+#### 6. **Frontend Wallet Integration**
+```typescript
+// React Frontend connecting to Solana blockchain
+import { useWallet } from '@solana/wallet-adapter-react';
+import * as anchor from '@coral-xyz/anchor';
+
+const createSellOrder = async (energyAmount: number, pricePerKWh: number) => {
+  const tx = await tradingProgram.methods
+    .createSellOrder(
+      new anchor.BN(energyAmount * 1e9), // 9 decimal precision
+      new anchor.BN(pricePerKWh * 1e9)
+    )
+    .accounts({
+      seller: publicKey,
+      sellerTokenAccount: sellerTokenAccount,
+      tradingAccount: tradingPda,
+      tokenProgram: TOKEN_PROGRAM_ID,
+    })
+    .transaction();
+    
+  const signature = await sendTransaction(tx, connection);
+  return signature;
+};
+```
 
 ### ข้อมูลที่จำลอง (Simulated Data)
 
@@ -220,6 +310,9 @@ Engineering AMI → Engineering API Gateway → Oracle Program → SPL Token Pro
 3. **Real-time AMI Integration**: การเชื่อมต่อข้อมูล AMI แบบเรียลไทม์
 4. **SPL Token Standard**: มาตรฐาน Token ของ Solana ecosystem
 5. **Engineering Department Authority**: ระบบจัดการแบบ Single Validator เพื่อความปลอดภัยและควบคุม
+6. **Docker-based Development Environment**: ระบบพัฒนาที่ใช้ Container สำหรับ Solana validator
+7. **TypeScript Integration**: การใช้ Anchor IDL สำหรับ type-safe frontend development
+8. **WebSocket Event Monitoring**: การติดตามเหตุการณ์บน blockchain แบบเรียลไทม์
 
 ## ความเป็นไปได้และความเสี่ยง (Feasibility & Risks)
 
@@ -249,12 +342,16 @@ Engineering AMI → Engineering API Gateway → Oracle Program → SPL Token Pro
 - พัฒนา Oracle Program สำหรับ AMI integration
 - พัฒนา Governance Program สำหรับ Engineering Department
 - Unit Testing และ Integration Testing
+- **สถานะปัจจุบัน**: ✅ โครงสร้าง Anchor Programs พื้นฐานเสร็จแล้ว
+- **การทดสอบ**: ✅ Docker-based development environment พร้อมใช้งาน
 
 ### **Phase 3: การพัฒนา Backend และ API (4 สัปดาห์)**
 - สร้าง Rust API Gateway ด้วย Axum สำหรับ Engineering Department
 - พัฒนา Engineering Complex Smart Meter Simulator
 - สร้าง Database Schema และ Data Models
 - API Testing และ Documentation
+- **สถานะปัจจุบัน**: 🔄 API Gateway architecture ออกแบบแล้ว
+- **การรวมระบบ**: 🔄 Solana RPC integration กำลังพัฒนา
 
 ### **Phase 4: การพัฒนา Frontend (4 สัปดาห์)**
 - สร้าง React TypeScript Application สำหรับคณะวิศวกรรม
@@ -295,3 +392,113 @@ Engineering AMI → Engineering API Gateway → Oracle Program → SPL Token Pro
 6. **Solana DeFi Integration**: การรวมเข้ากับ Solana DeFi ecosystem
 7. **Carbon Credit Trading**: รวมระบบ Carbon Credit Trading บน Solana
 8. **Cross-Chain Bridges**: เชื่อมต่อกับ blockchain อื่น ๆ ผ่าน Solana bridges
+
+## สถานะการพัฒนาปัจจุบัน (Current Development Status)
+
+### **เสร็จสมบูรณ์แล้ว (Completed) ✅**
+- Docker-based Solana validator development environment
+- Anchor CLI 0.31.1 installation และ configuration
+- โครงสร้างพื้นฐาน Anchor Programs (Registry, Token, Trading, Oracle, Governance)
+- Integration testing framework
+- Docker Compose orchestration สำหรับ development environment
+
+### **กำลังดำเนินการ (In Progress) 🔄**
+- Cross-Program Invocation (CPI) implementation
+- API Gateway development with Rust/Axum
+- Smart Meter Simulator integration
+- Frontend React TypeScript development
+
+### **วางแผนไว้ (Planned) 📋**
+- Production deployment to Engineering Department validator
+- Real AMI integration
+- Performance optimization
+- Security audit และ testing
+- Documentation completion
+
+## ข้อท้าทายทางเทคนิคและการแก้ไข (Technical Challenges & Solutions)
+
+### **1. ARM64 Compatibility Issues**
+- **ปัญหา**: Solana CLI และ validator มีปัญหาบน ARM64 Mac (Apple Silicon)
+- **แก้ไข**: ใช้ Docker container development environment และ fallback เป็น dev mode
+
+### **2. Anchor Framework Learning Curve**
+- **ปัญหา**: ความซับซ้อนของ Anchor และ Solana development
+- **แก้ไข**: การศึกษาเอกสาร step-by-step และ hands-on development
+
+### **3. Cross-Program Communication**
+- **ปัญหา**: การออกแบบ CPI calls ระหว่าง Anchor programs
+- **แก้ไข**: ใช้ Anchor CPI framework และ type-safe interfaces
+
+## รายละเอียดการ Implementation ปัจจุบัน (Current Implementation Details)
+
+### **1. Anchor Programs Architecture**
+```
+programs/
+├── registry/          # User and meter registration under Engineering authority
+├── energy-token/      # SPL Token implementation for GRID tokens
+├── trading/          # Order book and automated market clearing
+├── oracle/           # AMI data integration and market triggers
+└── governance/       # Engineering Department system administration
+```
+
+### **2. Development Environment Setup**
+```bash
+# Docker-based Solana validator
+docker-compose up -d solana-validator
+
+# Anchor CLI development
+docker exec -it p2p-anchor-dev anchor --version
+# Output: anchor-cli 0.31.1
+
+# Test project creation
+anchor init test-project --template=single --package-manager npm
+```
+
+### **3. Program Derived Addresses (PDAs)**
+```rust
+// Registry Program PDAs
+#[derive(Accounts)]
+pub struct RegisterUser<'info> {
+    #[account(
+        init,
+        payer = authority,
+        space = UserAccount::SIZE,
+        seeds = [b"user", user.key().as_ref()],
+        bump
+    )]
+    pub user_account: Account<'info, UserAccount>,
+    // ...
+}
+```
+
+### **4. Token Economy Implementation**
+- **GRID Token**: SPL Token มาตรฐาน Solana (9 decimal precision)
+- **1 kWh = 1 GRID Token**: การแทนค่าพลังงานด้วย token
+- **Mint Authority**: ควบคุมโดย Engineering Department ผ่าน Oracle Program
+- **Associated Token Accounts**: การจัดการ token accounts สำหรับแต่ละผู้ใช้
+
+### **5. API Integration Points**
+```typescript
+// API Gateway endpoints
+POST /api/engineering/meter-reading    // AMI data submission
+GET  /api/trading/orders              // Current market orders
+POST /api/trading/sell-order          // Create sell order
+POST /api/trading/buy-order           // Create buy order
+GET  /api/user/balance               // User token balance
+```
+
+### **6. Real-time Event Processing**
+```rust
+// WebSocket subscriptions for blockchain events
+let (mut logs_subscription, logs_receiver) = pubsub_client
+    .logs_subscribe(
+        RpcTransactionLogsFilter::Mentions(vec![
+            registry_program_id.to_string(),
+            trading_program_id.to_string(),
+        ]),
+        RpcTransactionLogsConfig {
+            commitment: Some(CommitmentConfig::confirmed()),
+        },
+    )
+    .await?;
+```
