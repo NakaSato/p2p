@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     libudev-dev \
     build-essential \
+    git \
     sudo \
     && rm -rf /var/lib/apt/lists/*
 
