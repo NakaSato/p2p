@@ -7,6 +7,7 @@ pub struct Config {
     pub environment: String,
     pub port: u16,
     pub database_url: String,
+    pub timescale_url: String,
     pub redis_url: String,
     pub jwt_secret: String,
     pub solana_rpc_url: String,
@@ -31,6 +32,8 @@ impl Config {
                 .parse()?,
             database_url: env::var("DATABASE_URL")
                 .unwrap_or_else(|_| "postgresql://user:password@localhost:5432/energy_trading".to_string()),
+            timescale_url: env::var("TIMESCALE_URL")
+                .unwrap_or_else(|_| "postgresql://timescale_user:timescale_password@localhost:5433/p2p_timeseries".to_string()),
             redis_url: env::var("REDIS_URL")
                 .unwrap_or_else(|_| "redis://localhost:6379".to_string()),
             jwt_secret: env::var("JWT_SECRET")
@@ -68,6 +71,7 @@ impl Default for Config {
             environment: "development".to_string(),
             port: 8080,
             database_url: "postgresql://user:password@localhost:5432/energy_trading".to_string(),
+            timescale_url: "postgresql://timescale_user:timescale_password@localhost:5433/p2p_timeseries".to_string(),
             redis_url: "redis://localhost:6379".to_string(),
             jwt_secret: "your-super-secret-jwt-key".to_string(),
             solana_rpc_url: "http://localhost:8899".to_string(),

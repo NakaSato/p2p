@@ -17,6 +17,17 @@ pub async fn setup_database(database_url: &str) -> Result<DatabasePool> {
     Ok(pool)
 }
 
+pub async fn setup_timescale_database(timescale_url: &str) -> Result<DatabasePool> {
+    info!("Connecting to TimescaleDB: {}", timescale_url);
+    
+    let pool = PgPool::connect(timescale_url).await?;
+    
+    // Test the connection and TimescaleDB extension
+    sqlx::query("SELECT 1").execute(&pool).await?;
+    
+    Ok(pool)
+}
+
 pub async fn run_migrations(pool: &DatabasePool) -> Result<()> {
     info!("Running database migrations");
     

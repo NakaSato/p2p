@@ -34,11 +34,14 @@ async fn main() -> Result<()> {
     let config = Config::from_env()?;
     info!("Loaded configuration for environment: {}", config.environment);
 
-    // Setup database connection
+    // Setup database connections
     let db_pool = database::setup_database(&config.database_url).await?;
-    info!("Database connection established");
+    info!("PostgreSQL connection established");
 
-    // Run database migrations
+    let timescale_pool = database::setup_timescale_database(&config.timescale_url).await?;
+    info!("TimescaleDB connection established");
+
+    // Run database migrations (PostgreSQL only - TimescaleDB has its own schema)
     database::run_migrations(&db_pool).await?;
     info!("Database migrations completed");
 

@@ -40,7 +40,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      # Removed init script to let API Gateway migrations handle schema
     networks:
       - p2p-network
     restart: unless-stopped
@@ -179,6 +179,7 @@ services:
     container_name: p2p-api-gateway
     depends_on:
       - postgres
+      - timescaledb
       - redis
       - solana-validator
     ports:
@@ -187,6 +188,7 @@ services:
       ENVIRONMENT: development
       PORT: 8080
       DATABASE_URL: postgresql://p2p_user:p2p_password@postgres:5432/p2p_energy_trading
+      TIMESCALE_URL: postgresql://timescale_user:timescale_password@timescaledb:5432/p2p_timeseries
       REDIS_URL: redis://redis:6379
       SOLANA_RPC_URL: http://solana-validator:8899
       SOLANA_WS_URL: ws://solana-validator:8900
