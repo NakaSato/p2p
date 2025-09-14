@@ -1,36 +1,36 @@
-# การพัฒนาระบบการซื้อขายพลังงานแสงอาทิตย์แบบ Peer-to-Peer ด้วยเทคโนโลยี Solana Blockchain และ Anchor Smart Contracts: กรณีศึกษาคณะวิศวกรรมศาสตร์
+# การพัฒนาระบบจำลองการซื้อขายพลังงานแสงอาทิตย์แบบ P2P ด้วย Solana Anchor Framework: กรณีศึกษามหาวิทยาลัย
 
 ## หัวข้อโครงงาน (Project Title)
-**"Development of Peer-to-Peer Solar Energy Trading System using Solana Blockchain Technology and Anchor Smart Contracts: An Engineering Department Case Study"**
+**"Development of P2P Solar Energy Trading Simulation System using Solana Anchor Framework: A University Case Study"**
 
-**หัวข้อภาษาไทย:** "การพัฒนาระบบการซื้อขายพลังงานแสงอาทิตย์แบบ Peer-to-Peer ด้วยเทคโนโลยี Solana Blockchain และ Anchor Smart Contracts: กรณีศึกษาคณะวิศวกรรมศาสตร์"
+**หัวข้อภาษาไทย:** "การพัฒนาระบบจำลองการซื้อขายพลังงานแสงอาทิตย์แบบ Peer-to-Peer ด้วย Solana Smart Contract Anchor Framework"
 
 ## ข้อมูลโปรเจค (Project Information)
 
 ### **สาขาวิชา:** วิศวกรรมคอมพิวเตอร์ / วิทยาการคอมพิวเตอร์
-### **ประเภทโครงงาน:** การพัฒนาซอฟต์แวร์และระบบ Solana Blockchain
-### **คำสำคัญ:** Solana, Anchor Framework, SPL Tokens, P2P Energy Trading, Engineering Department, Solar Energy, AMI Integration
+### **ประเภทโครงงาน:** การพัฒนาระบบจำลองด้วย Solana Anchor Framework
+### **คำสำคัญ:** Solana Anchor Framework, Smart Meter Simulation, P2P Energy Trading, SPL Tokens, University Campus, Solar Energy, Blockchain Simulation
 ### **ระดับความยาก:** สูง - ใช้เทคโนโลยี Solana Blockchain และ Anchor Framework ขั้นสูง
 
 ## บทคัดย่อ (Abstract)
 
-โปรเจคนี้เป็นการพัฒนาระบบการซื้อขายพลังงานแสงอาทิตย์แบบ Peer-to-Peer (P2P Energy Trading System) ที่ใช้เทคโนโลยี Solana Blockchain และ Anchor Smart Contracts เพื่อให้นักศึกษาและอาจารย์ในคณะวิศวกรรมศาสตร์สามารถซื้อขายพลังงานแสงอาทิตย์ส่วนเกินได้โดยตรงกับกัน ผ่านระบบที่ควบคุมโดยคณะวิศวกรรมศาสตร์ในฐานะ Single Validator Authority
+โปรเจคนี้เป็นการพัฒนาระบบจำลองการซื้อขายพลังงานแสงอาทิตย์แบบ Peer-to-Peer (P2P Energy Trading Simulation System) โดยใช้ Solana Anchor Framework เป็นเครื่องมือหลักในการสร้าง Smart Contracts และ Smart Meter Simulator เพื่อให้นักศึกษา อาจารย์ และบุคลากรในมหาวิทยาลัยสามารถศึกษาและทดลองระบบการซื้อขายพลังงานแสงอาทิตย์ส่วนเกินได้ในสภาพแวดล้อมที่จำลองขึ้น ผ่านระบบที่ควบคุมโดยมหาวิทยาลัยในฐานะ Single Validator Authority
 
 ### วัตถุประสงค์หลัก (Main Objectives)
-1. **พัฒนาระบบ Solana Blockchain**: สร้างระบบการซื้อขายพลังงานแบบ P2P บน Solana ด้วย Single Validator
-2. **สร้าง Anchor Programs**: พัฒนา Smart Contracts ด้วย Anchor Framework บน Solana
-3. **ออกแบบ SPL Token Economy**: สร้างระบบเศรษฐกิจ SPL Token สำหรับการแลกเปลี่ยนพลังงาน (1 GRID = 1 kWh)
-4. **พัฒนา Oracle System**: สร้างระบบ Oracle เพื่อเชื่อมต่อข้อมูลจาก AMI Smart Meter ในอาคารวิศวกรรม
-5. **สร้าง Full-Stack Application**: พัฒนา API Gateway และ Frontend สำหรับการใช้งานในคณะวิศวกรรม
+1. **พัฒนาระบบจำลองด้วย Solana Anchor Framework**: สร้างระบบจำลอง P2P Energy Trading บน Solana ด้วย Anchor Programs
+2. **สร้าง Anchor Smart Contracts**: พัฒนา Smart Contracts ด้วย Anchor Framework พร้อม Smart Meter Simulation
+3. **ออกแบบ SPL Token Economy Simulation**: สร้างระบบจำลองเศรษฐกิจ SPL Token สำหรับการแลกเปลี่ยนพลังงาน (1 GRID = 1 kWh)
+4. **พัฒนา Oracle System Simulation**: สร้างระบบจำลอง Oracle เพื่อเชื่อมต่อข้อมูลจาก Smart Meter Simulator
+5. **สร้าง Full-Stack Simulation Application**: พัฒนา API Gateway และ Frontend สำหรับการจำลองในมหาวิทยาลัย
 
 ### วัตถุประสงค์รอง (Secondary Objectives)
-1. ศึกษาและประยุกต์ใช้ Solana Blockchain ในงานด้านพลังงาน
-2. ออกแบบระบบที่สามารถขยายผลไปใช้ในคณะอื่น ๆ ของมหาวิทยาลัย
-3. พัฒนาต้นแบบที่สามารถใช้เป็นเครื่องมือการเรียนการสอนในคณะวิศวกรรม
-4. วิเคราะห์ประสิทธิภาพของ Single Validator Architecture
+1. ศึกษาและประยุกต์ใช้ Solana Anchor Framework ในงานด้านการจำลองพลังงาน
+2. ออกแบบระบบจำลองที่สามารถขยายผลไปใช้ในคณะต่าง ๆ และอาคารต่าง ๆ ของมหาวิทยาลัย
+3. พัฒนาต้นแบบการจำลองที่สามารถใช้เป็นเครื่องมือการเรียนการสอน Blockchain และวิจัยในมหาวิทยาลัย
+4. วิเคราะห์ประสิทธิภาพของ Anchor Framework ใน Single Validator Architecture
 
 ### เทคโนโลยีที่ใช้ (Technologies Used)
-- **Blockchain**: Solana with Engineering Department Single Validator
+- **Blockchain**: Solana with University Single Validator
 - **Smart Contracts**: Anchor Framework 0.31.1 (Updated from 0.29.0)
 - **Token Standard**: SPL Token (Solana Program Library)
 - **Backend**: Rust API Gateway with Axum framework
@@ -43,39 +43,39 @@
 - **Wallet Integration**: Solana Wallet Adapter for React
 
 ### สถาปัตยกรรมระบบ (System Architecture)
-ระบบประกอบด้วย 5 Anchor Programs หลัก และ Engineering Complex Smart Meter Simulation:
+ระบบประกอบด้วย 5 Anchor Programs หลัก และ University Campus Smart Meter Simulation Engine:
 
-1. **Registry Program**: จัดการการลงทะเบียนผู้ใช้และ Smart Meters ภายใต้อำนาจคณะวิศวกรรม
-2. **Energy Token Program**: SPL Token มาตรฐาน Solana สำหรับการซื้อขายพลังงาน
-3. **Trading Program**: ระบบตลาดการซื้อขายแบบ Order Book ที่มีการ Automated Clearing
-4. **Oracle Program**: เชื่อมต่อข้อมูลจาก AMI และทำ Market Clearing อัตโนมัติ
-5. **Governance Program**: การจัดการระบบโดยคณะวิศวกรรมศาสตร์
-6. **Engineering Smart Meter Simulator**: จำลองการทำงานของ Smart Meter ในอาคารวิศวกรรม
+1. **Registry Program**: จัดการการลงทะเบียนผู้ใช้และ Smart Meter Simulation ภายใต้อำนาจมหาวิทยาลัย
+2. **Energy Token Program**: SPL Token มาตรฐาน Solana สำหรับการจำลองซื้อขายพลังงาน
+3. **Trading Program**: ระบบจำลองตลาดการซื้อขายแบบ Order Book ที่มีการ Automated Clearing
+4. **Oracle Program**: จำลองการเชื่อมต่อข้อมูลจาก AMI และทำ Market Clearing อัตโนมัติ
+5. **Governance Program**: การจัดการระบบจำลองโดยมหาวิทยาลัย
+6. **University Smart Meter Simulator Engine**: เครื่องมือจำลองการทำงานของ Smart Meter ในมหาวิทยาลัย
 
 ### คุณสมบัติหลัก (Key Features)
-- การซื้อขายพลังงานแบบ Real-time ทุก 15 นาที (Market Epoch)
-- ระบบ Automated Market Clearing ด้วย Oracle Program
-- การควบคุมโดยคณะวิศวกรรมศาสตร์ในฐานะ Single Validator Authority
-- ระบบ SPL Token Economy: 1 kWh = 1 GRID Token (9 decimal precision)
-- Cross Program Invocation (CPI) Communication
-- RESTful API สำหรับ Integration กับ Engineering Complex AMI
-- Responsive Web Interface สำหรับนักศึกษาและอาจารย์วิศวกรรม
-- **Engineering Complex AMI Integration**: การเชื่อมต่อกับ AMI ในอาคารวิศวกรรม
-- **API-to-Blockchain Integration**: การส่งข้อมูลจาก AMI เข้าสู่ Solana Blockchain
+- การจำลองการซื้อขายพลังงานแบบ Real-time ทุก 15 นาที (Simulated Market Epoch)
+- ระบบจำลอง Automated Market Clearing ด้วย Oracle Program
+- การควบคุมโดยมหาวิทยาลัยในฐานะ Single Validator Authority
+- ระบบจำลอง SPL Token Economy: 1 kWh = 1 GRID Token (9 decimal precision)
+- Cross Program Invocation (CPI) Communication ใน Anchor Framework
+- RESTful API สำหรับ Integration กับ Smart Meter Simulation Engine
+- Responsive Web Interface สำหรับการจำลองและเรียนรู้
+- **University Campus Smart Meter Simulation**: เครื่องมือจำลอง AMI ในมหาวิทยาลัย
+- **Simulation-to-Blockchain Integration**: การส่งข้อมูลจำลองเข้าสู่ Solana Anchor Programs
 
 ### ผลลัพธ์ที่คาดหวัง (Expected Outcomes)
-1. ระบบ P2P Energy Trading บน Solana ที่ทำงานได้จริงในคณะวิศวกรรม
-2. การลดต้นทุนในการซื้อขายพลังงานภายในคณะวิศวกรรม
-3. การเพิ่มประสิทธิภาพการใช้พลังงานหมุนเวียนในอาคารวิศวกรรม
-4. ต้นแบบระบบ Solana Blockchain สำหรับการนำไปใช้ในคณะอื่น ๆ
-5. การศึกษาประสิทธิภาพของ Single Validator Architecture
+1. ระบบจำลอง P2P Energy Trading บน Solana Anchor Framework ที่ทำงานได้จริงในมหาวิทยาลัย
+2. เครื่องมือการเรียนรู้และวิจัยด้าน Blockchain และ Energy Trading สำหรับมหาวิทยาลัย
+3. การเพิ่มประสิทธิภาพการเรียนการสอนด้าน Anchor Framework และ Smart Contract Development
+4. ต้นแบบระบบจำลอง Solana Anchor สำหรับการนำไปใช้ในมหาวิทยาลัยอื่น ๆ
+5. การศึกษาประสิทธิภาพของ Anchor Framework ใน Single Validator Architecture
 
 ### การประยุกต์ใช้ (Applications)
-- คณะวิศวกรรมศาสตร์ที่มีระบบ Solar Cells
-- การขยายผลไปยังคณะอื่น ๆ ในมหาวิทยาลัย
-- โครงการ Smart Campus Engineering Complex
-- ระบบ Microgrid ในชุมชนวิศวกรรม
-- การเรียนการสอนเรื่อง Blockchain ในคณะวิศวกรรม
+- เครื่องมือการเรียนการสอน Solana Anchor Framework ในมหาวิทยาลัย
+- การวิจัยและพัฒนาระบบ Blockchain Simulation ในสถาบันการศึกษา
+- ต้นแบบการจำลองสำหรับมหาวิทยาลัยอื่น ๆ ทั่วประเทศ
+- โครงการ Smart Campus University Simulation
+- การเรียนการสอน Blockchain, Anchor Framework และ Sustainability ในมหาวิทยาลัย
 
 ---
 
@@ -350,8 +350,9 @@ const createSellOrder = async (energyAmount: number, pricePerKWh: number) => {
 - พัฒนา Engineering Complex Smart Meter Simulator
 - สร้าง Database Schema และ Data Models
 - API Testing และ Documentation
-- **สถานะปัจจุบัน**: 🔄 API Gateway architecture ออกแบบแล้ว
-- **การรวมระบบ**: 🔄 Solana RPC integration กำลังพัฒนา
+- **สถานะปัจจุบัน**: ✅ API Gateway พร้อมใช้งาน พร้อม authentication system
+- **การรวมระบบ**: ✅ Database migrations และ user management เสร็จสมบูรณ์
+- **การพัฒนาล่าสุด**: ✅ Enhanced user management APIs และ audit logging
 
 ### **Phase 4: การพัฒนา Frontend (4 สัปดาห์)**
 - สร้าง React TypeScript Application สำหรับคณะวิศวกรรม
@@ -401,12 +402,20 @@ const createSellOrder = async (energyAmount: number, pricePerKWh: number) => {
 - โครงสร้างพื้นฐาน Anchor Programs (Registry, Token, Trading, Oracle, Governance)
 - Integration testing framework
 - Docker Compose orchestration สำหรับ development environment
+- **API Gateway Infrastructure**: Rust/Axum server พร้อม health endpoints
+- **Authentication System**: JWT-based authentication พร้อม password hashing
+- **Database Layer**: PostgreSQL, TimescaleDB และ Redis integration
+- **User Management**: Enhanced registration, profile management และ admin controls
+- **Security Features**: Role-based access control, audit logging, wallet management
+- **Docker Containerization**: Multi-service architecture พร้อม environment configuration
 
 ### **กำลังดำเนินการ (In Progress) 🔄**
 - Cross-Program Invocation (CPI) implementation
-- API Gateway development with Rust/Axum
 - Smart Meter Simulator integration
 - Frontend React TypeScript development
+- **Enum Casting Fixes**: แก้ไขปัญหา PostgreSQL enum type casting ใน API Gateway
+- **Authentication API Testing**: การทดสอบ login/registration endpoints
+- **Protected Endpoints**: การพัฒนา JWT middleware สำหรับ protected routes
 
 ### **วางแผนไว้ (Planned) 📋**
 - Production deployment to Engineering Department validator
@@ -414,10 +423,74 @@ const createSellOrder = async (energyAmount: number, pricePerKWh: number) => {
 - Performance optimization
 - Security audit และ testing
 - Documentation completion
+- **Frontend Development**: React TypeScript application
+- **Solana Integration**: เชื่อมต่อ API Gateway กับ Anchor Programs
+- **Smart Meter Simulator**: การจำลอง AMI data generation
+- **End-to-End Testing**: การทดสอบระบบครบวงจร
+
+## ความก้าวหน้าล่าสุด (Recent Development Progress)
+
+### **Week 1-2: Infrastructure และ Foundation (เสร็จสมบูรณ์) ✅**
+- ✅ Docker-based development environment
+- ✅ Solana validator และ Anchor CLI setup
+- ✅ Database schema design และ migrations
+- ✅ API Gateway infrastructure with Axum framework
+- ✅ Health endpoints และ service monitoring
+
+### **Week 3: Authentication และ User Management (เสร็จสมบูรณ์) ✅**
+- ✅ JWT-based authentication system
+- ✅ Password hashing และ verification (bcrypt)
+- ✅ Role-based access control (student, faculty, admin)
+- ✅ Enhanced user registration with department validation
+- ✅ Wallet address management สำหรับ Solana integration
+- ✅ Admin user management endpoints
+- ✅ Audit logging system สำหรับ user activities
+- ✅ Department-specific validation (Engineering Department focus)
+
+### **Week 4: API Testing และ Debugging (กำลังดำเนินการ) 🔄**
+- 🔄 Authentication endpoint testing
+- 🔄 PostgreSQL enum type casting fixes
+- 🔄 JWT middleware implementation
+- 📋 Protected endpoints validation
+
+### **Technical Achievements (สิ่งที่ทำได้แล้ว)**
+1. **Modular Architecture**: Clean separation ระหว่าง handlers, services, และ middleware
+2. **Type Safety**: Comprehensive validation ด้วย Rust type system และ validator crate
+3. **Security Features**: 
+   - Password strength validation
+   - JWT token expiration handling
+   - Role-based endpoint protection
+   - Input sanitization และ validation
+4. **Database Design**: 
+   - PostgreSQL enum types สำหรับ roles
+   - UUID primary keys
+   - Audit logging table
+   - Proper indexing strategy
+5. **Docker Integration**: 
+   - Multi-service orchestration
+   - Environment-based configuration
+   - Development และ production readiness
 
 ## ข้อท้าทายทางเทคนิคและการแก้ไข (Technical Challenges & Solutions)
 
-### **1. ARM64 Compatibility Issues**
+### **3. ความท้าทายและการแก้ไขล่าสุด (Recent Challenges & Solutions)**
+- **ปัญหา**: PostgreSQL enum type casting ใน Rust SQLx
+- **แก้ไข**: ใช้ `::text` casting ใน SELECT queries และ `($param)::user_role` ใน INSERT queries
+- **ผลลัพธ์**: Authentication endpoints ทำงานได้ปกติ
+
+### **4. การทดสอบปัจจุบัน (Current Testing Status)**
+```bash
+# Health endpoints - ✅ ทำงานปกติ
+curl http://localhost:8080/health
+curl http://localhost:8080/health/ready
+curl http://localhost:8080/health/live
+
+# Authentication endpoints - 🔄 กำลังแก้ไข enum casting
+curl -X POST http://localhost:8080/auth/register -H "Content-Type: application/json" -d @register.json
+curl -X POST http://localhost:8080/auth/login -H "Content-Type: application/json" -d @login.json
+```
+
+### **5. ARM64 Compatibility Issues**
 - **ปัญหา**: Solana CLI และ validator มีปัญหาบน ARM64 Mac (Apple Silicon)
 - **แก้ไข**: ใช้ Docker container development environment และ fallback เป็น dev mode
 
@@ -431,7 +504,64 @@ const createSellOrder = async (energyAmount: number, pricePerKWh: number) => {
 
 ## รายละเอียดการ Implementation ปัจจุบัน (Current Implementation Details)
 
-### **1. Anchor Programs Architecture**
+### **1. API Gateway Architecture (เสร็จสมบูรณ์)**
+```
+api-gateway/
+├── src/
+│   ├── main.rs              # Server setup และ routing
+│   ├── config.rs            # Configuration management
+│   ├── database.rs          # Database connections
+│   ├── handlers/            # API endpoint handlers
+│   │   ├── health.rs        # Health check endpoints
+│   │   ├── auth.rs          # Authentication handlers
+│   │   └── user_management.rs # Enhanced user management
+│   ├── middleware/          # Custom middleware
+│   ├── models/              # Data models
+│   ├── services/            # Business logic
+│   ├── auth/                # Authentication & authorization
+│   │   ├── jwt.rs           # JWT token management
+│   │   ├── password.rs      # Password hashing/verification
+│   │   └── middleware.rs    # Auth middleware
+│   ├── utils/               # Utility functions
+│   └── error.rs             # Error handling
+├── migrations/              # Database migrations
+└── Dockerfile              # Container configuration
+```
+
+### **2. Database Schema (พร้อมใช้งาน)**
+```sql
+-- Users table with enum types
+CREATE TYPE user_role AS ENUM ('student', 'faculty', 'admin');
+
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    username VARCHAR(100) UNIQUE NOT NULL,
+    email VARCHAR(255),
+    password_hash VARCHAR(255),
+    role user_role NOT NULL,
+    department VARCHAR(100) NOT NULL,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    wallet_address VARCHAR(44),
+    blockchain_registered BOOLEAN DEFAULT false,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Audit logging table
+CREATE TABLE user_activities (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    action VARCHAR(100) NOT NULL,
+    details JSONB,
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### **3. Anchor Programs Architecture**
 ```
 programs/
 ├── registry/          # User and meter registration under Engineering authority
@@ -441,7 +571,51 @@ programs/
 └── governance/       # Engineering Department system administration
 ```
 
-### **2. Development Environment Setup**
+### **4. Docker Services Configuration (เสร็จสมบูรณ์)**
+```yaml
+# docker-compose.yml - Multi-service architecture
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: p2p_energy_trading
+      POSTGRES_USER: p2p_user
+      POSTGRES_PASSWORD: p2p_password
+    ports: ["5432:5432"]
+
+  # TimescaleDB for time-series data
+  timescaledb:
+    image: timescale/timescaledb:latest-pg15
+    environment:
+      POSTGRES_DB: energy_timeseries
+      POSTGRES_USER: timescale_user
+      POSTGRES_PASSWORD: timescale_password
+    ports: ["5433:5432"]
+
+  # Redis for caching
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
+  # API Gateway
+  api-gateway:
+    build: ./api-gateway
+    ports: ["8080:8080"]
+    depends_on: [postgres, timescaledb, redis]
+    environment:
+      DATABASE_URL: postgresql://p2p_user:p2p_password@postgres/p2p_energy_trading
+      TIMESCALE_URL: postgresql://timescale_user:timescale_password@timescaledb/energy_timeseries
+      REDIS_URL: redis://redis:6379
+
+  # Solana Validator
+  solana-validator:
+    build: ./docker/solana-validator
+    ports: ["8898:8899", "8901:8900"]
+    volumes: [solana_ledger:/opt/solana/ledger]
+```
+
+### **5. Anchor Programs Architecture**
 ```bash
 # Docker-based Solana validator
 docker-compose up -d solana-validator
@@ -477,14 +651,45 @@ pub struct RegisterUser<'info> {
 - **Mint Authority**: ควบคุมโดย Engineering Department ผ่าน Oracle Program
 - **Associated Token Accounts**: การจัดการ token accounts สำหรับแต่ละผู้ใช้
 
-### **5. API Integration Points**
+### **API Integration Points ล่าสุด (Updated API Endpoints)**
 ```typescript
-// API Gateway endpoints
-POST /api/engineering/meter-reading    // AMI data submission
-GET  /api/trading/orders              // Current market orders
-POST /api/trading/sell-order          // Create sell order
-POST /api/trading/buy-order           // Create buy order
-GET  /api/user/balance               // User token balance
+// Health and Status endpoints
+GET  /health                         // Basic health check
+GET  /health/ready                   // Readiness check with dependencies
+GET  /health/live                    // Liveness check
+
+// Authentication endpoints (เสร็จสมบูรณ์)
+POST /auth/login                     // User authentication
+POST /auth/register                  // Basic user registration
+POST /auth/register/enhanced         // Enhanced registration with validation
+
+// Protected user endpoints (พร้อมใช้งาน)
+GET  /auth/profile                   // Get user profile
+POST /auth/profile                   // Update user profile
+POST /auth/password                  // Change password
+
+// Enhanced user management (API ใหม่)
+POST /user/wallet                    // Update wallet address
+DELETE /user/wallet                  // Remove wallet address
+GET  /user/activity                  // Get user activity log
+
+// Admin endpoints (ผู้ดูแลระบบ)
+GET  /users/:id                      // Get specific user
+PUT  /users/:id                      // Admin update user
+POST /users/:id/deactivate           // Deactivate user account
+POST /users/:id/reactivate           // Reactivate user account
+GET  /users/:id/activity             // Get user activity (admin)
+GET  /users/                         // List all users
+
+// Department information (สาธารณะ)
+GET  /departments/:department        // Get department info and validation
+
+// Future energy trading endpoints (วางแผนไว้)
+POST /api/engineering/meter-reading  // AMI data submission
+GET  /api/trading/orders            // Current market orders
+POST /api/trading/sell-order        // Create sell order
+POST /api/trading/buy-order         // Create buy order
+GET  /api/user/balance             // User token balance
 ```
 
 ### **6. Real-time Event Processing**
