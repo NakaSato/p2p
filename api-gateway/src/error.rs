@@ -6,6 +6,8 @@ use axum::{
 use serde_json::json;
 use thiserror::Error;
 
+pub type Result<T> = std::result::Result<T, ApiError>;
+
 #[derive(Debug, Error)]
 pub enum ApiError {
     #[error("Authentication failed: {0}")]
@@ -13,6 +15,12 @@ pub enum ApiError {
     
     #[error("Authorization failed: {0}")]
     Authorization(String),
+    
+    #[error("Bad request: {0}")]
+    BadRequest(String),
+    
+    #[error("Unauthorized: {0}")]
+    Unauthorized(String),
     
     #[error("Validation error: {0}")]
     Validation(String),
@@ -41,8 +49,8 @@ pub enum ApiError {
     #[error("Rate limit exceeded")]
     RateLimit,
     
-    #[error("Internal server error")]
-    Internal,
+    #[error("Internal server error: {0}")]
+    Internal(String),
 }
 
 impl IntoResponse for ApiError {
@@ -50,6 +58,8 @@ impl IntoResponse for ApiError {
         let (status, error_message) = match &self {
             ApiError::Authentication(_) => (StatusCode::UNAUTHORIZED, self.to_string()),
             ApiError::Authorization(_) => (StatusCode::FORBIDDEN, self.to_string()),
+            ApiError::BadRequest(_) => (StatusCode::BAD_REQUEST, self.to_string()),
+            ApiError::Unauthorized(_) => (StatusCode::UNAUTHORIZED, self.to_string()),
             ApiError::Validation(_) => (StatusCode::BAD_REQUEST, self.to_string()),
             ApiError::NotFound(_) => (StatusCode::NOT_FOUND, self.to_string()),
             ApiError::Conflict(_) => (StatusCode::CONFLICT, self.to_string()),
@@ -59,7 +69,7 @@ impl IntoResponse for ApiError {
             ApiError::Blockchain(_) => (StatusCode::BAD_GATEWAY, self.to_string()),
             ApiError::ExternalService(_) => (StatusCode::BAD_GATEWAY, self.to_string()),
             ApiError::Configuration(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Configuration error".to_string()),
-            ApiError::Internal => (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error".to_string()),
+            ApiError::Internal(_) => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
         };
 
         let body = Json(json!({
@@ -79,6 +89,8 @@ impl ApiError {
         match self {
             ApiError::Authentication(_) => "authentication_error",
             ApiError::Authorization(_) => "authorization_error",
+            ApiError::BadRequest(_) => "bad_request",
+            ApiError::Unauthorized(_) => "unauthorized",
             ApiError::Validation(_) => "validation_error",
             ApiError::Database(_) => "database_error",
             ApiError::Redis(_) => "cache_error",
@@ -88,7 +100,7 @@ impl ApiError {
             ApiError::NotFound(_) => "not_found",
             ApiError::Conflict(_) => "conflict",
             ApiError::RateLimit => "rate_limit_exceeded",
-            ApiError::Internal => "internal_error",
+            ApiError::Internal(_) => "internal_error",
         }
     }
 }

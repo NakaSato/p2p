@@ -1,0 +1,9 @@
+{
+  "username": "auth_test_user",
+  "email": "authtest@engineering.edu",
+  "password": "Qx7#Km9$Bt2*Wr5!",
+  "role": "student",
+  "department": "Computer Engineering",
+  "first_name": "Auth",
+  "last_name": "TestUser"
+}
