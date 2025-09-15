@@ -1,101 +1,6 @@
-# P2P Energy Tra    
-    %% User Types
-    EngDept["Engineering Department<br/>System Authority"]
-    Students["Engineering Students<br/>    %% Cross-program relationships with enhanced styling
-    R4 -.->|"Ver    Trading->>+Registry: Verify En    Registry {
-        Pubkey e        Pubkey registry_program "Regi    Governance {
-        Pubkey eng    Governance ||--o{ Oracle : "or### Trading Program
-- **Purpose**: Engineering Complex P2P energy marketplace
-- **Key Functions**: 
-  - `create_sell_order()` - Engineering prosumers sell excess energy
-  - `create_buy_order()` - Engineering consumers purchase energy
-  - `match_orders()` - Automated order matching every 15 minutes
-- **Market Structure**: 15-minute epochs aligned with AMI data intervals
-- **Scalability**: Optimized for Engineering Complex scale (15 meters)
-
-### Governance Program
-- **Purpose**: Engineering Department system administration and control
-- **Key Functions**: 
-  - `update_parameters()` - Modify system configuration
-  - `emergency_pause()` - Emergency system controls
-  - `manage_authorities()` - Authority and permission management
-- **Authority**: Engineering Department single validator exclusive control
-- **Security**: Complete system governance under Engineering Department authority
-
-## Cross-Program Dependencies
-
-```mermaid
-graph LR
-    A["Registry"] -->|"User Verification"| B["Energy Token (SPL)"]
-    A -->|"Prosumer Verification"| C["Trading"]
-    A -->|"Meter Ownership"| D["Oracle Program"]
-    
-    D -->|"Automated Minting"| B
-    D -->|"Market Clearing"| C
-    B <-->|"SPL Token Settlement"| C  Governance ||--o{ Trading : "market_parameter_control"eering_authority "Engineering Department authority"
-        Pubkey single_validator "Engineering validator pubkey"
-        bool emergency_pause "System pause status"
-        u64 system_parameters "Configurable parameters"
-        Pubkey authorized_programs "Managed program addresses"
-        String campus_network "Engineering Complex network"
-    }
-    
-    %% Enhanced relationships with Engineering Department focus
-    Registry ||--o{ EnergyToken : "engineering_user_verification"
-    Registry ||--o{ Trading : "engineering_user_verification"
-    Registry ||--o{ Oracle : "engineering_meter_assignment"
-    EnergyToken ||--o{ Trading : "spl_token_transfers"
-    Oracle ||--o{ EnergyToken : "automated_token_minting"
-    Oracle ||--o{ Trading : "scheduled_market_clearing"
-    Governance ||--o{ Registry : "engineering_authority_control"
-    Governance ||--o{ EnergyToken : "mint_authority_control"ence"
-    }
-    
-    Oracle {
-        Pubkey engineering_authority "Engineering Department authority"
-        Pubkey registry_program "Registry program reference"
-        Pubkey token_program "SPL token program reference"
-        Pubkey trading_program "Trading program reference"
-        u64 market_clearing_interval "15-minute intervals (900 seconds)"
-        u64 last_market_clearing "Last clearing timestamp"_authority "Engineering Department authority"
-        Pubkey users "Registered Engineering users"
-        String meter_assignments "Meter → User mapping"
-        Pubkey user_meters "User → Meters mapping"
-        u8 max_meters_per_user "Meter limit per user"
-        String building_location "Engineering Complex"
-    }
-    
-    EnergyToken {
-        Pubkey mint_authority "Engineering Department mint auth"
-        Pubkey associated_token_accounts "User SPL token accounts"
-        u64 total_supply "Total GRID tokens"
-        u8 decimals "SPL token decimals (9)"
-        String name "Token name (Engineering GRID)"
-        String symbol "Token symbol (ENG_GRID)"tatus
-    Registry-->>-Trading: User is Engineering Student/Faculty
-    Trading->>+Token: Check SPL Token Balance
-    Token-->>-Trading: Balance Sufficient
-    Trading-->>-User: Order Created
-    
-    %% Market Clearing
-    Note over Oracle,Trading: Phase 4: Automated Market Clearing (15-min)s"| G2
-    R4 -.->|"Verify Students/Faculty"| T2
-    R2 -.->|"Meter Assignment"| O1
-    
-    O4 -.->|"Mint for Generation"| G2
-    O2 -.->|"Trigger Clearing"| T3
-    
-    G4 -.->|"SPL Token Settlement"| T4
-    T4 -.->|"Execute Transfers"| G4
-    
-    G9 -.->|"Control Registry"| R3
-    G9 -.->|"Control Token"| G5
-    G9 -.->|"Control Oracle"| O3
-    G9 -.->|"Control Trading"| T5sumers"]
-    Faculty["Engineering Faculty<br/>Prosumers & Consumers"]Anchor Programs Architecture
+# P2P Energy Trading Solana Anchor Programs Architecture
 
 ## Program Relationships Diagram
-
 ```mermaid
 graph TB
     %% External Systems
@@ -104,15 +9,15 @@ graph TB
     
     %% Anchor Programs
     Registry["Registry Program<br/>User & Meter Management"]
-    EnergyToken["Energy Token Program<br/>SPL Token (GRID)"]
+    EnergyToken["Energy Token Program (SPL)<br/>Token Minting & Transfers"]
     Oracle["Oracle Program<br/>AMI Integration & Automation"]
     Trading["Trading Program<br/>Order Book & Market Clearing"]
     Governance["Governance Program<br/>Engineering Department Admin"]
     
     %% User Types
-    EngDept["👨‍💼 Engineering Department<br/>🛡️ System Authority"]
-    Students["� Engineering Students<br/>⚡ Prosumers & Consumers"]
-    Faculty["👨‍� Engineering Faculty<br/>🏠 Prosumers & Consumers"]
+    EngDept["Engineering Department<br/>System Authority"]
+    Students["Engineering Students<br/>Prosumers & Consumers"]
+    Faculty["Engineering Faculty<br/>Prosumers & Consumers"]
     
     %% Program Interactions - Core Flow
     Registry -.->|User Verification| EnergyToken
@@ -121,10 +26,8 @@ graph TB
     
     EnergyToken <-->|SPL Token Transfers| Trading
     Oracle -->|Mint SPL Tokens| EnergyToken
-    Oracle -->|Market Clearing (15min)| Trading
+    Oracle -->|"Market Clearing (15min)"| Trading
     Governance -->|System Control| Registry
-    Governance -->|Mint Authority| EnergyToken
-    Governance -->|Market Parameters| Trading
     Governance -->|Oracle Management| Oracle
     
     %% External Interactions
@@ -155,7 +58,6 @@ graph TB
 ```
 
 ## Detailed Program Architecture
-
 ```mermaid
 graph TB
     subgraph Registry ["Registry Program"]
@@ -226,20 +128,20 @@ graph TB
     end
     
     %% Cross-program relationships with enhanced styling
-    R4 -.->|"✅ Verify Users"| G2
-    R4 -.->|"� Verify Students/Faculty"| T2
-    R2 -.->|"📡 Meter Assignment"| O1
+    R4 -.->|"Verify Users"| G2
+    R4 -.->|"Verify Students/Faculty"| T2
+    R2 -.->|"Meter Assignment"| O1
     
-    O4 -.->|"⚡ Mint for Generation"| G2
-    O2 -.->|"🔔 Trigger Clearing"| T3
+    O4 -.->|"Mint for Generation"| G2
+    O2 -.->|"Trigger Clearing"| T3
     
-    G4 -.->|"💸 SPL Token Settlement"| T4
-    T4 -.->|"💰 Execute Transfers"| G4
+    G4 -.->|"SPL Token Settlement"| T4
+    R4 -.->|"Verify Students/Faculty"| T2
     
-    G9 -.->|"🔑 Control Registry"| R3
-    G9 -.->|"🔑 Control Token"| G5
-    G9 -.->|"🔑 Control Oracle"| O3
-    G9 -.->|"🔑 Control Trading"| T5
+    G9 -.->|"Control Registry"| R3
+    G9 -.->|"Control Token"| G5
+    G9 -.->|"Control Oracle"| O3
+    G9 -.->|"Control Trading"| T5
     
     %% Enhanced Styling with Solana theme
     classDef registryStyle fill:linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%),stroke:#c62828,stroke-width:3px,color:#000,font-weight:bold
@@ -256,7 +158,6 @@ graph TB
 ```
 
 ## Data Flow Diagram
-
 ```mermaid
 sequenceDiagram
     participant AMI as Engineering AMI
@@ -267,13 +168,13 @@ sequenceDiagram
     participant User as Engineering Student/Faculty
     
     %% User Registration Flow
-    Note over Registry: Phase 1: Engineering Department Registration
+    Note over Registry: Step 1: Engineering Department Registration
     Registry->>+Registry: register_user(account, type, location)
     Registry->>Registry: assign_meter(meter_id, owner)
     Registry-->>-User: Registration Complete
     
     %% Energy Generation Flow
-    Note over AMI,Token: Phase 2: Energy Generation & SPL Token Minting
+    Note over AMI,Token: Step 2: Energy Generation & SPL Token Minting
     AMI->>+Oracle: Engineering AMI Data (kWh generated)
     Oracle->>+Registry: Verify Meter Assignment
     Registry-->>-Oracle: Engineering User Verified
@@ -282,16 +183,16 @@ sequenceDiagram
     Oracle-->>-AMI: Data Processed
     
     %% Trading Flow
-    Note over User,Trading: Phase 3: Energy Trading (15-min Epochs)
+    Note over User,Trading: Step 3: Energy Trading (15-min Epochs)
     User->>+Trading: create_sell_order(energy, price)
-    Trading->>+Registry: ✅ Verify Engineering User Status
-    Registry-->>-Trading: � User is Engineering Student/Faculty
-    Trading->>+Token: 💰 Check SPL Token Balance
-    Token-->>-Trading: ✅ Balance Sufficient
-    Trading-->>-User: 📋 Order Created
+    Trading->>+Registry: Verify Engineering User Status
+    Registry-->>-Trading: User is Engineering Student/Faculty
+    Trading->>+Token: Check SPL Token Balance
+    Token-->>-Trading: Balance Sufficient
+    Trading-->>-User: Order Created
     
     %% Market Clearing
-    Note over Oracle,Trading: 🤖 Phase 4: Automated Market Clearing (15-min)
+    Note over Oracle,Trading: Step 4: Automated Market Clearing (15-min)
     Oracle->>+Trading: trigger_market_clearing()
     Trading->>Trading: match_orders()
     Trading->>+Token: Execute SPL Token Transfers
@@ -299,7 +200,7 @@ sequenceDiagram
     Trading-->>-Oracle: Market Cleared
     
     %% Settlement
-    Note over Token,User: Phase 5: SPL Token Settlement
+    Note over Token,User: Step 5: SPL Token Settlement
     Token->>User: Transfer SPL Tokens (Buyer → Seller)
     Trading->>User: Trade Confirmation
     
@@ -312,69 +213,70 @@ sequenceDiagram
 ```mermaid
 erDiagram
     Registry {
-        Pubkey engineering_authority "🛡️ Engineering Department authority"
-        Pubkey users "👥 Registered Engineering users"
-        String meter_assignments "📡 Meter → User mapping"
-        Pubkey user_meters "👤 User → Meters mapping"
-        u8 max_meters_per_user "📊 Meter limit per user"
-        String building_location "🏢 Engineering Complex"
+        Pubkey engineering_authority "Engineering Department authority"
+        Pubkey users "Registered Engineering users"
+        String meter_assignments "Meter to User mapping"
+        Pubkey user_meters "User to Meters mapping"
+        u8 max_meters_per_user "Meter limit per user"
+        String building_location "Engineering Complex"
     }
     
     EnergyToken {
-        Pubkey mint_authority "🔑 Engineering Department mint auth"
-        Pubkey associated_token_accounts "💰 User SPL token accounts"
-        u64 total_supply "🪙 Total GRID tokens"
-        u8 decimals "� SPL token decimals (9)"
-        String name "📛 Token name (Engineering GRID)"
-        String symbol "🏷️ Token symbol (ENG_GRID)"
-        Pubkey registry_program "� Registry program reference"
+        Pubkey mint_authority "Engineering Department mint auth"
+        Pubkey associated_token_accounts "User SPL token accounts"
+        u64 total_supply "Total GRID tokens"
+        u8 decimals "SPL token decimals (9)"
+        String name "Token name (Engineering GRID)"
+        String symbol "Token symbol (ENG_GRID)"
+        Pubkey registry_program "Registry program reference"
     }
     
     Oracle {
-        Pubkey engineering_authority "🛡️ Engineering Department authority"
-        Pubkey registry_program "📋 Registry program reference"
-        Pubkey token_program "🪙 SPL token program reference"
-        Pubkey trading_program "📈 Trading program reference"
-        u64 market_clearing_interval "⏰ 15-minute intervals (900 seconds)"
-        u64 last_market_clearing "� Last clearing timestamp"
+        Pubkey engineering_authority "Engineering Department authority"
+        Pubkey registry_program "Registry program reference"
+        Pubkey token_program "SPL token program reference"
+        Pubkey trading_program "Trading program reference"
+        u64 market_clearing_interval "15-minute intervals (900 seconds)"
+        u64 last_market_clearing "Last clearing timestamp"
         String ami_endpoint "Engineering AMI endpoint"
         bool auto_clearing_enabled "Auto-clearing status"
+        u8 decimals "SPL token decimals (9)"
     }
     
     Trading {
         Pubkey engineering_authority "Engineering Department authority"
-        Pubkey registry_program "Registry program reference"
+        u64 last_market_clearing "Last clearing timestamp"
         Pubkey token_program "SPL token program reference"
         u64 market_epoch_length "Trading epoch (900 seconds)"
         u64 current_epoch_start "Current epoch start time"
         u64 next_order_id "Order counter"
         OrderId sell_orders "Active sell orders"
         OrderId buy_orders "Active buy orders"
-        Pubkey user_orders "User → Orders mapping"
+        Pubkey user_orders "User to Orders mapping"
         u32 max_orders_per_user "Order limit per user"
         TradeId completed_trades "Trade history"
     }
     
     Governance {
-        Pubkey engineering_authority "🛡️ Engineering Department authority"
-        Pubkey single_validator "🔑 Engineering validator pubkey"
-        bool emergency_pause "🚨 System pause status"
-        u64 system_parameters "⚙️ Configurable parameters"
-        Pubkey authorized_programs "� Managed program addresses"
-        String campus_network "🏫 Engineering Complex network"
+        Pubkey engineering_authority "Engineering Department authority"
+        Pubkey single_validator "Engineering validator pubkey"
+        bool emergency_pause "System pause status"
+        u64 system_parameters "Configurable parameters"
+        Pubkey authorized_programs "Managed program addresses"
+        String campus_network "Engineering Complex network"
     }
     
     %% Enhanced relationships with Engineering Department focus
-    Registry ||--o{ EnergyToken : "🔍 engineering_user_verification"
-    Registry ||--o{ Trading : "✅ engineering_user_verification"
-    Registry ||--o{ Oracle : "📡 engineering_meter_assignment"
-    EnergyToken ||--o{ Trading : "💸 spl_token_transfers"
-    Oracle ||--o{ EnergyToken : "⚡ automated_token_minting"
-    Oracle ||--o{ Trading : "🔔 scheduled_market_clearing"
-    Governance ||--o{ Registry : "🛡️ engineering_authority_control"
-    Governance ||--o{ EnergyToken : "🔑 mint_authority_control"
-    Governance ||--o{ Oracle : "🤖 oracle_management"
-    Governance ||--o{ Trading : "� market_parameter_control"
+    Registry ||--o{ EnergyToken : "engineering_user_verification"
+    Registry ||--o{ Trading : "engineering_user_verification"
+    Registry ||--o{ Oracle : "engineering_meter_assignment"
+    EnergyToken ||--o{ Trading : "spl_token_transfers"
+    Oracle ||--o{ EnergyToken : "automated_token_minting"
+    Oracle ||--o{ Trading : "scheduled_market_clearing"
+    Governance ||--o{ Registry : "engineering_authority_control"
+    Governance ||--o{ EnergyToken : "mint_authority_control"
+    Governance ||--o{ Oracle : "oracle_management"
+    Governance ||--o{ Trading : "market_parameter_control"
 ```
 
 ## Key Features Summary
@@ -406,35 +308,35 @@ erDiagram
 - **Automation**: Engineering Department controlled 24/7 operations
 - **Economics**: Direct SPL token minting for verified energy generation
 
-### 📈 Trading Program
-- **🎯 Purpose**: Engineering Complex P2P energy marketplace
-- **🔧 Key Functions**: 
+### Trading Program
+- **Purpose**: Engineering Complex P2P energy marketplace
+- **Key Functions**: 
   - `create_sell_order()` - Engineering prosumers sell excess energy
   - `create_buy_order()` - Engineering consumers purchase energy
   - `match_orders()` - Automated order matching every 15 minutes
-- **⏰ Market Structure**: 15-minute epochs aligned with AMI data intervals
-- **📊 Scalability**: Optimized for Engineering Complex scale (15 meters)
+- **Market Structure**: 15-minute epochs aligned with AMI data intervals
+- **Scalability**: Optimized for Engineering Complex scale (15 meters)
 
-### ⚙️ Governance Program
-- **🎯 Purpose**: Engineering Department system administration and control
-- **🔧 Key Functions**: 
+### Governance Program
+- **Purpose**: Engineering Department system administration and control
+- **Key Functions**: 
   - `update_parameters()` - Modify system configuration
   - `emergency_pause()` - Emergency system controls
   - `manage_authorities()` - Authority and permission management
-- **�️ Authority**: Engineering Department single validator exclusive control
-- **🔒 Security**: Complete system governance under Engineering Department authority
+- **Authority**: Engineering Department single validator exclusive control
+- **Security**: Complete system governance under Engineering Department authority
 
-## 🔗 Cross-Program Dependencies
+## Cross-Program Dependencies
 
 ```mermaid
 graph LR
-    A["📋 Registry"] -->|"✅ User Verification"| B["🪙 Energy Token (SPL)"]
-    A -->|"🏠 Prosumer Verification"| C["📈 Trading"]
-    A -->|"📡 Meter Ownership"| D["🌉 Oracle Program"]
+    A["Registry"] -->|"User Verification"| B["Energy Token (SPL)"]
+    A -->|"Prosumer Verification"| C["Trading"]
+    A -->|"Meter Ownership"| D["Oracle Program"]
     
-    D -->|"⚡ Automated Minting"| B
-    D -->|"🔔 Market Clearing"| C
-    B <-->|"💸 SPL Token Settlement"| C
+    D -->|"Automated Minting"| B
+    D -->|"Market Clearing"| C
+    B <-->|"SPL Token Settlement"| C
     
     style A fill:#ffebee,stroke:#c62828,stroke-width:3px
     style B fill:#e8f5e8,stroke:#2e7d32,stroke-width:3px
