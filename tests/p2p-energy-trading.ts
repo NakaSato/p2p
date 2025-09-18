@@ -17,7 +17,7 @@ describe("p2p-energy-trading", () => {
   const governanceProgram = anchor.workspace.Governance as Program<Governance>;
 
   it("Initializes all programs!", async () => {
-    console.log("🚀 Starting P2P Energy Trading System Tests");
+    console.log("Starting P2P Energy Trading System Tests");
 
     try {
       // Test Registry Program
@@ -40,7 +40,7 @@ describe("p2p-energy-trading", () => {
       const governanceTx = await governanceProgram.methods.initialize().rpc();
       console.log("✅ Governance initialized:", governanceTx);
 
-      console.log("🎉 All P2P Energy Trading programs initialized successfully!");
+      console.log("All P2P Energy Trading programs initialized successfully!");
     } catch (error) {
       console.error("❌ Error during initialization:", error);
       throw error;
