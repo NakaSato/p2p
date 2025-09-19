@@ -1,9 +1,31 @@
-version: '3.8'
-
 # Development-specific docker-compose override
 # Use with: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
 
 services:
+  # Enhanced Solana Validator for development
+  solana-validator:
+    environment:
+      START_VALIDATOR: "true"
+      SKIP_DEPLOYMENT: "false"  # Enable automatic deployment in dev
+      RUST_LOG: "debug"
+      HEALTH_CHECK_VERBOSE: "true"
+    volumes:
+      - .:/workspaces/p2p:cached  # Enable hot reload
+    ports:
+      - "8899:8899"  # Direct port mapping for easier development
+      - "8900:8900"
+      - "8001:8001"
+
+  # Contract Deployer for development
+  contract-deployer:
+    environment:
+      RUST_LOG: "debug"
+      BUILD_ONLY: "false"
+      VERIFY_VERBOSE: "true"
+    volumes:
+      - .:/opt/deployer/workspace:cached
+
+  # API Gateway with hot reload
   api-gateway:
     build:
       context: .
@@ -15,14 +37,41 @@ services:
     environment:
       RUST_LOG: api_gateway=debug,tower_http=debug,sqlx=debug
       LOG_LEVEL: debug
+      SOLANA_RPC_URL: http://solana-validator:8899
     command: ["cargo", "watch", "-x", "run"]
   
-  # Override for faster development cycles
+  # Development database with different settings
   postgres:
     environment:
       POSTGRES_DB: p2p_energy_trading_dev
       POSTGRES_USER: dev_user
       POSTGRES_PASSWORD: dev_password
+    ports:
+      - "5433:5432"  # Different port to avoid conflicts
+
+  # Development Redis
+  redis:
+    ports:
+      - "6380:6379"  # Different port to avoid conflicts
+
+  # Frontend with development server
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+      target: development
+    environment:
+      NODE_ENV: development
+      VITE_APP_ENV: development
+      VITE_ENABLE_DEVTOOLS: "true"
+      VITE_HOT_RELOAD: "true"
+      VITE_SOLANA_RPC_URL: http://localhost:8899
+    volumes:
+      - ./frontend:/app:cached
+      - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0
+    ports:
+      - "3000:3000"
 
   # Add pgAdmin for database management in development
   pgadmin:
@@ -55,3 +104,14 @@ services:
       - p2p-network
     profiles:
       - dev-tools
+
+  # Development monitoring with different ports
+  grafana:
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: dev_admin
+    ports:
+      - "3001:3000"
+
+  prometheus:
+    ports:
+      - "9091:9090"

@@ -54,14 +54,20 @@ RUN . ~/.cargo/env && anchor --version
 # Switch to root to create directories and copy files
 USER root
 
-# Create directories
-RUN mkdir -p /opt/solana/ledger /opt/solana/config && \
+# Create directories for validator, programs, and deployment
+RUN mkdir -p /opt/solana/ledger /opt/solana/config /opt/solana/programs /opt/solana/deploy && \
     chown -R solana:solana /opt/solana
 WORKDIR /opt/solana
 
-# Copy startup script
+# Copy startup and deployment scripts
 COPY start-validator.sh /usr/local/bin/start-validator.sh
-RUN chmod +x /usr/local/bin/start-validator.sh
+COPY deploy-contracts.sh /usr/local/bin/deploy-contracts.sh
+COPY check-deployment.sh /usr/local/bin/check-deployment.sh
+RUN chmod +x /usr/local/bin/start-validator.sh /usr/local/bin/deploy-contracts.sh /usr/local/bin/check-deployment.sh
+
+# Create deployment status directory
+RUN mkdir -p /opt/solana/status && \
+    chown -R solana:solana /opt/solana/status
 
 # Switch back to solana user
 USER solana
@@ -69,8 +75,8 @@ USER solana
 # Expose ports
 EXPOSE 8899 8900 8001
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
-    CMD solana cluster-version --url http://localhost:8899 || exit 1
+# Health check - updated to check both validator and deployment status
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=5 \
+    CMD /usr/local/bin/check-deployment.sh || exit 1
 
 CMD ["/usr/local/bin/start-validator.sh"]

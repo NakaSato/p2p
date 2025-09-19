@@ -20,12 +20,43 @@ services:
     environment:
       RUST_LOG: "solana=info"
       START_VALIDATOR: "true"  # Set to false for dev mode only
+      SKIP_DEPLOYMENT: "false"  # Set to true to skip automatic deployment
     healthcheck:
-      test: ["CMD-SHELL", "solana cluster-version --url http://localhost:8899 || exit 1"]
+      test: ["CMD-SHELL", "/usr/local/bin/check-deployment.sh || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 60s
+      start_period: 120s
+
+  # Smart Contract Deployment Service
+  contract-deployer:
+    build:
+      context: ./docker/contract-deployer
+      dockerfile: Dockerfile
+    container_name: p2p-contract-deployer
+    depends_on:
+      solana-validator:
+        condition: service_healthy
+    volumes:
+      - .:/opt/deployer/workspace
+      - contract_artifacts:/opt/deployer/artifacts
+      - deployer_logs:/opt/deployer/logs
+      - deployer_config:/opt/deployer/config
+    networks:
+      - p2p-network
+    environment:
+      SOLANA_RPC_URL: http://solana-validator:8899
+      RUST_LOG: "info"
+      ANCHOR_PROVIDER_URL: http://solana-validator:8899
+    profiles:
+      - deployment
+      - full
+    healthcheck:
+      test: ["CMD-SHELL", "/usr/local/bin/verify-deployment.sh || exit 1"]
+      interval: 60s
+      timeout: 30s
+      retries: 3
+      start_period: 300s
 
   # PostgreSQL Database
   postgres:
@@ -319,6 +350,9 @@ volumes:
   solana_ledger:
   anchor_workspace:
   program_deployments:
+  contract_artifacts:
+  deployer_logs:
+  deployer_config:
   postgres_data:
   timescale_data:
   redis_data:
