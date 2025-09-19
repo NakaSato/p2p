@@ -1,71 +1,163 @@
-# P2P Energy Trading - Solana Blockchain Implementation Project
+# P2P Energy Trading - Solana Blockchain Implementation
 
 ## Project Overview
-This project implements a peer-to-peer energy trading platform for university campus smart grid using **Solana blockchain technology**. The system enables students and faculty within the Engineering Complex to trade excess renewable energy directly through Anchor smart contracts under Engineering Department authority.
+This project implements a decentralized peer-to-peer energy trading platform built on **Solana blockchain technology**. The system enables participants to trade renewable energy directly through Anchor smart contracts with automated deployment, multi-network support, and comprehensive monitoring capabilities.
 
-## Current Implementation: Solana + Anchor Framework
+## Current Implementation Status
 
-### Technology Stack:
+### 🚀 **Production-Ready Components**
+- ✅ **Contact Service**: Automated smart contract deployment
+- ✅ **Multi-Network Support**: Local, devnet, and mainnet deployment
+- ✅ **Docker Infrastructure**: Complete containerized deployment
+- ✅ **Health Monitoring**: Comprehensive system health checks
+- ✅ **Frontend Application**: Production-optimized React interface
+- ✅ **API Gateway**: Rust-based backend service
+- ✅ **Database**: PostgreSQL with TimescaleDB extensions
+
+### 🔧 **Technology Stack**
 - **Blockchain Platform**: Solana
-- **Smart Contract Framework**: Anchor Framework 0.29.0
+- **Smart Contract Framework**: Anchor Framework v0.29.0
 - **Token Standard**: SPL Token (Solana Program Library)
 - **Programming Language**: Rust (Edition 2021)
-- **Consensus**: Proof of Stake (Single Validator)
-- **Validator Authority**: Engineering Department
-- **Development Tools**: Anchor CLI, Solana CLI
+- **Frontend**: React with TypeScript and Vite
+- **Backend**: Rust with Actix-web
+- **Database**: PostgreSQL + TimescaleDB
+- **Containerization**: Docker & Docker Compose
+- **Deployment**: Contact service with automated scripts
 
-### Anchor Programs Architecture:
-1. **Registry Program**: User and smart meter registration under Engineering Department authority
-2. **Energy Token Program**: SPL tokens for energy representation with Engineering Department mint authority
-3. **Trading Program**: P2P energy trading marketplace with automated clearing
-4. **Oracle Program**: AMI data integration and automated market operations
-5. **Governance Program**: Engineering Department system administration
+### 📋 **Smart Contract Architecture**
+1. **Registry Program**: User and smart meter registration system
+2. **Energy Token Program**: SPL tokens for energy unit tokenization
+3. **Trading Program**: P2P energy trading marketplace with order matching
+4. **Oracle Program**: External data integration and smart meter feeds
+5. **Governance Program**: Proof of Authority system administration
 
-## Alternative Blockchain Frameworks Evaluated:
+## 🚀 Quick Start
 
-### Enterprise Solutions:
-1. **Hyperledger Fabric**: Enterprise-grade, high throughput
-2. **R3 Corda**: Legal agreements focus, privacy-first
-3. **Quorum**: Private Ethereum with enterprise features
+### Prerequisites
+- Docker & Docker Compose
+- 8GB+ RAM, 4+ CPU cores
+- 50GB+ storage
+- Stable internet connection
 
-### Ethereum-based Solutions:
-1. **Ethereum PoA**: Clique/IBFT consensus
-2. **Polygon Edge**: Modern private blockchain
-3. **Hyperledger Besu**: Java-based Ethereum client
+### Recommended Development Setup (Devnet)
+```bash
+# Clone repository
+git clone <repository-url>
+cd p2p-energy-trading
 
-### High-Performance Frameworks:
-1. **Solana** (Current): High throughput, low latency blockchain
-2. **Solana**: High-performance blockchain with low latency
-3. **Tendermint/Cosmos**: BFT consensus with IBC
-4. **Avalanche Subnet**: Custom validator sets
+# Build services
+docker-compose build
 
-## Why Solana for Energy Trading:
+# Test network connectivity
+docker-compose run --rm -e SOLANA_RPC_URL="https://api.devnet.solana.com" contact /usr/local/bin/wait-for-validator.sh
 
-### Key Benefits:
-- **High Performance**: 65,000+ TPS capability with sub-second finality
-- **Low Costs**: Minimal transaction fees for micropayments
-- **Immutability**: Permanent transaction records on Solana blockchain
-- **Single Validator Simplicity**: Engineering Department complete control
-- **SPL Token Standard**: Native token functionality for energy trading
-- **Anchor Framework**: Type-safe smart contract development
-- **Academic Integration**: Perfect for university research and education
+# Deploy smart contracts to devnet
+docker-compose run --rm -e SOLANA_RPC_URL="https://api.devnet.solana.com" contact /usr/local/bin/deploy-all-contracts.sh
 
-### Specific Advantages for Campus Energy Trading:
-- **Peer-to-Peer Trading**: Direct energy transactions between students/faculty
-- **Microtransactions**: Low-cost small energy trades within campus
-- **Real-time Settlement**: Immediate transaction finality (400ms blocks)
-- **Automated Market Clearing**: 15-minute epoch-based trading cycles
-- **Engineering Department Governance**: Clear authority and accountability
-- **SPL Token Integration**: Seamless energy tokenization and transfers
-- **Campus-Scale Deployment**: Optimized for single-validator campus network
+# Start all services
+docker-compose up -d
 
-## Project Status:
-- ✅ Anchor programs developed and tested
-- ✅ SPL Token integration implemented
-- ✅ Engineering Department validator configuration
-- ✅ Docker containerization for campus deployment
-- ✅ Web interface for energy trading
-- ✅ AMI smart meter simulation system
+# Check status
+docker-compose ps
+```
+
+### Service Access Points
+- **Frontend**: http://localhost:3000
+- **API Gateway**: http://localhost:8080
+- **Database**: localhost:5432
+- **Redis**: localhost:6379
+- **Grafana**: http://localhost:3001
+## 🌟 Key Features
+
+### Contact Service Automation
+- **Multi-Network Deployment**: Seamless switching between local, devnet, and mainnet
+- **Automated Account Management**: Keypair generation and funding
+- **Health Monitoring**: Comprehensive service and deployment verification
+- **Error Recovery**: Retry mechanisms and graceful failure handling
+- **Volume Management**: Persistent artifact and log storage
+
+### Smart Contract Features
+- **Peer-to-Peer Trading**: Direct energy transactions between participants
+- **Microtransactions**: Low-cost energy trading with minimal fees
+- **Real-time Settlement**: Sub-second transaction finality
+- **Automated Market Operations**: Scheduled market clearing and operations
+- **Governance System**: Proof of Authority administration
+- **Oracle Integration**: External data feed support
+
+### Infrastructure Features
+- **Production-Ready Deployment**: Optimized Docker containers
+- **Monitoring & Alerting**: Grafana dashboards and health checks
+- **Scalable Architecture**: Horizontal scaling support
+- **Security**: Non-root containers and secure keypair management
+- **Documentation**: Comprehensive guides and troubleshooting
+
+## 📚 Documentation
+
+### Core Documentation
+- [Docker Deployment Guide](./DOCKER_DEPLOYMENT_GUIDE.md) - Complete deployment instructions
+- [System Architecture](./SYSTEM_ARCHITECTURE.md) - Detailed system design
+- [Contact Service Analysis](./CONTACT_ANALYSIS.md) - Technical analysis of deployment service
+
+### Operation Guides
+- [Docker Quick Reference](./DOCKER_QUICK_REFERENCE.md) - Essential commands and operations
+- [Docker Troubleshooting](./DOCKER_TROUBLESHOOTING.md) - Common issues and solutions
+- [API Gateway Specification](./API_GATEWAY_SPECIFICATION.md) - Backend API documentation
+
+### Development Resources
+- [Technical Summary](./TECHNICAL_SUMMARY.md) - Project technical overview
+- [Project Proposal](./PROJECT_PROPOSAL.md) - Original project specification
+- [Smart Meter Simulation](./SMART_METER_SIMULATION.md) - Testing and simulation
+
+## 🛠️ Development Status
+
+### ✅ Completed Features
+- **Smart Contract Suite**: All 5 Anchor programs developed and tested
+- **Contact Service**: Automated deployment with multi-network support
+- **Frontend Application**: Production-ready React interface
+- **API Gateway**: Rust-based backend with full REST API
+- **Database Integration**: PostgreSQL with TimescaleDB for time-series data
+- **Docker Infrastructure**: Complete containerized deployment stack
+- **Health Monitoring**: Comprehensive monitoring and alerting system
+- **Documentation**: Complete technical documentation suite
+
+### 🔄 Current Focus
+- **Performance Optimization**: Enhancing deployment and operation efficiency
+- **Testing Automation**: Expanding automated test coverage
+- **Monitoring Enhancement**: Advanced metrics and alerting capabilities
+- **Security Hardening**: Enhanced security measures and best practices
+
+### 🎯 Future Roadmap
+- **Cross-Chain Integration**: Multi-blockchain support
+- **Advanced Analytics**: Enhanced trading analytics and reporting
+- **Mobile Application**: Native mobile interface
+- **Enterprise Features**: Advanced governance and compliance tools
+
+## 🤝 Contributing
+
+This project is designed for research, education, and production deployment of decentralized energy trading systems. Contributions are welcome in areas of:
+
+- Smart contract optimization and new features
+- Infrastructure improvements and scaling
+- Frontend enhancements and user experience
+- Documentation and educational content
+- Testing and quality assurance
+
+## 📞 Support
+
+For technical support and questions:
+- Review the [troubleshooting guide](./DOCKER_TROUBLESHOOTING.md)
+- Check the [quick reference](./DOCKER_QUICK_REFERENCE.md) for common operations
+- Consult the [deployment guide](./DOCKER_DEPLOYMENT_GUIDE.md) for detailed instructions
+
+## 🏆 Project Highlights
+
+- **Production-Ready**: Complete deployment automation and monitoring
+- **Multi-Network**: Supports development, testing, and production environments
+- **Comprehensive**: Full-stack solution from blockchain to user interface
+- **Well-Documented**: Extensive documentation for all system components
+- **Educational**: Perfect for learning blockchain development and deployment
+- **Scalable**: Designed for growth from proof-of-concept to production scale
 - ✅ 15-minute automated market clearing
 - ✅ Single validator Proof of Stake consensus
 
