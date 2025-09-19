@@ -17,7 +17,7 @@ services:
       - "8001:8001"
 
   # Contract Deployer for development
-  contract-deployer:
+  contact:
     environment:
       RUST_LOG: "debug"
       BUILD_ONLY: "false"

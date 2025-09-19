@@ -11,10 +11,10 @@ docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 
 # View logs
 docker-compose logs -f solana-validator
-docker-compose logs -f contract-deployer
+docker-compose logs -f contact
 
 # Check health status
-docker exec p2p-contract-deployer /usr/local/bin/health-monitor.sh check
+docker exec p2p-contact /usr/local/bin/health-monitor.sh check
 ```
 
 ### Production Environment
@@ -25,7 +25,7 @@ ENVIRONMENT=production ./scripts/deploy-smart-contracts-docker.sh deploy
 docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 # Production health check
-docker exec p2p-contract-deployer /usr/local/bin/health-monitor.sh detailed
+docker exec p2p-contact /usr/local/bin/health-monitor.sh detailed
 ```
 
 ### Service Management
@@ -48,10 +48,10 @@ docker exec p2p-contract-deployer /usr/local/bin/health-monitor.sh detailed
 ### Quick Health Check
 ```bash
 # Overall system status
-docker exec p2p-contract-deployer /usr/local/bin/health-monitor.sh status
+docker exec p2p-contact /usr/local/bin/health-monitor.sh status
 
 # Detailed report
-docker exec p2p-contract-deployer /usr/local/bin/health-monitor.sh detailed
+docker exec p2p-contact /usr/local/bin/health-monitor.sh detailed
 ```
 
 ### Container Status
@@ -61,19 +61,19 @@ docker-compose ps
 
 # Check specific service health
 docker inspect p2p-anchor-dev --format='{{.State.Health.Status}}'
-docker inspect p2p-contract-deployer --format='{{.State.Health.Status}}'
+docker inspect p2p-contact --format='{{.State.Health.Status}}'
 ```
 
 ### Logs
 ```bash
 # Deployment logs
-docker exec p2p-contract-deployer tail -f /opt/deployer/logs/deploy.log
+docker exec p2p-contact tail -f /opt/deployer/logs/deploy.log
 
 # PoA setup logs
-docker exec p2p-contract-deployer tail -f /opt/deployer/logs/poa-setup.log
+docker exec p2p-contact tail -f /opt/deployer/logs/poa-setup.log
 
 # Health monitoring logs
-docker exec p2p-contract-deployer tail -f /opt/deployer/logs/health-monitor.log
+docker exec p2p-contact tail -f /opt/deployer/logs/health-monitor.log
 ```
 
 ## Troubleshooting
@@ -85,24 +85,24 @@ docker-compose restart solana-validator
 docker exec p2p-anchor-dev solana cluster-version --url http://localhost:8899
 
 # Contract deployment failed
-docker exec p2p-contract-deployer /usr/local/bin/build-contracts.sh
-docker exec p2p-contract-deployer /usr/local/bin/verify-deployment.sh
+docker exec p2p-contact /usr/local/bin/build-contracts.sh
+docker exec p2p-contact /usr/local/bin/verify-deployment.sh
 
 # PoA initialization failed
-docker exec p2p-contract-deployer /usr/local/bin/setup-poa.sh
+docker exec p2p-contact /usr/local/bin/setup-poa.sh
 ```
 
 ### Debug Mode
 ```bash
 # Enter container shell
-docker exec -it p2p-contract-deployer bash
+docker exec -it p2p-contact bash
 docker exec -it p2p-anchor-dev bash
 
 # Check environment
-docker exec p2p-contract-deployer env | grep -E "SOLANA|ANCHOR|RUST"
+docker exec p2p-contact env | grep -E "SOLANA|ANCHOR|RUST"
 
 # Verify file permissions
-docker exec p2p-contract-deployer ls -la /usr/local/bin/
+docker exec p2p-contact ls -la /usr/local/bin/
 ```
 
 ### Recovery

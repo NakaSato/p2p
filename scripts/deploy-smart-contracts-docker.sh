@@ -169,7 +169,7 @@ build_contracts() {
     # Start the contract deployer for building only
     docker-compose -f "$COMPOSE_FILE" run --rm \
         -e "BUILD_ONLY=true" \
-        contract-deployer \
+        contact \
         /usr/local/bin/build-contracts.sh
     
     # Check if build was successful
@@ -187,7 +187,7 @@ deploy_contracts() {
     
     # Deploy contracts using the deployer service
     docker-compose -f "$COMPOSE_FILE" run --rm \
-        contract-deployer \
+        contact \
         /usr/local/bin/deploy-all-contracts.sh
     
     if [ $? -eq 0 ]; then
@@ -205,7 +205,7 @@ verify_deployment() {
     # Run deployment verification
     docker-compose -f "$COMPOSE_FILE" run --rm \
         -e "VERIFY_VERBOSE=true" \
-        contract-deployer \
+        contact \
         /usr/local/bin/verify-deployment.sh
     
     if [ $? -eq 0 ]; then
@@ -324,7 +324,7 @@ display_summary() {
     
     # Show deployed programs
     log_info "Deployed smart contracts:"
-    docker-compose -f "$COMPOSE_FILE" run --rm contract-deployer \
+    docker-compose -f "$COMPOSE_FILE" run --rm contact \
         bash -c "find /opt/deployer/artifacts -name 'program_id.txt' -exec echo -n '{}: ' \; -exec cat {} \; -exec echo \;" 2>/dev/null || \
         log_warn "Could not retrieve program IDs"
     

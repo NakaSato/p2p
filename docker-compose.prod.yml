@@ -23,7 +23,7 @@ services:
       - prod
 
   # Production Contract Deployer (run once)
-  contract-deployer:
+  contact:
     environment:
       RUST_LOG: "info"
       BUILD_ONLY: "false"

@@ -52,7 +52,7 @@ docker stats
 
 # Inspect container configuration
 docker inspect p2p-anchor-dev
-docker inspect p2p-contract-deployer
+docker inspect p2p-contact
 
 # Check container health
 docker inspect p2p-anchor-dev --format='{{.State.Health}}'
@@ -67,8 +67,8 @@ docker network ls
 docker network inspect p2p_p2p-network
 
 # Test network connectivity
-docker exec p2p-contract-deployer ping solana-validator
-docker exec p2p-contract-deployer curl -s http://solana-validator:8899
+docker exec p2p-contact ping solana-validator
+docker exec p2p-contact curl -s http://solana-validator:8899
 ```
 
 ### Volume Diagnostics
@@ -156,19 +156,19 @@ docker-compose up -d solana-validator
 #### Error: "anchor command not found"
 ```bash
 # Check Anchor installation
-docker exec p2p-contract-deployer anchor --version
+docker exec p2p-contact anchor --version
 
 # Rebuild container with latest Anchor
-docker-compose build --no-cache contract-deployer
+docker-compose build --no-cache contact
 ```
 
 #### Error: "workspace not found"
 ```bash
 # Check volume mounting
-docker exec p2p-contract-deployer ls -la /opt/deployer/workspace/
+docker exec p2p-contact ls -la /opt/deployer/workspace/
 
 # Verify bind mount
-docker inspect p2p-contract-deployer | jq '.[0].Mounts'
+docker inspect p2p-contact | jq '.[0].Mounts'
 ```
 
 #### Error: "deployment timeout"
@@ -177,7 +177,7 @@ docker inspect p2p-contract-deployer | jq '.[0].Mounts'
 export DEPLOY_TIMEOUT=600
 
 # Manual step-by-step deployment
-docker exec -it p2p-contract-deployer bash
+docker exec -it p2p-contact bash
 cd /opt/deployer/workspace
 anchor build
 anchor deploy --program-name registry
@@ -188,28 +188,28 @@ anchor deploy --program-name registry
 #### Error: "governance program not found"
 ```bash
 # Check if programs are deployed
-docker exec p2p-contract-deployer ls -la /opt/deployer/artifacts/
+docker exec p2p-contact ls -la /opt/deployer/artifacts/
 
 # Verify governance program on-chain
-docker exec p2p-contract-deployer cat /opt/deployer/artifacts/governance/program_id.txt
+docker exec p2p-contact cat /opt/deployer/artifacts/governance/program_id.txt
 ```
 
 #### Error: "Node.js module not found"
 ```bash
 # Check Node.js dependencies
-docker exec p2p-contract-deployer npm list
+docker exec p2p-contact npm list
 
 # Reinstall dependencies
-docker exec p2p-contract-deployer npm install
+docker exec p2p-contact npm install
 ```
 
 #### Error: "insufficient SOL for transaction"
 ```bash
 # Check account balances
-docker exec p2p-contract-deployer solana balance /opt/deployer/config/poa-keys/university-authority-keypair.json
+docker exec p2p-contact solana balance /opt/deployer/config/poa-keys/university-authority-keypair.json
 
 # Airdrop more SOL
-docker exec p2p-contract-deployer solana airdrop 1000 <PUBKEY> --url http://solana-validator:8899
+docker exec p2p-contact solana airdrop 1000 <PUBKEY> --url http://solana-validator:8899
 ```
 
 ## Recovery Procedures
@@ -245,17 +245,17 @@ docker-compose up -d solana-validator
 docker volume rm p2p_contract_artifacts p2p_deployer_logs
 
 # Restart contract deployer
-docker-compose up -d contract-deployer
+docker-compose up -d contact
 ```
 
 #### Reset PoA Configuration
 ```bash
 # Remove PoA configuration
-docker exec p2p-contract-deployer rm -rf /opt/deployer/config/poa-keys/
-docker exec p2p-contract-deployer rm -f /opt/deployer/artifacts/poa-config.json
+docker exec p2p-contact rm -rf /opt/deployer/config/poa-keys/
+docker exec p2p-contact rm -f /opt/deployer/artifacts/poa-config.json
 
 # Reinitialize PoA
-docker exec p2p-contract-deployer /usr/local/bin/setup-poa.sh
+docker exec p2p-contact /usr/local/bin/setup-poa.sh
 ```
 
 ## Performance Troubleshooting
@@ -287,7 +287,7 @@ mem_limit: 2g
 ### Slow Network Performance
 ```bash
 # Check network latency
-docker exec p2p-contract-deployer ping -c 4 solana-validator
+docker exec p2p-contact ping -c 4 solana-validator
 
 # Use host networking for testing
 docker run --network host <image>
@@ -300,7 +300,7 @@ docker run --network host <image>
 #### Hot Reload Not Working
 ```bash
 # Check volume mounting
-docker exec p2p-contract-deployer ls -la /opt/deployer/workspace/programs/
+docker exec p2p-contact ls -la /opt/deployer/workspace/programs/
 
 # Verify cached mounting
 volumes:
@@ -343,16 +343,16 @@ docker exec p2p-nginx cat /etc/nginx/nginx.conf
 ### Key Log Locations
 ```bash
 # Deployment logs
-docker exec p2p-contract-deployer tail -f /opt/deployer/logs/deploy.log
+docker exec p2p-contact tail -f /opt/deployer/logs/deploy.log
 
 # Build logs
-docker exec p2p-contract-deployer tail -f /opt/deployer/logs/build.log
+docker exec p2p-contact tail -f /opt/deployer/logs/build.log
 
 # PoA setup logs
-docker exec p2p-contract-deployer tail -f /opt/deployer/logs/poa-setup.log
+docker exec p2p-contact tail -f /opt/deployer/logs/poa-setup.log
 
 # Health monitoring logs
-docker exec p2p-contract-deployer tail -f /opt/deployer/logs/health-monitor.log
+docker exec p2p-contact tail -f /opt/deployer/logs/health-monitor.log
 
 # Validator logs
 docker-compose logs -f solana-validator
@@ -361,13 +361,13 @@ docker-compose logs -f solana-validator
 ### Log Analysis Commands
 ```bash
 # Search for errors
-docker exec p2p-contract-deployer grep -i error /opt/deployer/logs/*.log
+docker exec p2p-contact grep -i error /opt/deployer/logs/*.log
 
 # Check for warnings
-docker exec p2p-contract-deployer grep -i warning /opt/deployer/logs/*.log
+docker exec p2p-contact grep -i warning /opt/deployer/logs/*.log
 
 # Monitor real-time logs
-docker exec p2p-contract-deployer tail -f /opt/deployer/logs/*.log
+docker exec p2p-contact tail -f /opt/deployer/logs/*.log
 ```
 
 ## Emergency Procedures
@@ -424,7 +424,7 @@ docker-compose ps
 docker-compose logs --since 1h
 
 # Health status
-docker exec p2p-contract-deployer /usr/local/bin/health-monitor.sh detailed
+docker exec p2p-contact /usr/local/bin/health-monitor.sh detailed
 
 # Configuration
 docker-compose config

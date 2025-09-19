@@ -47,7 +47,7 @@ docker system info
 2. **Verify project structure**:
    ```bash
    ls -la scripts/deploy-smart-contracts-docker.sh
-   ls -la docker/contract-deployer/
+   ls -la docker/contact/
    ls -la docker/solana-validator/
    ```
 
@@ -302,23 +302,23 @@ docker-compose logs -f solana-validator
 
 ```bash
 # Start contract deployer
-docker-compose up -d contract-deployer
+docker-compose up -d contact
 
 # Monitor deployment progress
-docker exec p2p-contract-deployer /usr/local/bin/health-monitor.sh detailed
+docker exec p2p-contact /usr/local/bin/health-monitor.sh detailed
 
 # Check deployment artifacts
-docker exec p2p-contract-deployer ls -la /opt/deployer/artifacts/
+docker exec p2p-contact ls -la /opt/deployer/artifacts/
 ```
 
 #### 4. PoA Initialization
 
 ```bash
 # Run PoA setup
-docker exec p2p-contract-deployer /usr/local/bin/setup-poa.sh
+docker exec p2p-contact /usr/local/bin/setup-poa.sh
 
 # Verify PoA configuration
-docker exec p2p-contract-deployer cat /opt/deployer/artifacts/poa-config.json
+docker exec p2p-contact cat /opt/deployer/artifacts/poa-config.json
 ```
 
 ## Monitoring and Health Checks
@@ -341,16 +341,16 @@ The deployment includes comprehensive health monitoring with three levels:
 
 ```bash
 # Check overall system health
-docker exec p2p-contract-deployer /usr/local/bin/health-monitor.sh check
+docker exec p2p-contact /usr/local/bin/health-monitor.sh check
 
 # Detailed health report
-docker exec p2p-contract-deployer /usr/local/bin/health-monitor.sh detailed
+docker exec p2p-contact /usr/local/bin/health-monitor.sh detailed
 
 # Monitor and alert on warnings
-docker exec p2p-contract-deployer /usr/local/bin/health-monitor.sh monitor
+docker exec p2p-contact /usr/local/bin/health-monitor.sh monitor
 
 # Get health status code
-docker exec p2p-contract-deployer /usr/local/bin/health-monitor.sh status
+docker exec p2p-contact /usr/local/bin/health-monitor.sh status
 ```
 
 ### Health Check Components
@@ -394,13 +394,13 @@ docker-compose logs -f
 
 # View specific service logs
 docker-compose logs -f solana-validator
-docker-compose logs -f contract-deployer
+docker-compose logs -f contact
 
 # View deployment logs
-docker exec p2p-contract-deployer tail -f /opt/deployer/logs/deploy.log
+docker exec p2p-contact tail -f /opt/deployer/logs/deploy.log
 
 # View health monitoring logs
-docker exec p2p-contract-deployer tail -f /opt/deployer/logs/health-monitor.log
+docker exec p2p-contact tail -f /opt/deployer/logs/health-monitor.log
 ```
 
 ## Troubleshooting
@@ -434,16 +434,16 @@ docker-compose up -d -e START_VALIDATOR=false solana-validator
 **Solutions**:
 ```bash
 # Check deployer logs
-docker exec p2p-contract-deployer tail -f /opt/deployer/logs/deploy.log
+docker exec p2p-contact tail -f /opt/deployer/logs/deploy.log
 
 # Verify workspace mounting
-docker exec p2p-contract-deployer ls -la /opt/deployer/workspace/programs/
+docker exec p2p-contact ls -la /opt/deployer/workspace/programs/
 
 # Rebuild contracts
-docker exec p2p-contract-deployer /usr/local/bin/build-contracts.sh
+docker exec p2p-contact /usr/local/bin/build-contracts.sh
 
 # Manual deployment
-docker exec -it p2p-contract-deployer bash
+docker exec -it p2p-contact bash
 cd /opt/deployer/workspace
 anchor build
 anchor deploy
@@ -458,16 +458,16 @@ anchor deploy
 **Solutions**:
 ```bash
 # Check PoA logs
-docker exec p2p-contract-deployer cat /opt/deployer/logs/poa-setup.log
+docker exec p2p-contact cat /opt/deployer/logs/poa-setup.log
 
 # Verify governance program
-docker exec p2p-contract-deployer cat /opt/deployer/artifacts/governance/program_id.txt
+docker exec p2p-contact cat /opt/deployer/artifacts/governance/program_id.txt
 
 # Manual PoA setup
-docker exec p2p-contract-deployer /usr/local/bin/setup-poa.sh
+docker exec p2p-contact /usr/local/bin/setup-poa.sh
 
 # Check Node.js dependencies
-docker exec p2p-contract-deployer npm list @coral-xyz/anchor
+docker exec p2p-contact npm list @coral-xyz/anchor
 ```
 
 #### 4. Resource Issues
@@ -494,22 +494,22 @@ docker volume prune
 ```bash
 # Enter container shell
 docker exec -it p2p-anchor-dev bash
-docker exec -it p2p-contract-deployer bash
+docker exec -it p2p-contact bash
 
 # Check container environment
-docker exec p2p-contract-deployer env
+docker exec p2p-contact env
 
 # Verify file permissions
-docker exec p2p-contract-deployer ls -la /usr/local/bin/
+docker exec p2p-contact ls -la /usr/local/bin/
 
 # Test network connectivity
-docker exec p2p-contract-deployer curl -s http://solana-validator:8899
+docker exec p2p-contact curl -s http://solana-validator:8899
 
 # Check disk space
-docker exec p2p-contract-deployer df -h
+docker exec p2p-contact df -h
 
 # Verify Anchor installation
-docker exec p2p-contract-deployer anchor --version
+docker exec p2p-contact anchor --version
 ```
 
 ### Recovery Procedures
@@ -522,7 +522,7 @@ docker exec p2p-contract-deployer anchor --version
 ./scripts/deploy-smart-contracts-docker.sh deploy
 
 # Partial restart (keep data)
-docker-compose restart solana-validator contract-deployer
+docker-compose restart solana-validator contact
 ```
 
 #### 2. Reset Validator
@@ -576,7 +576,7 @@ services:
       - ./programs:/workspaces/programs:cached
       - ./target:/workspaces/target:cached
   
-  contract-deployer:
+  contact:
     volumes:
       - .:/opt/deployer/workspace:cached
       - ./custom-scripts:/opt/deployer/custom:ro

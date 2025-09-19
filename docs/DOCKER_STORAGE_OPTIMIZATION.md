@@ -6,14 +6,14 @@
 | Component | Original Image | Size |
 |-----------|---------------|------|
 | Solana Validator | `p2p-solana-validator:latest` | **5.0GB** |
-| Contract Deployer | `p2p-contract-deployer:latest` | **1.21GB** |
+| Contract Deployer | `p2p-contact:latest` | **1.21GB** |
 | **Total** | | **6.21GB** |
 
 ### After Optimization (Multi-stage builds)
 | Component | Optimized Image | Size | Reduction |
 |-----------|----------------|------|-----------|
 | Solana Validator | `p2p-validator:optimized` | **1.49GB** | **-70.2%** (3.51GB saved) |
-| Contract Deployer | `p2p-contract-deployer:optimized` | **1.49GB** | **+23.1%** (0.28GB added) |
+| Contract Deployer | `p2p-contact:optimized` | **1.49GB** | **+23.1%** (0.28GB added) |
 | **Total** | | **2.98GB** | **-52.0%** (3.23GB saved) |
 
 ## Optimization Techniques Applied
@@ -45,7 +45,7 @@
 docker-compose -f docker-compose.optimized.yml up
 
 # Or with specific services
-docker-compose -f docker-compose.optimized.yml up solana-validator contract-deployer
+docker-compose -f docker-compose.optimized.yml up solana-validator contact
 ```
 
 ## Future Optimizations

@@ -29,11 +29,11 @@ services:
       start_period: 120s
 
   # Smart Contract Deployment Service - OPTIMIZED
-  contract-deployer:
+  contact:
     build:
-      context: ./docker/contract-deployer
+      context: ./docker/contact
       dockerfile: Dockerfile
-    container_name: p2p-contract-deployer
+    container_name: p2p-contact
     depends_on:
       solana-validator:
         condition: service_healthy
