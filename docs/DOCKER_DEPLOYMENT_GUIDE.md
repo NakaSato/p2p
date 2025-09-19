@@ -2,19 +2,20 @@
 
 ## Overview
 
-This guide provides comprehensive instructions for deploying and managing the P2P Energy Trading System's smart contracts using Docker. The system uses an enhanced deployment pipeline that automates the entire process from building containers to initializing the PoA governance system.
+This guide provides comprehensive instructions for deploying and managing the P2P Energy Trading System's smart contracts using Docker. The system uses the `contact` service that automates the entire process from building containers to deploying smart contracts on various Solana networks including local validator, devnet, and mainnet.
 
 ## Table of Contents
 
 1. [Prerequisites](#prerequisites)
 2. [Architecture Overview](#architecture-overview)
-3. [Quick Start](#quick-start)
-4. [Deployment Environments](#deployment-environments)
-5. [Deployment Pipeline](#deployment-pipeline)
-6. [Monitoring and Health Checks](#monitoring-and-health-checks)
-7. [Troubleshooting](#troubleshooting)
-8. [Advanced Configuration](#advanced-configuration)
-9. [Security Considerations](#security-considerations)
+3. [Contact Service](#contact-service)
+4. [Quick Start](#quick-start)
+5. [Deployment Environments](#deployment-environments)
+6. [Deployment Commands](#deployment-commands)
+7. [Monitoring and Health Checks](#monitoring-and-health-checks)
+8. [Troubleshooting](#troubleshooting)
+9. [Advanced Configuration](#advanced-configuration)
+10. [Security Considerations](#security-considerations)
 
 ## Prerequisites
 
@@ -46,9 +47,9 @@ docker system info
 
 2. **Verify project structure**:
    ```bash
-   ls -la scripts/deploy-smart-contracts-docker.sh
    ls -la docker/contact/
-   ls -la docker/solana-validator/
+   ls -la Anchor.toml
+   ls -la programs/
    ```
 
 ## Architecture Overview
@@ -60,17 +61,17 @@ docker system info
 │                    P2P Energy Trading System               │
 ├─────────────────────────────────────────────────────────────┤
 │  ┌─────────────────┐  ┌──────────────────┐  ┌─────────────┐ │
-│  │ Solana Validator│  │ Contract Deployer│  │  Frontend   │ │
+│  │ Solana Validator│  │ Contact Service  │  │  Frontend   │ │
 │  │   Container     │  │    Container     │  │  Container  │ │
 │  │                 │  │                  │  │             │ │
-│  │ • Validator     │  │ • Anchor Build   │  │ • React App │ │
-│  │ • Auto-deploy  │  │ • Program Deploy │  │ • Vite Dev  │ │
-│  │ • Health checks │  │ • PoA Init       │  │ • Hot reload│ │
+│  │ • Test Validator│  │ • Anchor Build   │  │ • React App │ │
+│  │ • Health checks │  │ • Smart Contract │  │ • Production │ │
+│  │ • Platform deps │  │   Deployment     │  │   Optimized │ │
 │  └─────────────────┘  └──────────────────┘  └─────────────┘ │
 ├─────────────────────────────────────────────────────────────┤
 │  ┌─────────────┐  ┌──────────┐  ┌───────┐  ┌──────────────┐ │
-│  │ PostgreSQL  │  │  Redis   │  │ Kafka │  │   Grafana    │ │
-│  │ Database    │  │  Cache   │  │ Queue │  │  Monitoring  │ │
+│  │ PostgreSQL  │  │  Redis   │  │API GW │  │   Grafana    │ │
+│  │ TimescaleDB │  │  Cache   │  │ Rust  │  │  Monitoring  │ │
 │  └─────────────┘  └──────────┘  └───────┘  └──────────────┘ │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -78,26 +79,47 @@ docker system info
 ### Smart Contract Deployment Flow
 
 ```
-1. Infrastructure Setup
-   ├── Start PostgreSQL, Redis, Kafka
-   ├── Initialize TimescaleDB
-   └── Start monitoring services
+1. Network Selection
+   ├── Local Validator (development)
+   ├── Solana Devnet (testing)
+   └── Solana Mainnet (production)
 
-2. Solana Validator
-   ├── Build enhanced validator container
-   ├── Start Solana test validator
-   ├── Generate validator keypairs
-   └── Begin health monitoring
+2. Contact Service Deployment
+   ├── Build optimized container
+   ├── Mount workspace and programs
+   ├── Configure target network
+   └── Execute deployment scripts
 
-3. Contract Deployment
+3. Contract Build & Deploy
    ├── Build all 5 Anchor programs
    ├── Deploy in dependency order
    ├── Verify program accessibility
    └── Save deployment artifacts
 
-4. PoA Initialization
-   ├── Generate PoA authority keypairs
-   ├── Airdrop SOL to authorities
+4. Health Monitoring
+   ├── Validator connectivity checks
+   ├── Program deployment verification
+   └── Continuous health monitoring
+```
+
+## Contact Service
+
+The `contact` service is the core deployment automation component that handles:
+
+### Key Features
+- **Multi-Network Support**: Local validator, devnet, mainnet
+- **Optimized Container**: Multi-stage Docker build with minimal runtime
+- **Simplified Scripts**: Clean, maintainable deployment automation
+- **Health Monitoring**: Comprehensive service and deployment verification
+- **Flexible Configuration**: Environment-based network switching
+
+### Available Scripts
+- `wait-for-validator.sh` - Network connectivity verification
+- `build-contracts.sh` - Anchor smart contract compilation
+- `deploy-all-contracts.sh` - Complete deployment pipeline
+- `verify-deployment.sh` - Post-deployment verification
+- `setup-poa.sh` - Proof of Authority initialization
+- `health-monitor.sh` - Comprehensive health checks
    ├── Initialize governance program
    └── Configure REC validators
 
@@ -110,21 +132,47 @@ docker system info
 
 ## Quick Start
 
-### Development Environment
-
+### 1. Build All Services
 ```bash
-# Start complete development environment
-./scripts/deploy-smart-contracts-docker.sh deploy
+# Build all containers including contact service
+docker-compose build
 
-# Or use docker-compose directly
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+# Build only contact service
+docker-compose build contact
 ```
 
-### Production Environment
-
+### 2. Development with Devnet (Recommended)
 ```bash
-# Deploy production environment
-ENVIRONMENT=production ./scripts/deploy-smart-contracts-docker.sh deploy
+# Test network connectivity
+docker-compose run --rm -e SOLANA_RPC_URL="https://api.devnet.solana.com" contact /usr/local/bin/wait-for-validator.sh
+
+# Build smart contracts
+docker-compose run --rm -e SOLANA_RPC_URL="https://api.devnet.solana.com" contact /usr/local/bin/build-contracts.sh
+
+# Deploy all contracts to devnet
+docker-compose run --rm -e SOLANA_RPC_URL="https://api.devnet.solana.com" contact /usr/local/bin/deploy-all-contracts.sh
+```
+
+### 3. Local Development (Advanced)
+```bash
+# Start local validator (if healthy)
+docker-compose up -d solana-validator
+
+# Wait for validator to be ready
+docker-compose run --rm contact /usr/local/bin/wait-for-validator.sh
+
+# Deploy to local validator
+docker-compose run --rm contact /usr/local/bin/deploy-all-contracts.sh
+```
+
+### 4. Start All Services
+```bash
+# Start complete infrastructure
+docker-compose up -d
+
+# Check service status
+docker-compose ps
+```
 
 # Or use docker-compose with production overrides
 docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
@@ -139,168 +187,268 @@ docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 ## Deployment Environments
 
-### Development Environment
+### Environment Configuration
 
-**Configuration**: `docker-compose.dev.yml`
+| Environment | RPC URL | Use Case | Configuration |
+|-------------|---------|----------|---------------|
+| **Local** | `http://solana-validator:8899` | Development | Default, requires healthy validator |
+| **Devnet** | `https://api.devnet.solana.com` | Testing | Recommended for testing |
+| **Mainnet** | `https://api.mainnet-beta.solana.com` | Production | Production deployment |
 
-**Features**:
-- Hot reload for frontend and API
-- Debug logging enabled
-- Development database settings
-- Direct port mappings for easy access
-- Auto-deployment of smart contracts
-- Enhanced monitoring and verbose health checks
+### Environment Variables
 
-**Services**:
-- Solana Validator: `localhost:8899` (RPC), `localhost:8900` (WebSocket)
-- Frontend: `localhost:3000`
-- API Gateway: `localhost:3030`
-- PostgreSQL: `localhost:5433`
-- Redis: `localhost:6380`
-- Grafana: `localhost:3001`
-- pgAdmin: `localhost:5050`
-
-**Usage**:
 ```bash
-# Start development environment
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+# Core Configuration
+SOLANA_RPC_URL="<network-endpoint>"
+ANCHOR_PROVIDER_URL="<network-endpoint>"
+ANCHOR_WALLET="/opt/deployer/config/deployer-keypair.json"
 
-# View logs
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml logs -f
-
-# Rebuild and restart specific service
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build solana-validator
+# Deployment Settings
+RUST_LOG="info"
+DEPLOYMENT_TIMEOUT="300"
+MAX_RETRIES="3"
 ```
 
-### Production Environment
+## Deployment Commands
 
-**Configuration**: `docker-compose.prod.yml`
+### Basic Operations
 
-**Features**:
-- Optimized resource allocation
-- Production security settings
-- Nginx reverse proxy
-- Persistent data volumes
-- Resource limits and reservations
-- Automated restart policies
-
-**Services**:
-- All services behind Nginx: `localhost:80`
-- Monitoring dashboard: `localhost:80/monitoring`
-- API endpoints: `localhost:80/api`
-
-**Usage**:
 ```bash
-# Start production environment
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# Health check
+docker-compose run --rm contact /usr/local/bin/health-monitor.sh status
 
-# Scale services
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --scale api-gateway=3
+# Network connectivity test
+docker-compose run --rm -e SOLANA_RPC_URL="<endpoint>" contact /usr/local/bin/wait-for-validator.sh
 
-# Update without downtime
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-deps api-gateway
+# Build contracts only
+docker-compose run --rm contact /usr/local/bin/build-contracts.sh
+
+# Full deployment pipeline
+docker-compose run --rm -e SOLANA_RPC_URL="<endpoint>" contact /usr/local/bin/deploy-all-contracts.sh
 ```
 
-## Deployment Pipeline
-
-### Automated Deployment Script
-
-The main deployment script `scripts/deploy-smart-contracts-docker.sh` provides several commands:
-
-#### Commands
-
-1. **`deploy`** (default): Complete deployment pipeline
-   ```bash
-   ./scripts/deploy-smart-contracts-docker.sh deploy
-   ```
-
-2. **`infrastructure`**: Deploy only supporting services
-   ```bash
-   ./scripts/deploy-smart-contracts-docker.sh infrastructure
-   ```
-
-3. **`validator`**: Deploy only Solana validator
-   ```bash
-   ./scripts/deploy-smart-contracts-docker.sh validator
-   ```
-
-4. **`build`**: Build smart contracts only
-   ```bash
-   ./scripts/deploy-smart-contracts-docker.sh build
-   ```
-
-5. **`contracts`**: Deploy smart contracts only
-   ```bash
-   ./scripts/deploy-smart-contracts-docker.sh contracts
-   ```
-
-6. **`verify`**: Verify deployment status
-   ```bash
-   ./scripts/deploy-smart-contracts-docker.sh verify
-   ```
-
-7. **`initialize`**: Initialize PoA system
-   ```bash
-   ./scripts/deploy-smart-contracts-docker.sh initialize
-   ```
-
-8. **`test`**: Run post-deployment tests
-   ```bash
-   ./scripts/deploy-smart-contracts-docker.sh test
-   ```
-
-9. **`clean`**: Clean up all services and volumes
-   ```bash
-   ./scripts/deploy-smart-contracts-docker.sh clean
-   ```
-
-#### Environment Variables
+### Network-Specific Deployments
 
 ```bash
-# Environment selection
-export ENVIRONMENT=development|production
+# Devnet deployment (recommended for testing)
+docker-compose run --rm \
+  -e SOLANA_RPC_URL="https://api.devnet.solana.com" \
+  contact /usr/local/bin/deploy-all-contracts.sh
 
-# Skip infrastructure deployment
-export SKIP_INFRASTRUCTURE=true
+# Local validator deployment
+docker-compose run --rm \
+  -e SOLANA_RPC_URL="http://solana-validator:8899" \
+  contact /usr/local/bin/deploy-all-contracts.sh
 
-# Skip post-deployment tests
-export SKIP_TESTS=true
-
-# Enable verbose logging
-export VERBOSE=true
-
-# Custom validator URL
-export SOLANA_RPC_URL=http://custom-validator:8899
+# Mainnet deployment (production)
+docker-compose run --rm \
+  -e SOLANA_RPC_URL="https://api.mainnet-beta.solana.com" \
+  contact /usr/local/bin/deploy-all-contracts.sh
 ```
 
-### Manual Deployment Steps
-
-#### 1. Infrastructure Setup
+### Advanced Operations
 
 ```bash
-# Start infrastructure services
-docker-compose up -d postgres redis kafka zookeeper timescaledb grafana prometheus
+# Interactive container access
+docker-compose run --rm contact bash
 
-# Wait for services to be healthy
+# Custom script execution
+docker-compose run --rm contact bash -c "your-custom-command"
+
+# Deployment verification
+docker-compose run --rm contact /usr/local/bin/verify-deployment.sh
+
+# Detailed health monitoring
+docker-compose run --rm contact /usr/local/bin/health-monitor.sh detailed
+```
+## Monitoring and Health Checks
+
+### Service Health Status
+
+```bash
+# Check all services
 docker-compose ps
+
+# Check contact service logs
+docker-compose logs contact
+
+# Check validator status
+docker-compose logs solana-validator --tail=20
+
+# Real-time monitoring
+docker-compose logs -f contact
 ```
 
-#### 2. Solana Validator
+### Health Check Scripts
 
 ```bash
-# Build and start validator
-docker-compose up -d solana-validator
+# Quick status check
+docker-compose run --rm contact /usr/local/bin/health-monitor.sh status
 
-# Check validator health
-docker exec p2p-anchor-dev solana cluster-version --url http://localhost:8899
+# Detailed health report
+docker-compose run --rm contact /usr/local/bin/health-monitor.sh detailed
 
-# View validator logs
-docker-compose logs -f solana-validator
+# Network connectivity verification
+docker-compose run --rm contact /usr/local/bin/wait-for-validator.sh
 ```
 
-#### 3. Contract Deployment
+### Deployment Verification
 
 ```bash
+# Verify successful deployment
+docker-compose run --rm contact /usr/local/bin/verify-deployment.sh
+
+# Check deployed programs
+docker-compose run --rm contact bash -c "solana program show --programs"
+
+# Verify program accessibility
+docker-compose run --rm contact bash -c "anchor test --skip-local-validator"
+```
+
+## Troubleshooting
+
+### Common Issues
+
+#### 1. Validator Platform Issues
+**Problem**: Local validator unhealthy due to platform compatibility
+```bash
+# Check validator logs
+docker-compose logs solana-validator --tail=20
+
+# Workaround: Use devnet
+docker-compose run --rm -e SOLANA_RPC_URL="https://api.devnet.solana.com" contact /usr/local/bin/wait-for-validator.sh
+```
+
+#### 2. Volume Mount Issues
+**Problem**: Artifacts directory busy or permission errors
+```bash
+# Clean volumes
+docker-compose down -v
+docker volume prune
+
+# Rebuild and restart
+docker-compose build contact
+docker-compose up -d
+```
+
+#### 3. Network Connectivity
+**Problem**: Cannot connect to Solana network
+```bash
+# Test network connectivity
+docker-compose run --rm contact bash -c "solana cluster-version --url https://api.devnet.solana.com"
+
+# Check DNS resolution
+docker-compose run --rm contact bash -c "nslookup api.devnet.solana.com"
+```
+
+#### 4. Build Failures
+**Problem**: Anchor build fails
+```bash
+# Check workspace structure
+docker-compose run --rm contact bash -c "ls -la /workspaces/p2p/Anchor.toml"
+
+# Verify programs directory
+docker-compose run --rm contact bash -c "ls -la /workspaces/p2p/programs/"
+
+# Clean and rebuild
+docker-compose run --rm contact bash -c "cd /workspaces/p2p && anchor clean && anchor build"
+```
+
+### Debug Commands
+
+```bash
+# Interactive debugging session
+docker-compose run --rm contact bash
+
+# Check available tools
+docker-compose run --rm contact bash -c "which anchor && which solana"
+
+# Verify environment variables
+docker-compose run --rm contact bash -c "env | grep SOLANA"
+
+# Test script permissions
+docker-compose run --rm contact bash -c "ls -la /usr/local/bin/*.sh"
+```
+
+## Advanced Configuration
+
+### Custom Network Configuration
+
+```yaml
+# docker-compose.override.yml
+services:
+  contact:
+    environment:
+      SOLANA_RPC_URL: "https://your-custom-endpoint.com"
+      ANCHOR_PROVIDER_URL: "https://your-custom-endpoint.com"
+      DEPLOYMENT_TIMEOUT: "600"
+      MAX_RETRIES: "5"
+```
+
+### Persistent Storage Configuration
+
+```yaml
+# Custom volume configuration
+volumes:
+  contact_artifacts:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /host/path/to/artifacts
+```
+
+### Production Deployment
+
+```bash
+# Production environment setup
+export SOLANA_RPC_URL="https://api.mainnet-beta.solana.com"
+export ANCHOR_WALLET="/path/to/production/keypair.json"
+
+# Deploy to production
+docker-compose run --rm \
+  -e SOLANA_RPC_URL="$SOLANA_RPC_URL" \
+  -e ANCHOR_WALLET="$ANCHOR_WALLET" \
+  contact /usr/local/bin/deploy-all-contracts.sh
+```
+
+## Security Considerations
+
+### Keypair Management
+
+1. **Development**: Use generated keypairs for local/devnet testing
+2. **Production**: Use secure, externally managed keypairs
+3. **Storage**: Never commit keypairs to version control
+4. **Access**: Limit container access to necessary keypairs only
+
+### Network Security
+
+```bash
+# Secure RPC endpoints
+export SOLANA_RPC_URL="https://secure-rpc-endpoint.com"
+
+# Use environment-specific configurations
+export RUST_LOG="warn"  # Reduce log verbosity in production
+```
+
+### Container Security
+
+```bash
+# Run with specific user (non-root)
+docker-compose run --rm --user $(id -u):$(id -g) contact <command>
+
+# Limit container capabilities
+docker-compose run --rm --cap-drop=ALL contact <command>
+```
+
+## Conclusion
+
+The Docker-based deployment system provides a robust, scalable solution for managing smart contract deployments across different Solana networks. The `contact` service offers simplified deployment automation while maintaining flexibility for various deployment scenarios.
+
+For additional support and troubleshooting, refer to:
+- [Docker Troubleshooting Guide](./DOCKER_TROUBLESHOOTING.md)
+- [Docker Quick Reference](./DOCKER_QUICK_REFERENCE.md)
+- [System Architecture](./SYSTEM_ARCHITECTURE.md)
 # Start contract deployer
 docker-compose up -d contact
 

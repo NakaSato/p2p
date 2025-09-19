@@ -1,5 +1,37 @@
 services:
-  # Anchor Development Environment (includes Solana validator) - OPTIMIZED
+  # Smart Contract Deployment Service - OPTIMIZED
+  contact:
+    build:
+      context: ./docker/contact
+      dockerfile: Dockerfile
+    container_name: p2p-contact
+    # Temporarily disabled validator dependency due to platform issues
+    # depends_on:
+    #   solana-validator:
+    #     condition: service_healthy
+    volumes:
+      - .:/workspaces/p2p
+      - ./programs:/workspaces/programs
+      - ./contracts:/workspaces/contracts
+      - contact_artifacts:/opt/deployer/artifacts
+      - deployment_logs:/opt/deployer/logs
+    networks:
+      - p2p-network
+    restart: "no"  # Run once deployment strategy
+    environment:
+      ANCHOR_PROVIDER_URL: "http://solana-validator:8899"
+      # Can be overridden to use devnet: "https://api.devnet.solana.com"
+      ANCHOR_WALLET: "/opt/deployer/config/deployer-keypair.json"
+      RUST_LOG: "info"
+      DEPLOYMENT_TIMEOUT: "300"  # 5 minutes
+      MAX_RETRIES: "3"
+    healthcheck:
+      test: ["CMD-SHELL", "/usr/local/bin/verify-deployment.sh || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Anchor Development Chain (includes Solana validator) - OPTIMIZED
   solana-validator:
     build:
       context: ./docker/solana-validator
@@ -27,37 +59,6 @@ services:
       timeout: 10s
       retries: 5
       start_period: 120s
-
-  # Smart Contract Deployment Service - OPTIMIZED
-  contact:
-    build:
-      context: ./docker/contact
-      dockerfile: Dockerfile
-    container_name: p2p-contact
-    depends_on:
-      solana-validator:
-        condition: service_healthy
-    volumes:
-      - .:/workspaces/p2p
-      - ./programs:/workspaces/programs
-      - ./contracts:/workspaces/contracts
-      - contract_artifacts:/opt/deployer/artifacts
-      - deployment_logs:/opt/deployer/logs
-    networks:
-      - p2p-network
-    restart: "no"  # Run once deployment strategy
-    environment:
-      ANCHOR_PROVIDER_URL: "http://solana-validator:8899"
-      ANCHOR_WALLET: "/opt/deployer/config/deployer-keypair.json"
-      RUST_LOG: "info"
-      DEPLOYMENT_TIMEOUT: "300"  # 5 minutes
-      MAX_RETRIES: "3"
-    healthcheck:
-      test: ["CMD-SHELL", "/usr/local/bin/verify-deployment.sh || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
 
   # PostgreSQL Database
   postgres:
@@ -255,7 +256,7 @@ services:
 
 volumes:
   solana_ledger:
-  contract_artifacts:
+  contact_artifacts:
   deployment_logs:
   postgres_data:
   redis_data:

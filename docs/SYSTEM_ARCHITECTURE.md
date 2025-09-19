@@ -1,104 +1,129 @@
-# System Architecture: Engineering Complex P2P Energy Trading Platform
+# System Architecture: P2P Energy Trading Platform
 
 ## Overview
 
-The Engineering Complex P2P Energy Trading Platform operates within the university's Engineering Department facilities with the Engineering Department acting as the sole blockchain authority. Built on Solana blockchain with Anchor framework v0.29.0, the system features a single validator operated by the Engineering Department. The Engineering Complex infrastructure consists of 15 Advanced Metering Infrastructure (AMI) smart meters (ENG_001-015) for energy monitoring and oracle integration managed exclusively by the Engineering Department.
+The P2P Energy Trading Platform is a decentralized blockchain-based system built on Solana with Anchor framework v0.29.0. The system enables peer-to-peer energy trading through smart contracts, featuring automated deployment via the `contact` service, comprehensive monitoring, and multi-network support for development, testing, and production environments.
 
 ## Architecture Components
 
-### 1. Engineering Complex Infrastructure
+### 1. Core Services Architecture
 
-#### **AMI Smart Meters (ENG_001-015)**
-- **Purpose**: Real-time energy generation and consumption monitoring within Engineering Complex
-- **Location**: Distributed across Engineering Department buildings and facilities
-- **Scope**: 15 dedicated smart meters serving Engineering students and faculty
-- **Functionality**:
-  - Measure solar panel energy generation from Engineering buildings
-  - Monitor wind turbine output from Engineering research installations
-  - Track battery storage charge/discharge in Engineering labs
-  - Record building energy consumption for Engineering facilities
-  - Transmit data to Engineering Department IT systems via secure network
-
-#### **Engineering Complex Buildings with AMI Integration**
 ```
-Engineering Building A (ENG_001-005)
-├── AMI Smart Meters (Generation & Consumption)
-├── Rooftop Solar Panel Array
-├── Battery Storage System
-└── Student/Faculty Offices
-
-Engineering Building B (ENG_006-010)
-├── AMI Smart Meters (Generation & Consumption)
-├── Research Wind Turbine Installation
-├── Grid Connection Point
-└── Engineering Laboratories
-
-Engineering Research Center (ENG_011-015)
-├── AMI Smart Meters (Consumption Heavy)
-├── High-Performance Computing Lab
-├── Renewable Energy Research Facility
-└── Graduate Student Workspaces
+┌─────────────────────────────────────────────────────────────┐
+│                    P2P Energy Trading System               │
+├─────────────────────────────────────────────────────────────┤
+│  ┌─────────────────┐  ┌──────────────────┐  ┌─────────────┐ │
+│  │ Solana Validator│  │ Contact Service  │  │  Frontend   │ │
+│  │   Container     │  │    Container     │  │  Container  │ │
+│  │                 │  │                  │  │             │ │
+│  │ • Test Validator│  │ • Anchor Build   │  │ • React App │ │
+│  │ • Health checks │  │ • Smart Contract │  │ • Production │ │
+│  │ • Platform deps │  │   Deployment     │  │   Optimized │ │
+│  └─────────────────┘  └──────────────────┘  └─────────────┘ │
+├─────────────────────────────────────────────────────────────┤
+│  ┌─────────────┐  ┌──────────┐  ┌───────┐  ┌──────────────┐ │
+│  │ PostgreSQL  │  │  Redis   │  │API GW │  │   Grafana    │ │
+│  │ TimescaleDB │  │  Cache   │  │ Rust  │  │  Monitoring  │ │
+│  └─────────────┘  └──────────┘  └───────┘  └──────────────┘ │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### 2. Engineering Department Blockchain Authority
+### 2. Contact Service (Smart Contract Deployment)
 
-#### **Engineering Department**
-- **Role**: Sole blockchain validator and system authority for Engineering Complex
-- **Authority**: Complete control over Engineering Complex energy trading blockchain
-- **Scope**: Exclusive governance of Engineering student and faculty energy trading
-- **Responsibilities**:
-  - Operate single Solana validator node for Engineering Complex
-  - Manage all Anchor program deployments and upgrades
-  - Engineering student and faculty registration and meter assignment
-  - Oracle data validation and processing for Engineering AMI systems
-  - System maintenance and security for Engineering operations
-  - Energy token (SPL) minting authorization for Engineering participants
-  - Trading platform oversight and market parameter management
+#### **Core Functionality**
+- **Multi-Network Deployment**: Supports local validator, Solana devnet, and mainnet
+- **Container Orchestration**: Optimized Docker container with multi-stage builds
+- **Script Automation**: Simplified deployment scripts for all contract operations
+- **Health Monitoring**: Comprehensive service and deployment verification
+- **Flexible Configuration**: Environment-based network switching
 
-### 3. System Data Flow
+#### **Available Scripts**
+```
+/usr/local/bin/
+├── wait-for-validator.sh      # Network connectivity verification
+├── build-contracts.sh         # Anchor smart contract compilation  
+├── deploy-all-contracts.sh    # Complete deployment pipeline
+├── verify-deployment.sh       # Post-deployment verification
+├── setup-poa.sh              # Proof of Authority initialization
+└── health-monitor.sh         # Comprehensive health checks
+```
+### 3. Smart Contract Architecture
 
-```mermaid
-flowchart TD
-    subgraph EngComplex ["Engineering Complex"]
-        subgraph Buildings ["Engineering Buildings"]
-            EBA["Engineering Building A<br/>AMI Meters (ENG_001-005)<br/>Solar + Battery"]
-            EBB["Engineering Building B<br/>AMI Meters (ENG_006-010)<br/>Wind + Grid"]
-            ERC["Engineering Research Center<br/>AMI Meters (ENG_011-015)<br/>High Consumption"]
-        end
-        
-        subgraph EngDept ["Engineering Department"]
-            AMI["AMI Data Collector<br/>Engineering Network<br/>Oracle Integration"]
-            SOL["Solana Validator<br/>Single Node PoS<br/>Anchor Programs v0.29.0"]
-            API["API Gateway<br/>Engineering Interface<br/>System Management"]
-        end
-    end
-    
-    subgraph Programs ["Solana Anchor Programs"]
-        REG["Registry Program<br/>Engineering User Management<br/>Meter Assignment (ENG_001-015)"]
-        TKN["Energy Token Program<br/>SPL Token Standard<br/>Engineering Mint Authority"]
-        TRD["Trading Program<br/>Engineering Order Book<br/>15-min Market Clearing"]
-        ORC["Oracle Program<br/>Engineering AMI Integration<br/>Automated Operations"]
-        GOV["Governance Program<br/>Engineering Administration<br/>Parameter Updates"]
-    end
-    
-    %% Data flow from Engineering buildings to Engineering Dept
-    EBA -->|"Real-time AMI Data (ENG_001-005)"| AMI
-    EBB -->|"Real-time AMI Data (ENG_006-010)"| AMI
-    ERC -->|"Real-time AMI Data (ENG_011-015)"| AMI
-    
-    %% Engineering Dept internal flow
-    AMI -->|"Processed Engineering Energy Data"| ORC
-    SOL -->|"Hosts Programs"| REG
-    SOL -->|"Hosts Programs"| TKN
-    SOL -->|"Hosts Programs"| TRD
-    SOL -->|"Hosts Programs"| ORC
-    SOL -->|"Hosts Programs"| GOV
-    
-    %% Program interactions
-    ORC -->|"Submit Meter Data"| TKN
-    ORC -->|"Trigger Market Clearing"| TRD
-    TRD -->|"Verify Engineering Users"| REG
-    TKN -->|"Verify Engineering Users"| REG
+#### **Core Programs (Anchor v0.29.0)**
+
+```
+Solana Blockchain
+├── Registry Program
+│   ├── User registration and management
+│   ├── Smart meter assignment tracking
+│   └── Identity verification system
+│
+├── Energy Token Program (SPL)
+│   ├── Tokenized energy units (kWh)
+│   ├── Generation/consumption tracking
+│   └── Automated minting/burning
+│
+├── Trading Program
+│   ├── Peer-to-peer order matching
+│   ├── Market clearing mechanisms
+│   └── Settlement processing
+│
+├── Oracle Program
+│   ├── External data integration
+│   ├── Smart meter data processing
+│   └── Price feed management
+│
+└── Governance Program (PoA)
+    ├── Authority management
+    ├── System parameter updates
+    └── Emergency controls
+```
+
+#### **Deployment Flow**
+```
+1. Network Selection
+   ├── Local Validator (development)
+   ├── Solana Devnet (testing)
+   └── Solana Mainnet (production)
+
+2. Contact Service Execution
+   ├── Build all Anchor programs
+   ├── Deploy in dependency order
+   ├── Verify program accessibility
+   └── Initialize PoA system
+
+3. Health Monitoring
+   ├── Validator connectivity checks
+   ├── Program deployment verification
+   └── Continuous service monitoring
+```
+
+### 4. Network Configuration
+
+#### **Supported Networks**
+
+| Environment | RPC Endpoint | Use Case | Authority |
+|-------------|--------------|----------|-----------|
+| **Local** | `http://localhost:8899` | Development | Local test validator |
+| **Devnet** | `https://api.devnet.solana.com` | Testing | Solana devnet |
+| **Mainnet** | `https://api.mainnet-beta.solana.com` | Production | Solana mainnet |
+
+#### **Service Endpoints**
+```
+Development Environment:
+├── Frontend: http://localhost:3000
+├── API Gateway: http://localhost:8080
+├── Solana Validator: http://localhost:8898
+├── PostgreSQL: localhost:5432
+├── Redis: localhost:6379
+└── Grafana: http://localhost:3001
+
+Production Environment:
+├── All services behind reverse proxy
+├── SSL/TLS termination
+├── Load balancing
+└── Health monitoring
+```
     GOV -->|"Manage Engineering System"| REG
     GOV -->|"Manage Engineering System"| TRD
     GOV -->|"Manage Engineering System"| ORC
@@ -123,69 +148,120 @@ flowchart TD
 3. Energy data processed and validated for accuracy within Engineering systems
 4. Net energy surplus calculated (generation - consumption) for Engineering participants
 
-#### **Step 2: SPL Token Minting Authorization**
-1. Oracle Program receives validated meter data from Engineering AMI systems
-2. Includes: meter ID (ENG_001-015), energy amount, generation source, timestamp
-3. Data verified against registered Engineering student/faculty accounts
-4. Oracle triggers SPL token minting for verified energy generation within Engineering Complex
+### 5. Data Flow Architecture
 
-#### **Step 3: Engineering Department Validation**
-1. Engineering Department oracle validates AMI data authenticity from Engineering meters
-2. Cross-reference with Engineering Complex renewable energy installations
-3. Verify meter assignments and Engineering user registrations
-4. Validate energy generation data against Engineering system parameters
-5. Authorize SPL token minting for verified energy generation by Engineering participants
+#### **Contact Service Deployment Flow**
+```
+1. Network Connectivity Check
+   ├── Validate target Solana network
+   ├── Verify RPC endpoint accessibility
+   └── Confirm network compatibility
 
-#### **Step 4: SPL Token Minting and Trading**
-1. SPL energy tokens minted directly by Oracle Program under Engineering authority
-2. SPL tokens credited to Engineering prosumer's associated token account
-3. Tokens immediately available for Engineering Complex energy trading
-4. Available for trading within 15-minute market epochs among Engineering participants
+2. Contract Build Process
+   ├── Compile all Anchor programs
+   ├── Generate program IDL files
+   ├── Prepare deployment artifacts
+   └── Validate build integrity
 
-### 5. Governance Structure
+3. Sequential Deployment
+   ├── Deploy Registry Program (foundation)
+   ├── Deploy Energy Token Program (SPL)
+   ├── Deploy Oracle Program (data feeds)
+   ├── Deploy Trading Program (marketplace)
+   └── Deploy Governance Program (authority)
 
-#### **Engineering Department Authority**
-- **Role**: Complete system governance and operations for Engineering Complex
-- **Scope**: Exclusive authority over Engineering student and faculty energy trading
-- **Responsibilities**:
-  - Operate single Solana validator node for Engineering Complex
-  - Manage all Anchor program deployments and upgrades
-  - Oversee Engineering AMI infrastructure integration (ENG_001-015)
-  - Engineering user registration and system administration
-  - Engineering Complex market operations and parameter updates
-  - System maintenance and security for Engineering operations
-  - SPL token mint authority for Engineering participants
+4. Post-Deployment Verification
+   ├── Verify program deployment success
+   ├── Test program accessibility
+   ├── Initialize PoA system
+   └── Generate deployment report
+```
 
-#### **Single Validator Consensus (Engineering Department)**
-- **Consensus Mechanism**: Proof of Stake (Single Engineering Validator)
-- **Validator**: Engineering Department operated node exclusively
-- **Block Production**: Engineering Department has complete authority over blockchain
-- **Network Security**: Secured by Engineering Department infrastructure and protocols
-- **Governance**: Engineering Department controls all system parameters and operations
-- **User Base**: Limited to Engineering students and faculty (approximately 15 participants)
+#### **Real-time System Operations**
+```
+Energy Data Flow:
+Smart Meters → Oracle → Energy Tokens → Trading Platform
+
+User Interactions:
+Frontend → API Gateway → Blockchain Programs
+
+Monitoring Flow:
+All Services → Health Checks → Grafana Dashboard
+```
 
 ### 6. Technical Implementation
 
-#### **Solana Anchor Programs (v0.29.0)**
-1. **Registry Program**: Engineering student/faculty and AMI meter registration (ENG_001-015) under Engineering Department authority
-2. **Energy Token Program**: SPL tokens with Engineering Department mint authority for Engineering Complex
-3. **Trading Program**: Engineering Complex energy marketplace with automated 15-minute clearing
-4. **Oracle Program**: Engineering AMI data integration and automated market operations
-5. **Governance Program**: Engineering Department system administration and parameter control
+#### **Docker Container Architecture**
+```
+Production Deployment:
+├── contact: Optimized deployment automation
+├── solana-validator: Test validator with health checks
+├── frontend: Production React application
+├── api-gateway: Rust-based API service
+├── postgres: TimescaleDB for time-series data
+├── redis: Caching and session management
+└── grafana: Real-time monitoring dashboard
+```
 
-#### **Engineering AMI Integration**
-- Real-time energy data collection from Engineering Complex smart meters (ENG_001-015)
-- Secure data transmission to Engineering Department oracle via dedicated network
-- Data validation and processing before SPL token minting within Engineering systems
-- Integration with Engineering Department managed infrastructure and protocols
+#### **Environment Management**
+```bash
+# Development (Local Validator)
+SOLANA_RPC_URL="http://solana-validator:8899"
 
-#### **Engineering Department Operations**
-- Single validator node operation and maintenance for Engineering Complex
-- All program deployments and upgrades under Engineering authority
-- Engineering user registration and meter assignment authority
-- Complete control over SPL energy token minting for Engineering participants
-- Engineering market parameter management and oversight
-- System security and operational monitoring for Engineering Complex
+# Testing (Devnet)
+SOLANA_RPC_URL="https://api.devnet.solana.com"
+
+# Production (Mainnet)
+SOLANA_RPC_URL="https://api.mainnet-beta.solana.com"
+```
+
+#### **Health Monitoring System**
+- **Service Health**: Real-time container status monitoring
+- **Network Connectivity**: Continuous RPC endpoint validation
+- **Deployment Verification**: Automated post-deployment testing
+- **Performance Metrics**: Resource usage and response time tracking
+- **Alert System**: Automated notifications for system issues
+
+### 7. Security Architecture
+
+#### **Container Security**
+- Multi-stage Docker builds for minimal attack surface
+- Non-root user execution in production containers
+- Volume isolation for sensitive data protection
+- Network segmentation between services
+
+#### **Blockchain Security**
+- Keypair management with secure storage
+- Environment-specific RPC endpoints
+- Program authority controls
+- Transaction validation and verification
+
+#### **Operational Security**
+- Automated health monitoring
+- Secure configuration management
+- Access control and audit logging
+- Emergency response procedures
+
+### 8. Scalability Considerations
+
+#### **Horizontal Scaling**
+- Service replication via Docker Compose scaling
+- Load balancing for API gateway
+- Database connection pooling
+- Redis cluster support
+
+#### **Network Scalability**
+- Multi-network deployment support
+- RPC endpoint failover mechanisms
+- Validator redundancy options
+- Cross-chain integration capability
+
+## Conclusion
+
+The P2P Energy Trading Platform provides a robust, scalable architecture for decentralized energy trading. The `contact` service ensures reliable smart contract deployment across multiple Solana networks, while the comprehensive monitoring and health check systems maintain operational excellence.
+
+For detailed deployment instructions, see [Docker Deployment Guide](./DOCKER_DEPLOYMENT_GUIDE.md).
+For troubleshooting assistance, see [Docker Troubleshooting Guide](./DOCKER_TROUBLESHOOTING.md).
 
 ## Key Benefits
 

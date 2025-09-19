@@ -8,20 +8,90 @@ Deployment Issue?
 │   ├── Check Docker resources → Increase memory/CPU
 │   ├── Port conflicts? → Change port mappings
 │   └── Image build fails? → Check Dockerfile & dependencies
-├── Validator not responding?
-│   ├── ARM64 Mac issues? → Use development mode
-│   ├── Network issues? → Check Docker networking
-│   └── Health check fails? → Restart validator container
-├── Contract deployment fails?
-│   ├── Build errors? → Check Anchor version & dependencies
+├── Validator issues?
+│   ├── Platform compatibility? → Use devnet workaround
+│   ├── Missing dependencies? → Check Dockerfile for bzip2/curl
+│   ├── ARM64 Mac issues? → Use --platform linux/amd64
+│   └── Health check fails? → Check validator logs
+├── Contact service deployment fails?
+│   ├── Build errors? → Check workspace mounting
+│   ├── Network connectivity? → Test RPC endpoints
 │   ├── Deploy timeout? → Increase deployment timeout
-│   └── Permission issues? → Check volume mounting
+│   └── Volume issues? → Check artifact directory permissions
+├── Contract deployment fails?
+│   ├── Anchor build errors? → Check Anchor.toml and workspace
+│   ├── Program deployment fails? → Check SOL balance and RPC
+│   └── Verification fails? → Check deployed program status
 └── PoA initialization fails?
     ├── Missing governance program? → Deploy programs first
-    ├── Node.js issues? → Check package dependencies
-    └── Keypair issues? → Regenerate PoA keys
+    ├── Authority setup? → Check SOL funding for authorities
+    └── Keypair issues? → Regenerate authority keys
 ```
 
+## Critical Issues & Solutions
+
+### 1. Validator Platform Compatibility Issues
+
+#### **Problem**: Solana validator unhealthy on Apple Silicon (M1/M2) Macs
+```bash
+# Symptoms
+docker-compose logs solana-validator --tail=20
+# Shows: missing bzip2, platform warnings
+
+# Solution 1: Use Devnet (Recommended)
+docker-compose run --rm -e SOLANA_RPC_URL="https://api.devnet.solana.com" contact /usr/local/bin/wait-for-validator.sh
+```
+
+#### **Problem**: Platform architecture mismatches
+```bash
+# Symptoms
+WARNING: The requested image's platform (linux/amd64) does not match the detected host platform
+
+# Solution: Force platform in docker-compose.yml
+services:
+  solana-validator:
+    platform: linux/amd64
+```
+
+### 2. Contact Service Issues
+
+#### **Problem**: Workspace mounting issues
+```bash
+# Symptoms
+Not in workspace error from Anchor
+
+# Check workspace mounting
+docker-compose run --rm contact bash -c "ls -la /workspaces/p2p/Anchor.toml"
+
+# Solution: Verify docker-compose.yml volumes
+volumes:
+  - .:/workspaces/p2p
+```
+
+#### **Problem**: Artifacts directory busy
+```bash
+# Symptoms
+rm: cannot remove '/opt/deployer/artifacts': Device or resource busy
+
+# Solution: Clean volumes and rebuild
+docker-compose down -v
+docker volume prune
+docker-compose build contact
+```
+
+### 3. Network Connectivity Issues
+
+#### **Problem**: Cannot connect to Solana network
+```bash
+# Test connectivity
+docker-compose run --rm contact bash -c "solana cluster-version --url https://api.devnet.solana.com"
+
+# Check DNS resolution
+docker-compose run --rm contact bash -c "nslookup api.devnet.solana.com"
+
+# Solution: Use different RPC endpoint
+export SOLANA_RPC_URL="https://api.devnet.solana.com"
+```
 ## Diagnostic Commands
 
 ### System Information
@@ -45,17 +115,19 @@ docker-compose --version
 ### Container Status
 ```bash
 # List all containers
-docker ps -a
+docker-compose ps
 
 # Check container resource usage
 docker stats
 
-# Inspect container configuration
-docker inspect p2p-anchor-dev
+# Inspect contact service configuration
 docker inspect p2p-contact
 
-# Check container health
-docker inspect p2p-anchor-dev --format='{{.State.Health}}'
+# Check contact service logs
+docker-compose logs contact --tail=50
+
+# Check validator health (if using local)
+docker-compose logs solana-validator --tail=20
 ```
 
 ### Network Diagnostics
@@ -66,29 +138,48 @@ docker network ls
 # Inspect network configuration
 docker network inspect p2p_p2p-network
 
-# Test network connectivity
-docker exec p2p-contact ping solana-validator
-docker exec p2p-contact curl -s http://solana-validator:8899
+# Test network connectivity from contact service
+docker-compose run --rm contact bash -c "ping -c 3 api.devnet.solana.com"
+docker-compose run --rm contact bash -c "curl -s https://api.devnet.solana.com"
 ```
 
 ### Volume Diagnostics
 ```bash
 # List volumes
-docker volume ls
+docker volume ls | grep contact
 
 # Inspect volume configuration
-docker volume inspect p2p_solana_ledger
-docker volume inspect p2p_contract_artifacts
+docker volume inspect p2p_contact_artifacts
+docker volume inspect p2p_deployment_logs
 
 # Check volume contents
-docker run --rm -v p2p_solana_ledger:/data alpine ls -la /data
+docker-compose run --rm contact bash -c "ls -la /opt/deployer/artifacts"
+docker-compose run --rm contact bash -c "ls -la /opt/deployer/logs"
+```
+
+### Contact Service Diagnostics
+```bash
+# Check available scripts
+docker-compose run --rm contact ls -la /usr/local/bin/
+
+# Verify tool availability
+docker-compose run --rm contact bash -c "which anchor && which solana"
+
+# Test network connectivity
+docker-compose run --rm contact /usr/local/bin/wait-for-validator.sh
+
+# Check workspace mounting
+docker-compose run --rm contact bash -c "ls -la /workspaces/p2p/Anchor.toml"
+
+# Run health monitoring
+docker-compose run --rm contact /usr/local/bin/health-monitor.sh status
 ```
 
 ## Common Error Scenarios
 
 ### 1. Container Build Failures
 
-#### Error: "no space left on device"
+#### **Error**: "no space left on device"
 ```bash
 # Clean up Docker system
 docker system prune -a -f
@@ -96,18 +187,112 @@ docker volume prune -f
 
 # Check available space
 df -h
+
+# If still needed, remove unused images
+docker image prune -a -f
 ```
 
-#### Error: "failed to fetch package"
+#### **Error**: "failed to fetch package" or "network timeout"
 ```bash
 # Check internet connectivity
 ping 8.8.8.8
 
 # Rebuild with no cache
-docker-compose build --no-cache solana-validator
+docker-compose build --no-cache contact
+
+# Alternative: rebuild specific stage
+docker-compose build --no-cache --pull contact
 ```
 
-#### Error: "permission denied"
+### 2. Validator Platform Issues
+
+#### **Error**: Validator container unhealthy
+```bash
+# Check validator logs
+docker-compose logs solana-validator --tail=20
+
+# Common error: missing bzip2
+# ERROR: bzip2: command not found
+
+# Solution: Use devnet workaround
+docker-compose run --rm -e SOLANA_RPC_URL="https://api.devnet.solana.com" contact /usr/local/bin/deploy-all-contracts.sh
+```
+
+#### **Error**: Platform warnings on Apple Silicon
+```bash
+# Symptoms
+WARNING: The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8)
+
+# Solution: Force platform in docker-compose.yml or use devnet
+export SOLANA_RPC_URL="https://api.devnet.solana.com"
+```
+
+### 3. Contact Service Deployment Issues
+
+#### **Error**: "Not in workspace" from Anchor
+```bash
+# Check workspace mounting
+docker-compose run --rm contact bash -c "ls -la /workspaces/p2p/Anchor.toml"
+
+# If missing, verify docker-compose.yml volumes section
+volumes:
+  - .:/workspaces/p2p
+```
+
+#### **Error**: "Device or resource busy" for artifacts
+```bash
+# Clean volumes and restart
+docker-compose down -v
+docker volume prune -f
+docker-compose build contact
+docker-compose up -d
+```
+
+#### **Error**: Network connectivity timeout
+```bash
+# Test different endpoints
+docker-compose run --rm contact bash -c "solana cluster-version --url https://api.devnet.solana.com"
+docker-compose run --rm contact bash -c "solana cluster-version --url https://api.mainnet-beta.solana.com"
+
+# Check firewall/proxy settings
+docker-compose run --rm contact bash -c "nslookup api.devnet.solana.com"
+```
+
+### 4. Smart Contract Deployment Failures
+
+#### **Error**: "Insufficient SOL balance"
+```bash
+# Check deployer balance
+docker-compose run --rm contact bash -c "solana balance --url https://api.devnet.solana.com"
+
+# Request airdrop (devnet only)
+docker-compose run --rm contact bash -c "solana airdrop 1 --url https://api.devnet.solana.com"
+```
+
+#### **Error**: "Program deployment failed"
+```bash
+# Check program build first
+docker-compose run --rm contact /usr/local/bin/build-contracts.sh
+
+# Verify programs directory
+docker-compose run --rm contact bash -c "ls -la /workspaces/p2p/programs/"
+
+# Check for build artifacts
+docker-compose run --rm contact bash -c "ls -la /workspaces/p2p/target/deploy/"
+```
+
+#### **Error**: "RPC request failed"
+```bash
+# Try different RPC endpoint
+export SOLANA_RPC_URL="https://api.devnet.solana.com"
+
+# Check endpoint status
+curl -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1,"method":"getHealth"}' https://api.devnet.solana.com
+```
+
+### 5. Permission and Access Issues
+
+#### **Error**: "permission denied" for Docker commands
 ```bash
 # Check Docker daemon status
 sudo systemctl status docker
@@ -115,6 +300,156 @@ sudo systemctl status docker
 # Fix permissions (Linux)
 sudo usermod -aG docker $USER
 newgrp docker
+
+# On macOS, ensure Docker Desktop is running
+open -a Docker
+```
+
+#### **Error**: Volume mount permission issues
+```bash
+# Check volume ownership
+docker-compose run --rm contact bash -c "ls -la /opt/deployer/"
+
+# Fix with proper user mapping
+docker-compose run --rm --user $(id -u):$(id -g) contact bash
+```
+
+## Recommended Workarounds
+
+### 1. Development with Devnet (Primary Recommendation)
+```bash
+# For reliable development, use devnet instead of local validator
+export SOLANA_RPC_URL="https://api.devnet.solana.com"
+
+# All contact service operations with devnet
+docker-compose run --rm -e SOLANA_RPC_URL="https://api.devnet.solana.com" contact /usr/local/bin/wait-for-validator.sh
+docker-compose run --rm -e SOLANA_RPC_URL="https://api.devnet.solana.com" contact /usr/local/bin/build-contracts.sh
+docker-compose run --rm -e SOLANA_RPC_URL="https://api.devnet.solana.com" contact /usr/local/bin/deploy-all-contracts.sh
+```
+
+### 2. Local Validator Alternatives
+```bash
+# If local validator needed, disable dependency in docker-compose.yml
+services:
+  contact:
+    # depends_on:
+    #   solana-validator:
+    #     condition: service_healthy
+
+# Then run contact service independently
+docker-compose run --rm --no-deps contact /usr/local/bin/deploy-all-contracts.sh
+```
+
+### 3. Clean Development Environment
+```bash
+# Complete environment reset
+docker-compose down -v
+docker system prune -a -f
+docker volume prune -f
+
+# Rebuild from scratch
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+## Performance Optimization
+
+### 1. Docker Build Optimization
+```bash
+# Use BuildKit for faster builds
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
+
+# Build with multiple cores
+docker-compose build --parallel
+```
+
+### 2. Resource Allocation
+```bash
+# Increase Docker Desktop resources (macOS/Windows)
+# Memory: 8GB minimum, 16GB recommended
+# CPU: 4 cores minimum, 8 cores recommended
+# Disk: 50GB minimum
+
+# For Linux, ensure sufficient system resources
+free -h
+df -h
+```
+
+### 3. Network Optimization
+```bash
+# Use faster RPC endpoints for production
+export SOLANA_RPC_URL="https://api.mainnet-beta.solana.com"
+
+# Consider using custom RPC providers for better performance
+export SOLANA_RPC_URL="https://your-custom-rpc-provider.com"
+```
+
+## Emergency Recovery Procedures
+
+### 1. Complete System Reset
+```bash
+# Stop all services
+docker-compose down -v
+
+# Remove all P2P-related containers and volumes
+docker container prune -f
+docker volume ls | grep p2p | awk '{print $2}' | xargs docker volume rm
+
+# Rebuild everything
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+### 2. Contact Service Recovery
+```bash
+# Rebuild contact service only
+docker-compose build --no-cache contact
+
+# Test contact service health
+docker-compose run --rm contact /usr/local/bin/health-monitor.sh detailed
+
+# Verify all scripts are available
+docker-compose run --rm contact ls -la /usr/local/bin/
+```
+
+### 3. Network Connectivity Recovery
+```bash
+# Reset Docker networks
+docker network prune -f
+
+# Recreate networks
+docker-compose down
+docker-compose up -d
+
+# Test connectivity
+docker-compose run --rm contact bash -c "ping -c 3 8.8.8.8"
+```
+
+## Best Practices for Stability
+
+### 1. Environment Configuration
+- Always use environment variables for RPC URLs
+- Prefer devnet for development and testing
+- Use mainnet only for production deployments
+- Keep deployment scripts simple and maintainable
+
+### 2. Container Management
+- Regularly clean up unused containers and volumes
+- Monitor container resource usage
+- Use health checks for critical services
+- Implement proper logging and monitoring
+
+### 3. Development Workflow
+- Test deployments on devnet before local/mainnet
+- Use version control for configuration changes
+- Document any custom modifications
+- Maintain separate environments for dev/test/prod
+
+For additional support, refer to:
+- [Docker Deployment Guide](./DOCKER_DEPLOYMENT_GUIDE.md)
+- [Docker Quick Reference](./DOCKER_QUICK_REFERENCE.md)
+- [Contact Service Analysis](./CONTACT_ANALYSIS.md)
 ```
 
 ### 2. Validator Issues

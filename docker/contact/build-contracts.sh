@@ -3,7 +3,7 @@
 # Simple build script for Solana contracts
 set -e
 
-WORKSPACE="/opt/deployer/workspace"
+WORKSPACE="/workspaces/p2p"
 ARTIFACTS="/opt/deployer/artifacts"
 
 # Simple logging
@@ -18,7 +18,7 @@ main() {
     
     # Clean and build
     [ -d "target" ] && rm -rf target
-    [ -d "$ARTIFACTS" ] && rm -rf "$ARTIFACTS"
+    [ -d "$ARTIFACTS" ] && rm -rf "$ARTIFACTS"/* || true  # Clean contents, not directory
     
     # Build all programs
     anchor build

@@ -53,7 +53,7 @@ main() {
     log "Starting deployment..."
     
     # Wait for validator
-    until curl -s "$VALIDATOR_URL" > /dev/null; do
+    until solana cluster-version --url "$VALIDATOR_URL" >/dev/null 2>&1; do
         log "Waiting for validator..."
         sleep 5
     done
