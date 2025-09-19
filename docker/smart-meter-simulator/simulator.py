@@ -1,9 +1,4 @@
 #!/usr/bin/env python3
-"""
-Smart Meter Simulator for P2P Energy Trading Platform
-Simulates energy generation and consumption data for development/testing
-Supports both standalone mode and integrated mode with external services
-"""
 
 import os
 import json
@@ -33,18 +28,18 @@ class SmartMeterSimulator:
         self.simulation_interval = int(os.getenv('SIMULATION_INTERVAL', '30'))  # seconds
         self.num_meters = int(os.getenv('NUM_METERS', '10'))
         self.output_file = os.getenv('OUTPUT_FILE', 'meter_readings.jsonl')
-        
+
         # Initialize services
         self.producer = None
         self.db_conn = None
         self.standalone_mode = False
-        
+
         # Try to initialize external services
         self.initialize_services()
-        
+
         # Meter configurations
         self.meters = self.initialize_meters()
-        
+
         # Statistics
         self.stats = {
             'total_readings': 0,
@@ -52,12 +47,12 @@ class SmartMeterSimulator:
             'db_stores': 0,
             'file_saves': 0
         }
-        
+
     def initialize_services(self):
         """Initialize external services (Kafka, Database) with fallback to standalone mode"""
         services_available = 0
         total_services = 2
-        
+
         # Initialize Kafka
         try:
             self.producer = KafkaProducer(
@@ -74,7 +69,7 @@ class SmartMeterSimulator:
         except (NoBrokersAvailable, KafkaTimeoutError, Exception) as e:
             logger.warning(f"Kafka not available: {e}")
             self.producer = None
-        
+
         # Initialize Database
         try:
             self.connect_db()
@@ -84,7 +79,7 @@ class SmartMeterSimulator:
         except Exception as e:
             logger.warning(f"Database not available: {e}")
             self.db_conn = None
-        
+
         # Determine mode
         if services_available == 0:
             self.standalone_mode = True
@@ -93,10 +88,10 @@ class SmartMeterSimulator:
             logger.info(f"Running in HYBRID mode - {services_available}/{total_services} services available")
         else:
             logger.info("Running in FULL mode - all services available")
-        
+
         # Ensure output directory exists for file backup
         os.makedirs(os.path.dirname(self.output_file) if os.path.dirname(self.output_file) else '.', exist_ok=True)
-        
+
     def connect_db(self):
         """Connect to PostgreSQL database"""
         try:
@@ -105,11 +100,11 @@ class SmartMeterSimulator:
         except Exception as e:
             logger.error(f"Failed to connect to database: {e}")
             raise
-    
+
     def initialize_meters(self) -> List[Dict[str, Any]]:
         """Initialize meter configurations from database or fallback to simulated meters"""
         meters = []
-        
+
         if self.db_conn:
             try:
                 with self.db_conn.cursor(cursor_factory=RealDictCursor) as cursor:
@@ -120,9 +115,9 @@ class SmartMeterSimulator:
                         WHERE sm.status = 'Active'
                         LIMIT %s
                     """, (self.num_meters,))
-                    
+
                     db_meters = cursor.fetchall()
-                    
+
                     for meter in db_meters:
                         meter_config = {
                             'meter_id': meter['meter_id'],
@@ -135,10 +130,10 @@ class SmartMeterSimulator:
                             'noise_factor': random.uniform(0.05, 0.15)
                         }
                         meters.append(meter_config)
-                        
+
             except Exception as e:
                 logger.error(f"Failed to initialize meters from database: {e}")
-        
+
         # Fallback to simulated meters if database failed or no database
         if not meters:
             for i in range(self.num_meters):
@@ -154,14 +149,14 @@ class SmartMeterSimulator:
                     'efficiency': random.uniform(0.85, 0.95),
                     'noise_factor': random.uniform(0.05, 0.15)
                 })
-        
+
         logger.info(f"Initialized {len(meters)} meters for simulation")
         return meters
-    
+
     def calculate_solar_factor(self) -> float:
         """Calculate solar generation factor based on time of day"""
         current_hour = datetime.now().hour
-        
+
         # Solar generation curve (0-1 factor)
         if 6 <= current_hour <= 18:  # Daylight hours
             # Peak at noon (12), minimum at 6 and 18
@@ -171,11 +166,11 @@ class SmartMeterSimulator:
             return min(hour_factor * weather_factor, 1.0)
         else:
             return 0.0  # No solar generation at night
-    
+
     def calculate_consumption_factor(self) -> float:
         """Calculate consumption factor based on time of day"""
         current_hour = datetime.now().hour
-        
+
         # Higher consumption during peak hours
         if 7 <= current_hour <= 9 or 17 <= current_hour <= 21:  # Peak hours
             return random.uniform(1.2, 1.8)
@@ -183,31 +178,31 @@ class SmartMeterSimulator:
             return random.uniform(0.3, 0.7)
         else:  # Regular hours
             return random.uniform(0.8, 1.2)
-    
+
     def generate_meter_reading(self, meter: Dict[str, Any]) -> Dict[str, Any]:
         """Generate a single meter reading"""
         timestamp = datetime.now(timezone.utc).isoformat()
         solar_factor = self.calculate_solar_factor()
         consumption_factor = self.calculate_consumption_factor()
-        
+
         # Calculate energy values
         energy_generated = 0.0
         if meter['meter_type'] == 'Solar':
             base_gen = meter['base_generation'] * solar_factor * meter['efficiency']
             noise = random.gauss(0, base_gen * meter['noise_factor'])
             energy_generated = max(0, base_gen + noise)
-        
+
         base_cons = meter['base_consumption'] * consumption_factor
         noise = random.gauss(0, base_cons * meter['noise_factor'])
         energy_consumed = max(0, base_cons + noise)
-        
+
         # Generate electrical parameters
         voltage = random.gauss(240.0, 5.0)  # 240V ± 5V
         current = (energy_generated + energy_consumed) / voltage * 1000 if voltage > 0 else 0
         power_factor = random.uniform(0.90, 0.98)
         frequency = random.gauss(50.0, 0.1)  # 50Hz ± 0.1Hz
         temperature = random.gauss(25.0, 3.0)  # 25°C ± 3°C
-        
+
         # Solar-specific parameters
         irradiance = None
         weather_condition = None
@@ -215,7 +210,7 @@ class SmartMeterSimulator:
             irradiance = solar_factor * random.uniform(800, 1200)  # W/m²
             weather_conditions = ['Sunny', 'Partly Cloudy', 'Cloudy', 'Overcast']
             weather_condition = random.choice(weather_conditions)
-        
+
         reading = {
             'timestamp': timestamp,
             'meter_id': meter['meter_id'],
@@ -233,32 +228,32 @@ class SmartMeterSimulator:
             'weather_condition': weather_condition,
             'grid_connection_status': 'Connected'
         }
-        
+
         return reading
-    
+
     def send_to_kafka(self, reading: Dict[str, Any]):
         """Send meter reading to Kafka"""
         if not self.producer:
             return False
-            
+
         try:
             topic = 'energy-readings'
             key = reading['meter_id']
-            
+
             self.producer.send(topic, key=key, value=reading)
             logger.debug(f"Sent reading to Kafka: {reading['meter_id']}")
             self.stats['kafka_sends'] += 1
             return True
-            
+
         except Exception as e:
             logger.error(f"Failed to send reading to Kafka: {e}")
             return False
-    
+
     def store_in_timescaledb(self, reading: Dict[str, Any]):
         """Store reading in TimescaleDB"""
         try:
             timescale_url = os.getenv('TIMESCALE_URL', 'postgresql://timescale_user:timescale_password@timescaledb:5432/p2p_timeseries')
-            
+
             with psycopg2.connect(timescale_url) as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("""
@@ -283,67 +278,67 @@ class SmartMeterSimulator:
                         reading['weather_condition'],
                         reading['grid_connection_status']
                     ))
-            
+
             self.stats['db_stores'] += 1
             return True
-                    
+
         except Exception as e:
             logger.error(f"Failed to store reading in TimescaleDB: {e}")
             return False
-    
+
     def save_to_file(self, reading: Dict[str, Any]):
         """Save reading to JSON Lines file as backup"""
         try:
             with open(self.output_file, 'a') as f:
                 json.dump(reading, f)
                 f.write('\n')
-            
+
             self.stats['file_saves'] += 1
             return True
-            
+
         except Exception as e:
             logger.error(f"Failed to save reading to file: {e}")
             return False
-    
+
     def simulate_readings(self):
         """Generate and send readings for all meters"""
         logger.info(f"Generating readings for {len(self.meters)} meters")
-        
+
         for meter in self.meters:
             try:
                 reading = self.generate_meter_reading(meter)
                 self.stats['total_readings'] += 1
-                
+
                 # Try multiple storage methods
                 kafka_success = self.send_to_kafka(reading)
                 db_success = self.store_in_timescaledb(reading)
                 file_success = self.save_to_file(reading)
-                
+
                 # Log success status
                 if kafka_success or db_success or file_success:
                     success_methods = []
-                    if kafka_success: 
+                    if kafka_success:
                         success_methods.append("Kafka")
-                    if db_success: 
+                    if db_success:
                         success_methods.append("Database")
-                    if file_success: 
+                    if file_success:
                         success_methods.append("File")
                     logger.debug(f"Stored reading for {meter['meter_id']} via: {', '.join(success_methods)}")
                 else:
                     logger.error(f"Failed to store reading for {meter['meter_id']} via any method")
-                
+
             except Exception as e:
                 logger.error(f"Failed to process meter {meter['meter_id']}: {e}")
-        
+
         # Flush Kafka producer if available
         if self.producer:
             try:
                 self.producer.flush()
             except Exception as e:
                 logger.error(f"Failed to flush Kafka producer: {e}")
-        
+
         logger.info(f"Completed meter reading simulation cycle - {self.stats['total_readings']} total readings")
-    
+
     def print_statistics(self):
         """Print current statistics"""
         print(f"\nSimulation Statistics:")
@@ -352,7 +347,7 @@ class SmartMeterSimulator:
         print(f"   Database Stores: {self.stats['db_stores']}")
         print(f"   File Saves: {self.stats['file_saves']}")
         print(f"   Mode: {'Standalone' if self.standalone_mode else 'Integrated'}")
-    
+
     def run(self):
         """Run the simulator"""
         print("Starting Smart Meter Simulator")
@@ -362,35 +357,35 @@ class SmartMeterSimulator:
         print(f"Mode: {'Standalone' if self.standalone_mode else 'Integrated'}")
         print(f"Output File: {self.output_file}")
         print("="*50)
-        
+
         # Schedule periodic readings
         schedule.every(self.simulation_interval).seconds.do(self.simulate_readings)
-        
+
         # Initial reading
         self.simulate_readings()
-        
+
         # Keep running
         try:
             while True:
                 schedule.run_pending()
                 time.sleep(1)
-                
+
         except KeyboardInterrupt:
             logger.info("Shutting down simulator...")
             self.print_statistics()
-            
+
             if self.producer:
                 try:
                     self.producer.close()
                 except Exception as e:
                     logger.error(f"Error closing Kafka producer: {e}")
-            
+
             if self.db_conn:
                 try:
                     self.db_conn.close()
                 except Exception as e:
                     logger.error(f"Error closing database connection: {e}")
-            
+
             logger.info("Simulator shutdown complete")
 
 if __name__ == "__main__":

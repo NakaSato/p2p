@@ -1,6 +1,8 @@
-FROM ubuntu:22.04
+# Multi-stage build for optimized contract deployer container
+# Build stage
+FROM --platform=linux/amd64 ubuntu:22.04 AS builder
 
-# Install system dependencies
+# Install only essential build dependencies
 RUN apt-get update && apt-get install -y \
     curl \
     ca-certificates \
@@ -11,25 +13,20 @@ RUN apt-get update && apt-get install -y \
     libudev-dev \
     build-essential \
     git \
-    jq \
-    sudo \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
-# Create deployer user
-ENV USER=deployer
-RUN useradd --create-home -s /bin/bash ${USER}
-USER ${USER}
-WORKDIR /home/${USER}
+# Create build user
+RUN useradd --create-home -s /bin/bash builder
+USER builder
+WORKDIR /home/builder
 
-# Install Rust with latest stable toolchain
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable && \
-    echo 'export PATH="/home/deployer/.cargo/bin:$PATH"' >> ~/.bashrc && \
-    echo 'export PATH="/home/deployer/.cargo/bin:$PATH"' >> ~/.profile && \
-    . ~/.cargo/env && \
-    rustup update
-
-# Add cargo to PATH
-ENV PATH="/home/deployer/.cargo/bin:${PATH}"
+# Install Rust (minimal, no docs)
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+    --default-toolchain stable \
+    --profile minimal \
+    --no-modify-path
+ENV PATH="/home/builder/.cargo/bin:${PATH}"
 
 # Install Solana CLI with architecture detection
 RUN ARCH=$(dpkg --print-architecture) && \
@@ -42,26 +39,41 @@ RUN ARCH=$(dpkg --print-architecture) && \
     fi && \
     curl -sSfL "https://github.com/solana-labs/solana/releases/download/v1.18.17/solana-release-$SOLANA_ARCH.tar.bz2" -o solana.tar.bz2 && \
     tar -xjf solana.tar.bz2 && \
-    mkdir -p /home/deployer/.local/share/solana/install/active_release && \
-    cp -r solana-release/* /home/deployer/.local/share/solana/install/active_release/ && \
+    mkdir -p solana-install && \
+    cp -r solana-release/* solana-install/ && \
     rm -rf solana.tar.bz2 solana-release
-ENV PATH="/home/deployer/.local/share/solana/install/active_release/bin:$PATH"
 
-# Install Node.js (alternative approach using Ubuntu repositories)
+# Install Node.js (runtime minimal)
 USER root
-RUN apt-get update && apt-get install -y nodejs npm
-USER deployer
+RUN apt-get update && apt-get install -y nodejs npm --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get clean
+USER builder
 
-# Install Anchor CLI
-RUN . ~/.cargo/env && cargo install --git https://github.com/coral-xyz/anchor anchor-cli --locked --force
+# Install Anchor CLI (minimal build)
+RUN cargo install --git https://github.com/coral-xyz/anchor anchor-cli --locked --force --profile release
+# Clean up cargo cache and build artifacts
+RUN rm -rf ~/.cargo/registry ~/.cargo/git ~/.rustup/toolchains/*/share
 
-# Verify installations
-RUN . ~/.cargo/env && anchor --version && solana --version
+# Runtime stage
+FROM --platform=linux/amd64 ubuntu:22.04 AS runtime
 
-# Switch to root to create directories and copy files
+# Install only runtime dependencies
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    libssl3 \
+    libudev1 \
+    nodejs \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean \
+    && useradd --create-home -s /bin/bash deployer
+
+# Copy binaries from builder
+COPY --from=builder /home/builder/.cargo/bin/anchor /usr/local/bin/
+COPY --from=builder /home/builder/solana-install/bin/* /usr/local/bin/
+
+# Create required directories
 USER root
-
-# Create deployment directories
 RUN mkdir -p /opt/deployer/workspace /opt/deployer/artifacts /opt/deployer/logs /opt/deployer/config && \
     chown -R deployer:deployer /opt/deployer
 
@@ -74,18 +86,11 @@ COPY setup-poa.sh /usr/local/bin/setup-poa.sh
 COPY health-monitor.sh /usr/local/bin/health-monitor.sh
 RUN chmod +x /usr/local/bin/*.sh
 
-# Switch back to deployer user
 USER deployer
 WORKDIR /opt/deployer
 
-# Set environment variables
-ENV ANCHOR_PROVIDER_URL=http://solana-validator:8899
-ENV ANCHOR_WALLET=/opt/deployer/config/deployer-keypair.json
-ENV RUST_LOG=info
-
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD /usr/local/bin/verify-deployment.sh || exit 1
+HEALTHCHECK --interval=60s --timeout=30s --start-period=60s --retries=3 \
+    CMD /usr/local/bin/health-monitor.sh || exit 1
 
-# Default command
-CMD ["/usr/local/bin/deploy-all-contracts.sh"]
+CMD ["/bin/bash", "-c", "while true; do sleep 30; done"]

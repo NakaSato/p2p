@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Build script for P2P Energy Trading Frontend Docker Images
+# Production Build Script for P2P Energy Trading Frontend
 
 set -e
 
@@ -19,6 +19,46 @@ print_status() {
 print_success() {
     echo -e "${GREEN}[SUCCESS]${NC} $1"
 }
+
+print_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# Configuration
+IMAGE_NAME="p2p-frontend"
+TAG="latest"
+DOCKERFILE="docker/frontend/Dockerfile"
+
+print_status "Building production-optimized frontend container..."
+
+# Build the production image
+docker build \
+    --file "$DOCKERFILE" \
+    --tag "$IMAGE_NAME:$TAG" \
+    --build-arg NODE_ENV=production \
+    --progress=plain \
+    .
+
+if [ $? -eq 0 ]; then
+    print_success "Frontend production image built successfully!"
+    
+    # Show image size
+    SIZE=$(docker images "$IMAGE_NAME:$TAG" --format "table {{.Size}}" | tail -n 1)
+    print_status "Image size: $SIZE"
+    
+    # Optional: Remove intermediate images to save space
+    print_status "Cleaning up intermediate images..."
+    docker image prune -f
+    
+    print_success "Build completed successfully!"
+else
+    print_error "Build failed!"
+    exit 1
+fi
 
 print_warning() {
     echo -e "${YELLOW}[WARNING]${NC} $1"
