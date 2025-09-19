@@ -31,17 +31,26 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --de
 # Add cargo to PATH
 ENV PATH="/home/deployer/.cargo/bin:${PATH}"
 
-# Install Solana CLI (specific version for compatibility)
-RUN curl -sSfL https://github.com/solana-labs/solana/releases/download/v1.18.17/solana-release-x86_64-unknown-linux-gnu.tar.bz2 -o solana.tar.bz2 && \
+# Install Solana CLI with architecture detection
+RUN ARCH=$(dpkg --print-architecture) && \
+    if [ "$ARCH" = "amd64" ]; then \
+        SOLANA_ARCH="x86_64-unknown-linux-gnu"; \
+    elif [ "$ARCH" = "arm64" ]; then \
+        SOLANA_ARCH="aarch64-unknown-linux-gnu"; \
+    else \
+        echo "Unsupported architecture: $ARCH" && exit 1; \
+    fi && \
+    curl -sSfL "https://github.com/solana-labs/solana/releases/download/v1.18.17/solana-release-$SOLANA_ARCH.tar.bz2" -o solana.tar.bz2 && \
     tar -xjf solana.tar.bz2 && \
     mkdir -p /home/deployer/.local/share/solana/install/active_release && \
     cp -r solana-release/* /home/deployer/.local/share/solana/install/active_release/ && \
     rm -rf solana.tar.bz2 solana-release
 ENV PATH="/home/deployer/.local/share/solana/install/active_release/bin:$PATH"
 
-# Install Node.js (for Anchor)
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && \
-    sudo apt-get install -y nodejs
+# Install Node.js (alternative approach using Ubuntu repositories)
+USER root
+RUN apt-get update && apt-get install -y nodejs npm
+USER deployer
 
 # Install Anchor CLI
 RUN . ~/.cargo/env && cargo install --git https://github.com/coral-xyz/anchor anchor-cli --locked --force

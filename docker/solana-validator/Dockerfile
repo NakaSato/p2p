@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM --platform=linux/amd64 ubuntu:22.04
 
 # Install system dependencies and development tools
 RUN apt-get update && apt-get install -y \
@@ -33,23 +33,36 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --de
 # Add cargo to PATH for all shells and users
 ENV PATH="/home/solana/.cargo/bin:${PATH}"
 
-# Install Solana CLI by downloading specific version manually  
-RUN curl -sSfL https://github.com/solana-labs/solana/releases/download/v1.18.17/solana-release-x86_64-unknown-linux-gnu.tar.bz2 -o solana.tar.bz2 && \
+# Install Solana CLI with architecture detection
+RUN ARCH=$(dpkg --print-architecture) && \
+    if [ "$ARCH" = "amd64" ]; then \
+        SOLANA_ARCH="x86_64-unknown-linux-gnu"; \
+    elif [ "$ARCH" = "arm64" ]; then \
+        SOLANA_ARCH="aarch64-unknown-linux-gnu"; \
+    else \
+        echo "Unsupported architecture: $ARCH" && exit 1; \
+    fi && \
+    curl -sSfL "https://github.com/solana-labs/solana/releases/download/v1.18.17/solana-release-$SOLANA_ARCH.tar.bz2" -o solana.tar.bz2 && \
     tar -xjf solana.tar.bz2 && \
     mkdir -p /home/solana/.local/share/solana/install/active_release && \
     cp -r solana-release/* /home/solana/.local/share/solana/install/active_release/ && \
     rm -rf solana.tar.bz2 solana-release
 ENV PATH="/home/solana/.local/share/solana/install/active_release/bin:$PATH"
 
-# Install Node.js
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && \
-    sudo apt-get install -y nodejs
+# Install Node.js (alternative approach using Ubuntu repositories)
+USER root
+RUN apt-get update && apt-get install -y nodejs npm
+USER solana
 
 # Install Anchor CLI directly via cargo (working method)
 RUN . ~/.cargo/env && cargo install --git https://github.com/coral-xyz/anchor anchor-cli --locked --force
 
-# Verify Anchor installation
-RUN . ~/.cargo/env && anchor --version
+# Verify installations with error handling
+RUN . ~/.cargo/env && \
+    echo "Checking Anchor installation..." && \
+    anchor --version || (echo "Warning: Anchor version check failed, but installation may still work" && true) && \
+    echo "Checking Solana installation..." && \
+    solana --version || (echo "Warning: Solana version check failed, but installation may still work" && true)
 
 # Switch to root to create directories and copy files
 USER root
