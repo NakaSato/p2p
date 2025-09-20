@@ -8,6 +8,10 @@ Deployment Issue?
 │   ├── Check Docker resources → Increase memory/CPU
 │   ├── Port conflicts? → Change port mappings
 │   └── Image build fails? → Check Dockerfile & dependencies
+├── API Gateway build fails?
+│   ├── SQLx compilation errors? → Regenerate query cache
+│   ├── Database connection during build? → Use SQLX_OFFLINE=true
+│   └── Missing .sqlx directory? → Run cargo sqlx prepare
 ├── Validator issues?
 │   ├── Platform compatibility? → Use devnet workaround
 │   ├── Missing dependencies? → Check Dockerfile for bzip2/curl
@@ -25,7 +29,7 @@ Deployment Issue?
 └── PoA initialization fails?
     ├── Missing governance program? → Deploy programs first
     ├── Authority setup? → Check SOL funding for authorities
-    └── Keypair issues? → Regenerate authority keys
+    └── Keypair keys? → Regenerate authority keys
 ```
 
 ## Critical Issues & Solutions
@@ -92,6 +96,50 @@ docker-compose run --rm contact bash -c "nslookup api.devnet.solana.com"
 # Solution: Use different RPC endpoint
 export SOLANA_RPC_URL="https://api.devnet.solana.com"
 ```
+
+### 4. API Gateway Build Issues
+
+#### **Problem**: SQLx compile-time query validation fails
+```bash
+# Error: set `DATABASE_URL` to use query macros online
+# Error: failed to compile `api-gateway` (lib) due to 7 previous errors
+```
+
+**Root Cause**: SQLx macros need database connectivity during compilation to validate queries.
+
+**Solution**: Use SQLx offline mode with query cache:
+
+1. **Generate query cache locally**:
+   ```bash
+   # Start database
+   docker-compose up -d postgres
+   
+   # Generate cache
+   cd api-gateway
+   export DATABASE_URL="postgresql://p2p_user:p2p_password@localhost:5432/p2p_energy_trading"
+   cargo sqlx prepare
+   
+   # Commit the .sqlx/ directory
+   git add .sqlx/
+   git commit -m "Update SQLx query cache"
+   ```
+
+2. **Dockerfile includes offline mode**:
+   ```dockerfile
+   # Copy SQLx query cache
+   COPY api-gateway/.sqlx ./.sqlx
+   
+   # Enable offline mode
+   ENV SQLX_OFFLINE=true
+   ```
+
+3. **Verify build works**:
+   ```bash
+   docker-compose build api-gateway
+   ```
+
+**Prevention**: Always regenerate query cache after database schema changes.
+
 ## Diagnostic Commands
 
 ### System Information

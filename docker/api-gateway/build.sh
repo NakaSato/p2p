@@ -12,6 +12,14 @@ echo "Building API Gateway Docker image..."
 echo "Build type: $BUILD_TYPE"
 echo "Project root: $PROJECT_ROOT"
 
+# Check if SQLx cache exists
+if [[ ! -d "$PROJECT_ROOT/api-gateway/.sqlx" ]]; then
+    echo "Warning: SQLx query cache (.sqlx/) not found."
+    echo "If you encounter compilation errors, run:"
+    echo "  cd api-gateway && cargo sqlx prepare"
+    echo ""
+fi
+
 cd "$PROJECT_ROOT"
 
 if [[ "$BUILD_TYPE" == "development" ]]; then

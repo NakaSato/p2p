@@ -16,6 +16,7 @@ WORKDIR /app
 
 # Copy API Gateway specific files only for dependency caching
 COPY api-gateway/Cargo.toml ./Cargo.toml
+COPY api-gateway/.sqlx ./.sqlx
 
 # Create src directory and dummy main.rs for dependency caching
 RUN mkdir -p src && echo "fn main() {}" > src/main.rs
@@ -26,6 +27,9 @@ RUN cargo fetch && cargo build --release && rm -rf src/
 # Copy API Gateway source
 COPY api-gateway/src ./src/
 COPY api-gateway/migrations ./migrations/
+
+# Set SQLx to offline mode to avoid needing DATABASE_URL during build
+ENV SQLX_OFFLINE=true
 
 # Build the application
 RUN cargo build --release

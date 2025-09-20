@@ -70,6 +70,41 @@ api-gateway:
     - redis
 ```
 
+## SQLx Offline Compilation
+
+This project uses SQLx with compile-time checked queries. For Docker builds to work without a database connection, we use SQLx's offline mode:
+
+### Query Cache Generation
+
+When modifying database queries, you need to regenerate the SQLx query cache:
+
+1. Start the database:
+   ```bash
+   docker-compose up -d postgres
+   ```
+
+2. Set the database URL and generate the cache:
+   ```bash
+   cd api-gateway
+   export DATABASE_URL="postgresql://p2p_user:p2p_password@localhost:5432/p2p_energy_trading"
+   cargo sqlx prepare
+   ```
+
+3. Commit the updated `.sqlx/` directory to version control.
+
+### Dockerfile Configuration
+
+The Dockerfile includes:
+- Copy of `.sqlx/` directory for offline compilation
+- `SQLX_OFFLINE=true` environment variable
+- Proper build ordering to cache dependencies
+
+### Troubleshooting SQLx Issues
+
+- **Build fails with "set DATABASE_URL"**: Ensure `.sqlx/` directory is up to date
+- **Query compilation errors**: Regenerate query cache after schema changes
+- **Missing `.sqlx/` directory**: Run `cargo sqlx prepare` as described above
+
 ## Environment Variables
 
 Required environment variables for the API Gateway:
