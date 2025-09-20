@@ -42,8 +42,8 @@ services:
   # Production API Gateway
   api-gateway:
     build:
-      context: ./api-gateway
-      dockerfile: Dockerfile  # Use production Dockerfile
+      context: .
+      dockerfile: docker/api-gateway/Dockerfile  # Use production Dockerfile
       target: production
     environment:
       RUST_LOG: "info"

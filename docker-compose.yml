@@ -170,8 +170,8 @@ services:
   # API Gateway
   api-gateway:
     build:
-      context: ./api-gateway
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: docker/api-gateway/Dockerfile
     container_name: p2p-api-gateway
     ports:
       - "8080:8080"

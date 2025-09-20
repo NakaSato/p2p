@@ -1,0 +1,1348 @@
+{
+	"info": {
+		"_postman_id": "p2p-energy-trading-api",
+		"name": "P2P Energy Trading API Gateway",
+		"description": "Comprehensive API testing collection for the P2P Energy Trading Platform\n\n## Overview\nThis collection tests all API endpoints of the P2P Energy Trading API Gateway including:\n- Authentication & User Management\n- Energy Meter Data\n- Trading Operations\n- Blockchain Integration\n- Analytics & Monitoring\n\n## Setup\n1. Import this collection into Postman\n2. Import the corresponding environment file\n3. Set up your environment variables\n4. Run the authentication requests first to get JWT tokens\n\n## Environment Variables Required\n- `base_url`: API Gateway base URL (e.g., http://localhost:8080)\n- `jwt_token`: JWT token for authenticated requests\n- `user_id`: Current user ID for user-specific operations\n- `test_username`: Username for test operations\n- `test_password`: Password for test operations\n\n## Test Flow\n1. Health Check\n2. User Registration\n3. User Login (gets JWT token)\n4. Profile Management\n5. Energy Meter Operations\n6. Trading Operations\n7. Blockchain Operations\n8. Analytics\n\nLast Updated: September 2025",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "API Health Check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has status field\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('status');",
+									"    pm.expect(responseJson.status).to.eql('healthy');",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 500ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Check API Gateway health status"
+					},
+					"response": []
+				}
+			],
+			"description": "Basic health check endpoints to verify API Gateway is running"
+		},
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register New User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has user data\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('user');",
+									"    pm.expect(responseJson.user).to.have.property('id');",
+									"    pm.expect(responseJson.user).to.have.property('username');",
+									"    pm.expect(responseJson.user).to.have.property('email');",
+									"    ",
+									"    // Store user ID for later use",
+									"    pm.environment.set('user_id', responseJson.user.id);",
+									"});",
+									"",
+									"pm.test(\"User has correct role and department\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson.user.role).to.eql('student');",
+									"    pm.expect(responseJson.user.department).to.eql('Engineering');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate unique test username",
+									"const timestamp = Date.now();",
+									"const testUsername = `testuser_${timestamp}`;",
+									"const testEmail = `test_${timestamp}@engineering.edu`;",
+									"",
+									"pm.environment.set('test_username', testUsername);",
+									"pm.environment.set('test_email', testEmail);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{test_username}}\",\n    \"email\": \"{{test_email}}\",\n    \"password\": \"{{test_password}}\",\n    \"first_name\": \"Test\",\n    \"last_name\": \"User\",\n    \"role\": \"student\",\n    \"department\": \"Engineering\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "Register a new user account"
+					},
+					"response": []
+				},
+				{
+					"name": "User Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has access token\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('access_token');",
+									"    pm.expect(responseJson).to.have.property('token_type');",
+									"    pm.expect(responseJson).to.have.property('expires_in');",
+									"    ",
+									"    // Store JWT token for authenticated requests",
+									"    pm.environment.set('jwt_token', responseJson.access_token);",
+									"});",
+									"",
+									"pm.test(\"Token type is Bearer\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson.token_type).to.eql('Bearer');",
+									"});",
+									"",
+									"pm.test(\"User data included\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('user');",
+									"    pm.expect(responseJson.user).to.have.property('username');",
+									"    pm.expect(responseJson.user.username).to.eql(pm.environment.get('test_username'));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{test_username}}\",\n    \"password\": \"{{test_password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Authenticate user and get JWT token"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Profile data returned\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('id');",
+									"    pm.expect(responseJson).to.have.property('username');",
+									"    pm.expect(responseJson).to.have.property('email');",
+									"    pm.expect(responseJson).to.have.property('role');",
+									"    pm.expect(responseJson).to.have.property('department');",
+									"});",
+									"",
+									"pm.test(\"Username matches test user\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson.username).to.eql(pm.environment.get('test_username'));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/auth/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"profile"
+							]
+						},
+						"description": "Get current user profile information"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Profile updated successfully\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('message');",
+									"    pm.expect(responseJson.message).to.include('updated');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"first_name\": \"Updated\",\n    \"last_name\": \"User\",\n    \"email\": \"{{test_email}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"profile"
+							]
+						},
+						"description": "Update user profile information"
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Password changed successfully\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('message');",
+									"    pm.expect(responseJson.message).to.include('Password changed');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"current_password\": \"{{test_password}}\",\n    \"new_password\": \"{{test_password}}_new\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/password",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"password"
+							]
+						},
+						"description": "Change user password"
+					},
+					"response": []
+				}
+			],
+			"description": "User authentication and profile management endpoints"
+		},
+		{
+			"name": "Energy Meters",
+			"item": [
+				{
+					"name": "Submit Energy Reading",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Reading submitted successfully\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('reading_id');",
+									"    pm.expect(responseJson).to.have.property('message');",
+									"    ",
+									"    // Store reading ID for later use",
+									"    pm.environment.set('reading_id', responseJson.reading_id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate realistic energy reading data",
+									"const now = new Date();",
+									"const timestamp = now.toISOString();",
+									"const energy_consumed = Math.floor(Math.random() * 50) + 10; // 10-60 kWh",
+									"const energy_produced = Math.floor(Math.random() * 30) + 5;  // 5-35 kWh",
+									"",
+									"pm.environment.set('test_timestamp', timestamp);",
+									"pm.environment.set('test_energy_consumed', energy_consumed);",
+									"pm.environment.set('test_energy_produced', energy_produced);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"meter_id\": \"METER_{{user_id}}_001\",\n    \"timestamp\": \"{{test_timestamp}}\",\n    \"energy_consumed\": {{test_energy_consumed}},\n    \"energy_produced\": {{test_energy_produced}},\n    \"voltage\": 230.5,\n    \"current\": 10.2,\n    \"frequency\": 50.0,\n    \"power_factor\": 0.95\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/meters/readings",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"meters",
+								"readings"
+							]
+						},
+						"description": "Submit energy meter reading data"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Energy Readings",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Readings array returned\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('readings');",
+									"    pm.expect(responseJson.readings).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"Pagination info included\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('pagination');",
+									"    pm.expect(responseJson.pagination).to.have.property('page');",
+									"    pm.expect(responseJson.pagination).to.have.property('limit');",
+									"    pm.expect(responseJson.pagination).to.have.property('total');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/meters/readings?limit=10&offset=0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"meters",
+								"readings"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
+						},
+						"description": "Get energy readings with pagination"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Specific Reading",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Reading data returned\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('id');",
+									"    pm.expect(responseJson).to.have.property('meter_id');",
+									"    pm.expect(responseJson).to.have.property('timestamp');",
+									"    pm.expect(responseJson).to.have.property('energy_consumed');",
+									"    pm.expect(responseJson).to.have.property('energy_produced');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/meters/readings/{{reading_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"meters",
+								"readings",
+								"{{reading_id}}"
+							]
+						},
+						"description": "Get specific energy reading by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Aggregated Data",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Aggregated data returned\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('aggregations');",
+									"    pm.expect(responseJson.aggregations).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"Each aggregation has required fields\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    if (responseJson.aggregations.length > 0) {",
+									"        const agg = responseJson.aggregations[0];",
+									"        pm.expect(agg).to.have.property('time_bucket');",
+									"        pm.expect(agg).to.have.property('total_consumed');",
+									"        pm.expect(agg).to.have.property('total_produced');",
+									"        pm.expect(agg).to.have.property('avg_voltage');",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/meters/aggregated?meter_id=METER_{{user_id}}_001&start_time=2025-09-01T00:00:00Z&end_time=2025-09-30T23:59:59Z&interval=1 hour",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"meters",
+								"aggregated"
+							],
+							"query": [
+								{
+									"key": "meter_id",
+									"value": "METER_{{user_id}}_001"
+								},
+								{
+									"key": "start_time",
+									"value": "2025-09-01T00:00:00Z"
+								},
+								{
+									"key": "end_time",
+									"value": "2025-09-30T23:59:59Z"
+								},
+								{
+									"key": "interval",
+									"value": "1 hour"
+								}
+							]
+						},
+						"description": "Get aggregated energy data over time intervals"
+					},
+					"response": []
+				}
+			],
+			"description": "Energy meter data submission and retrieval endpoints"
+		},
+		{
+			"name": "Trading",
+			"item": [
+				{
+					"name": "Create Buy Order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Order created successfully\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('order_id');",
+									"    pm.expect(responseJson).to.have.property('status');",
+									"    ",
+									"    // Store order ID for later use",
+									"    pm.environment.set('buy_order_id', responseJson.order_id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"side\": \"buy\",\n    \"quantity\": 50.0,\n    \"price\": 0.15,\n    \"order_type\": \"limit\",\n    \"time_in_force\": \"GTC\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/trading/orders",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"trading",
+								"orders"
+							]
+						},
+						"description": "Create a buy order for energy"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Sell Order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Order created successfully\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('order_id');",
+									"    pm.expect(responseJson).to.have.property('status');",
+									"    ",
+									"    // Store order ID for later use",
+									"    pm.environment.set('sell_order_id', responseJson.order_id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"side\": \"sell\",\n    \"quantity\": 25.0,\n    \"price\": 0.20,\n    \"order_type\": \"limit\",\n    \"time_in_force\": \"GTC\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/trading/orders",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"trading",
+								"orders"
+							]
+						},
+						"description": "Create a sell order for energy"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Orders",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Orders array returned\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('orders');",
+									"    pm.expect(responseJson.orders).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"Orders contain required fields\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    if (responseJson.orders.length > 0) {",
+									"        const order = responseJson.orders[0];",
+									"        pm.expect(order).to.have.property('id');",
+									"        pm.expect(order).to.have.property('side');",
+									"        pm.expect(order).to.have.property('quantity');",
+									"        pm.expect(order).to.have.property('price');",
+									"        pm.expect(order).to.have.property('status');",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/trading/orders?status=active&limit=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"trading",
+								"orders"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "active"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get user's trading orders"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Market Data",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Market data returned\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('market_data');",
+									"    pm.expect(responseJson.market_data).to.have.property('current_price');",
+									"    pm.expect(responseJson.market_data).to.have.property('volume_24h');",
+									"    pm.expect(responseJson.market_data).to.have.property('price_change_24h');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/trading/market",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"trading",
+								"market"
+							]
+						},
+						"description": "Get current market data and statistics"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Trading Stats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Trading stats returned\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('stats');",
+									"    pm.expect(responseJson.stats).to.have.property('total_volume');",
+									"    pm.expect(responseJson.stats).to.have.property('total_trades');",
+									"    pm.expect(responseJson.stats).to.have.property('avg_price');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/trading/stats",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"trading",
+								"stats"
+							]
+						},
+						"description": "Get trading statistics and metrics"
+					},
+					"response": []
+				}
+			],
+			"description": "Energy trading operations and market data"
+		},
+		{
+			"name": "Blockchain",
+			"item": [
+				{
+					"name": "Connect Wallet",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Wallet connected successfully\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('message');",
+									"    pm.expect(responseJson.message).to.include('Wallet connected');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate a test Solana wallet address",
+									"const testWallet = '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d';",
+									"pm.environment.set('test_wallet_address', testWallet);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"wallet_address\": \"{{test_wallet_address}}\",\n    \"signature\": \"test_signature_for_verification\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/user/wallet",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"wallet"
+							]
+						},
+						"description": "Connect Solana wallet to user account"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Blockchain Transactions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Transactions array returned\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('transactions');",
+									"    pm.expect(responseJson.transactions).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/blockchain/transactions?limit=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"blockchain",
+								"transactions"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get blockchain transaction history"
+					},
+					"response": []
+				},
+				{
+					"name": "Interact with Smart Contract",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Transaction initiated\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('transaction_signature');",
+									"    pm.expect(responseJson).to.have.property('status');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"program_name\": \"energy_token\",\n    \"instruction\": \"transfer_energy\",\n    \"accounts\": [\n        \"{{test_wallet_address}}\",\n        \"5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d\"\n    ],\n    \"data\": {\n        \"amount\": 100,\n        \"energy_type\": \"solar\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/blockchain/interact",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"blockchain",
+								"interact"
+							]
+						},
+						"description": "Interact with Solana smart contracts"
+					},
+					"response": []
+				}
+			],
+			"description": "Blockchain and smart contract integration"
+		},
+		{
+			"name": "Analytics",
+			"item": [
+				{
+					"name": "Get Energy Analytics",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Analytics data returned\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('analytics');",
+									"    pm.expect(responseJson.analytics).to.have.property('total_consumption');",
+									"    pm.expect(responseJson.analytics).to.have.property('total_production');",
+									"    pm.expect(responseJson.analytics).to.have.property('efficiency_ratio');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/analytics/energy?start_date=2025-09-01&end_date=2025-09-30&granularity=day",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"analytics",
+								"energy"
+							],
+							"query": [
+								{
+									"key": "start_date",
+									"value": "2025-09-01"
+								},
+								{
+									"key": "end_date",
+									"value": "2025-09-30"
+								},
+								{
+									"key": "granularity",
+									"value": "day"
+								}
+							]
+						},
+						"description": "Get energy consumption and production analytics"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Trading Analytics",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Trading analytics returned\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('analytics');",
+									"    pm.expect(responseJson.analytics).to.have.property('total_trades');",
+									"    pm.expect(responseJson.analytics).to.have.property('total_volume');",
+									"    pm.expect(responseJson.analytics).to.have.property('profit_loss');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/analytics/trading?start_date=2025-09-01&end_date=2025-09-30",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"analytics",
+								"trading"
+							],
+							"query": [
+								{
+									"key": "start_date",
+									"value": "2025-09-01"
+								},
+								{
+									"key": "end_date",
+									"value": "2025-09-30"
+								}
+							]
+						},
+						"description": "Get trading performance analytics"
+					},
+					"response": []
+				}
+			],
+			"description": "Analytics and reporting endpoints"
+		},
+		{
+			"name": "Negative Test Cases",
+			"item": [
+				{
+					"name": "Unauthorized Access",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									"pm.test(\"Error message returned\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('error');",
+									"    pm.expect(responseJson.error).to.include('Unauthorized');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"profile"
+							]
+						},
+						"description": "Test unauthorized access to protected endpoint"
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									"pm.test(\"Authentication failed message\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('error');",
+									"    pm.expect(responseJson.error).to.include('Invalid credentials');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"nonexistent_user\",\n    \"password\": \"wrong_password\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Test login with invalid credentials"
+					},
+					"response": []
+				},
+				{
+					"name": "Malformed JSON",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Bad request error returned\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('error');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"test\",\n    \"password\": \"test\"\n    // Missing closing brace"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Test malformed JSON request"
+					},
+					"response": []
+				}
+			],
+			"description": "Negative test cases to verify error handling"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global pre-request script",
+					"// Set default test password if not already set",
+					"if (!pm.environment.get('test_password')) {",
+					"    pm.environment.set('test_password', 'testpassword123');",
+					"}",
+					"",
+					"// Log request for debugging",
+					"console.log('Making request to:', pm.request.url.toString());"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global test script",
+					"// Log response for debugging",
+					"console.log('Response status:', pm.response.code);",
+					"console.log('Response time:', pm.response.responseTime, 'ms');",
+					"",
+					"// Check for consistent error format",
+					"if (pm.response.code >= 400) {",
+					"    pm.test('Error response has proper format', function () {",
+					"        const responseJson = pm.response.json();",
+					"        pm.expect(responseJson).to.have.property('error');",
+					"    });",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "collection_version",
+			"value": "1.0.0",
+			"type": "string"
+		}
+	]
+}

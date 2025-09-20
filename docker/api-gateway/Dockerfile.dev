@@ -17,17 +17,13 @@ RUN cargo install cargo-watch
 # Create app directory
 WORKDIR /app
 
-# Copy workspace configuration
-COPY Cargo.toml Cargo.lock ./
+# Copy API Gateway Cargo.toml for dependency caching
+COPY api-gateway/Cargo.toml ./Cargo.toml
 
 # Create empty src directory for caching
-RUN mkdir -p api-gateway/src && echo "fn main() {}" > api-gateway/src/main.rs
-
-# Copy API Gateway Cargo.toml for dependency caching
-COPY api-gateway/Cargo.toml ./api-gateway/
+RUN mkdir -p src && echo "fn main() {}" > src/main.rs
 
 # Build dependencies
-WORKDIR /app/api-gateway
 RUN cargo fetch && cargo build && rm -rf src/
 
 # Copy source code

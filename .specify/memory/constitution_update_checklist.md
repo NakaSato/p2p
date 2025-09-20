@@ -4,29 +4,46 @@ When amending the constitution (`/memory/constitution.md`), ensure all dependent
 
 ## Templates to Update
 
-### When adding/modifying ANY article:
+### When adding/modifying ANY principle:
 - [ ] `/templates/plan-template.md` - Update Constitution Check section
 - [ ] `/templates/spec-template.md` - Update if requirements/scope affected
 - [ ] `/templates/tasks-template.md` - Update if new task types needed
-- [ ] `/.claude/commands/plan.md` - Update if planning process changes
-- [ ] `/.claude/commands/tasks.md` - Update if task generation affected
-- [ ] `/CLAUDE.md` - Update runtime development guidelines
+- [ ] Update documentation references in `.specify/docs/README.md`
 
-### Article-specific updates:
+### Principle-specific updates:
 
-#### Article I (Library-First):
-- [ ] Ensure templates emphasize library creation
-- [ ] Update CLI command examples
-- [ ] Add llms.txt documentation requirements
+#### Principle I (Architecture-First Development):
+- [ ] Ensure templates reference `.specify/docs/architecture/` documentation
+- [ ] Update architecture review requirements in templates
+- [ ] Add system design compliance checks
 
-#### Article II (CLI Interface):
-- [ ] Update CLI flag requirements in templates
-- [ ] Add text I/O protocol reminders
+#### Principle II (Documentation-Driven Development):
+- [ ] Update documentation requirements in all templates
+- [ ] Ensure `.specify/docs/` structure is referenced
+- [ ] Add documentation update requirements for all changes
 
-#### Article III (Test-First):
-- [ ] Update test order in all templates
-- [ ] Emphasize TDD requirements
-- [ ] Add test approval gates
+#### Principle III (Security-First Implementation):
+- [ ] Update security review requirements in templates
+- [ ] Add security compliance checks
+- [ ] Ensure JWT and authentication standards are documented
+
+#### Principle IV (Test-Driven Quality Assurance):
+- [ ] Update test order and requirements in all templates
+- [ ] Emphasize comprehensive testing strategy
+- [ ] Add Postman testing integration requirements
+
+#### Principle V (Production-Ready Operations):
+- [ ] Update deployment and operations requirements
+- [ ] Add Docker and CI/CD integration checks
+- [ ] Ensure monitoring and observability standards
+
+## Documentation Structure Updates
+
+### When modifying technical documentation organization:
+- [ ] Update `.specify/docs/README.md` navigation
+- [ ] Verify all documentation cross-references
+- [ ] Update scripts that reference documentation paths
+- [ ] Ensure templates point to correct documentation locations
 
 #### Article IV (Integration Testing):
 - [ ] List integration test triggers

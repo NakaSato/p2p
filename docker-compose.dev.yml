@@ -29,7 +29,7 @@ services:
   api-gateway:
     build:
       context: .
-      dockerfile: api-gateway/Dockerfile.dev
+      dockerfile: docker/api-gateway/Dockerfile.dev
     volumes:
       - ./api-gateway/src:/app/api-gateway/src:delegated
       - ./api-gateway/migrations:/app/api-gateway/migrations:delegated
