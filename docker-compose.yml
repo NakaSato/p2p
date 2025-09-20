@@ -181,10 +181,22 @@ services:
       - solana-validator
     environment:
       DATABASE_URL: "postgresql://p2p_user:p2p_password@postgres:5432/p2p_energy_trading"
+      TIMESCALE_URL: "postgresql://p2p_user:p2p_password@postgres:5432/p2p_energy_trading"
       REDIS_URL: "redis://redis:6379"
       SOLANA_RPC_URL: "http://solana-validator:8899"
-      JWT_SECRET: "your-jwt-secret-key-here"
-      RUST_LOG: "info"
+      SOLANA_WS_URL: "ws://solana-validator:8900"
+      JWT_SECRET: "production-jwt-secret-key-change-me"
+      API_KEY_SECRET: "production-api-key-secret-change-me"
+      ENGINEERING_API_KEY: "engineering-department-api-key-2025"
+      ENVIRONMENT: "production"
+      PORT: "8080"
+      MAX_CONNECTIONS: "50"
+      REDIS_POOL_SIZE: "20"
+      REQUEST_TIMEOUT: "30"
+      RATE_LIMIT_WINDOW: "60"
+      LOG_LEVEL: "info"
+      AUDIT_LOG_ENABLED: "true"
+      RUST_LOG: "api_gateway=info,tower_http=info,sqlx=warn"
     networks:
       - p2p-network
     restart: unless-stopped

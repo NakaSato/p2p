@@ -76,16 +76,16 @@ test_user_registration() {
         -d "{
             \"username\": \"$test_user\",
             \"email\": \"$test_email\",
-            \"password\": \"testpassword123\",
+            \"password\": \"SecureTest123!\",
             \"first_name\": \"Test\",
             \"last_name\": \"User\",
             \"role\": \"student\",
-            \"department\": \"Engineering\"
+            \"department\": \"Computer Engineering\"
         }")
     
     http_code="${response: -3}"
     
-    if [[ "$http_code" == "201" ]]; then
+    if [[ "$http_code" == "200" ]]; then
         print_success "User registration passed (HTTP $http_code)"
         # Store user for login test
         echo "$test_user" > /tmp/test_username
@@ -112,7 +112,7 @@ test_user_login() {
         -H "Content-Type: application/json" \
         -d "{
             \"username\": \"$test_user\",
-            \"password\": \"testpassword123\"
+            \"password\": \"SecureTest123!\"
         }")
     
     http_code="${response: -3}"

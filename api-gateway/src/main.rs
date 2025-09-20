@@ -18,7 +18,7 @@ mod error;
 mod auth;
 
 use config::Config;
-use handlers::{health, auth as auth_handlers, user_management, blockchain, analytics};
+use handlers::{health, auth as auth_handlers, user_management, blockchain, analytics, trading, meters};
 use auth::{jwt::JwtService, jwt::ApiKeyService};
 
 /// Application state shared across handlers
@@ -136,6 +136,30 @@ async fn main() -> Result<()> {
             .route("/programs/:name", post(blockchain::interact_with_program))
             .route("/accounts/:address", get(blockchain::get_account_info))
             .route("/network", get(blockchain::get_network_status))
+            .layer(from_fn_with_state(
+                app_state.clone(),
+                auth::middleware::auth_middleware,
+            ))
+        )
+        
+        // Trading routes (authenticated users)
+        .nest("/trading", Router::new()
+            .route("/orders", post(trading::create_order))
+            .route("/orders", get(trading::get_user_orders))
+            .route("/market", get(trading::get_market_data))
+            .route("/stats", get(trading::get_trading_stats))
+            .layer(from_fn_with_state(
+                app_state.clone(),
+                auth::middleware::auth_middleware,
+            ))
+        )
+        
+        // Energy meter routes (authenticated users)
+        .nest("/meters", Router::new()
+            .route("/readings", post(meters::submit_energy_reading))
+            .route("/readings", get(meters::get_energy_readings))
+            .route("/readings/:id", get(meters::get_energy_reading_by_id))
+            .route("/aggregated", get(meters::get_aggregated_readings))
             .layer(from_fn_with_state(
                 app_state.clone(),
                 auth::middleware::auth_middleware,
