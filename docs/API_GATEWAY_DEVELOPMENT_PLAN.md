@@ -162,7 +162,7 @@ api-gateway/
 ### 📊 **Phase 2 Metrics**
 - **Duration**: 6 weeks
 - **Code Lines**: 1,066+ lines (cumulative: 1,916)
-- **API Endpoints**: 8 authentication endpoints
+- **API Endpoints**: 7 authentication endpoints
 - **Test Coverage**: 89% (auth system)
 - **Security Features**: 15+ security measures implemented
 
@@ -330,9 +330,9 @@ Database Schema: 10 migration files
 
 ### 🏗️ **API Endpoints Status**
 ```
-Implemented Endpoints: 15/40 (38%)
+Implemented Endpoints: 14/40 (35%)
 ├── ✅ Health Monitoring: 3/3 endpoints
-├── ✅ Authentication: 4/4 endpoints  
+├── ✅ Authentication: 3/3 endpoints  
 ├── ✅ User Management: 6/8 endpoints
 ├── ✅ Energy Meters: 2/6 endpoints
 ├── 🔄 Trading: 0/10 endpoints (in development)
@@ -389,6 +389,391 @@ Security Features: 15/20 planned
 ├── 📋 API Key Management (planned)
 ├── 📋 Audit Logging (planned)
 └── 📋 Compliance Reporting (planned)
+```
+
+---
+
+## API Endpoints Documentation
+
+### 📋 **Complete API Reference**
+
+#### **🏥 Health Monitoring Endpoints** (3/3 Complete)
+```http
+GET  /health              - Basic health check
+GET  /health/ready        - Readiness probe (database connectivity)
+GET  /health/live         - Liveness probe (service status)
+```
+
+**Health Check Response Example:**
+```json
+{
+  "status": "healthy",
+  "timestamp": "2025-09-20T10:30:00Z",
+  "version": "0.1.0",
+  "checks": {
+    "database": "healthy",
+    "redis": "healthy",
+    "memory": "healthy"
+  }
+}
+```
+
+#### **🔐 Authentication Endpoints** (3/3 Complete)
+```http
+POST /auth/login           - User login with username/password
+POST /auth/register        - Enhanced user registration with metadata
+```
+
+**Protected Authentication Routes:**
+```http
+GET  /auth/profile         - Get current user profile
+POST /auth/profile         - Update current user profile  
+POST /auth/password        - Change user password
+```
+
+**Login Request Example:**
+```json
+{
+  "username": "john.doe",
+  "password": "securePassword123"
+}
+```
+
+**Login Response Example:**
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "Bearer",
+  "expires_in": 86400,
+  "user": {
+    "username": "john.doe",
+    "email": "john.doe@engineering.edu",
+    "role": "student",
+    "department": "Engineering",
+    "blockchain_registered": false
+  }
+}
+```
+
+**Registration Request Example:**
+```json
+{
+  "username": "jane.smith",
+  "email": "jane.smith@engineering.edu", 
+  "password": "securePassword123",
+  "role": "student",
+  "department": "Engineering",
+  "first_name": "Jane",
+  "last_name": "Smith",
+  "wallet_address": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+  "department_metadata": {
+    "student_id": "ENG2025001",
+    "year": "sophomore",
+    "building": "Engineering Complex"
+  }
+}
+```
+
+#### **👥 User Management Endpoints** (6/8 Complete)
+```http
+POST /user/wallet          - Update user wallet address
+DELETE /user/wallet        - Remove user wallet address
+GET  /user/activity        - Get user activity history
+```
+
+**Admin-Only User Management:**
+```http
+GET  /users                - List users with search/pagination
+GET  /users/:id            - Get user by ID
+PUT  /users/:id            - Admin update user details
+POST /users/:id/deactivate - Deactivate user account
+POST /users/:id/reactivate - Reactivate user account  
+GET  /users/:id/activity   - Get user activity by ID
+```
+
+**Public Department Endpoints:**
+```http
+GET  /departments/:department - Get department information
+```
+
+**User List Query Parameters:**
+```http
+GET /users?search=john&role=student&department=Engineering&page=1&per_page=20
+```
+
+**User List Response Example:**
+```json
+{
+  "users": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "username": "john.doe",
+      "email": "john.doe@engineering.edu",
+      "role": "student",
+      "department": "Engineering",
+      "wallet_address": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+      "blockchain_registered": true
+    }
+  ],
+  "total": 150,
+  "page": 1,
+  "per_page": 20,
+  "total_pages": 8
+}
+
+```
+#### ** Energy Meter Endpoints** (2/6 Complete)
+```http
+POST /meters/signed        - Register new smart meter device
+GET  /meters               - List all meters for current user
+GET  /meters/:id           - Get detailed meter information
+POST /meters/:id/readings  - Submit energy consumption readings
+GET  /meters/:id/readings  - Get historical meter reading data
+GET  /meters/:id/analytics - Get meter performance analytics
+```
+
+**Meter Registration Request Example:**
+```json
+{
+  "meter_id": "SM_ENG_001_2025",
+  "meter_type": "smart_digital",
+  "location": {
+    "building": "Engineering Complex",
+    "room": "Lab 201",
+    "coordinates": {
+      "latitude": 40.7128,
+      "longitude": -74.0060
+    }
+  },
+  "capacity_kw": 50.0,
+  "installation_date": "2025-09-01",
+  "metadata": {
+    "manufacturer": "SmartGrid Solutions",
+    "model": "SG-2025-Pro",
+    "firmware_version": "2.1.4"
+  }
+}
+```
+
+**Energy Reading Submission Example:**
+```json
+{
+  "timestamp": "2025-09-20T10:30:00Z",
+  "energy_consumed_kwh": 12.5,
+  "energy_produced_kwh": 8.2,
+  "peak_demand_kw": 15.8,
+  "power_factor": 0.92,
+  "voltage": 240.5,
+  "current": 65.8,
+  "frequency": 60.0,
+  "metadata": {
+    "temperature_celsius": 22.5,
+    "humidity_percent": 45,
+    "quality_score": 0.98
+  }
+}
+```
+
+**Meter List Response Example:**
+```json
+{
+  "meters": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440001",
+      "meter_id": "SM_ENG_001_2025",
+      "status": "active",
+      "location": "Engineering Complex - Lab 201",
+      "capacity_kw": 50.0,
+      "last_reading": {
+        "timestamp": "2025-09-20T10:30:00Z",
+        "energy_consumed_kwh": 12.5,
+        "energy_produced_kwh": 8.2
+      },
+      "total_energy_consumed": 1250.8,
+      "total_energy_produced": 890.4
+    }
+  ],
+  "total": 3,
+  "active_meters": 2,
+  "inactive_meters": 1
+}
+```
+
+**Meter Analytics Response Example:**
+```json
+{
+  "meter_id": "SM_ENG_001_2025",
+  "period": {
+    "start": "2025-09-01T00:00:00Z",
+    "end": "2025-09-20T23:59:59Z"
+  },
+  "consumption_analytics": {
+    "total_consumed_kwh": 1250.8,
+    "total_produced_kwh": 890.4,
+    "net_consumption_kwh": 360.4,
+    "average_daily_consumption": 62.54,
+    "peak_consumption_kw": 45.2,
+    "efficiency_rating": 0.87
+  },
+  "usage_patterns": {
+    "peak_hours": ["09:00-11:00", "14:00-16:00"],
+    "off_peak_hours": ["22:00-06:00"],
+    "weekend_vs_weekday_ratio": 0.65
+  },
+  "environmental_impact": {
+    "carbon_offset_kg": 425.2,
+    "renewable_energy_percent": 35.8,
+    "grid_independence_score": 0.71
+  }
+}
+```
+
+#### **💱 Trading Endpoints** (0/10 In Development)
+```http
+POST /trading/orders       - Create new trading order [IN DEVELOPMENT]
+GET  /trading/orders       - List user's orders [IN DEVELOPMENT]
+GET  /trading/orders/:id   - Get order details [IN DEVELOPMENT]
+PUT  /trading/orders/:id   - Update order [IN DEVELOPMENT]
+DELETE /trading/orders/:id - Cancel order [IN DEVELOPMENT]
+GET  /trading/orderbook    - Get current order book [IN DEVELOPMENT]
+GET  /trading/market       - Get market data [IN DEVELOPMENT]
+GET  /trading/history      - Get trading history [IN DEVELOPMENT]
+GET  /trading/matches      - Get order matches [IN DEVELOPMENT]
+POST /trading/settle       - Manual settlement [IN DEVELOPMENT]
+```
+
+#### **🔗 Blockchain Integration Endpoints** (0/6 Planned)
+```http
+POST /blockchain/transactions    - Submit blockchain transaction [PLANNED]
+GET  /blockchain/transactions    - Get transaction history [PLANNED]
+GET  /blockchain/transactions/:id - Get transaction status [PLANNED]
+POST /blockchain/programs/:name  - Interact with smart contract [PLANNED]
+GET  /blockchain/accounts/:address - Get account information [PLANNED]
+GET  /blockchain/network         - Get network status [PLANNED]
+```
+
+#### **📊 Analytics Endpoints** (0/5 Planned)
+```http
+GET  /analytics/energy     - Energy consumption analytics [PLANNED]
+GET  /analytics/trading    - Trading performance metrics [PLANNED]
+GET  /analytics/users      - User activity analytics [PLANNED]
+GET  /analytics/market     - Market trend analysis [PLANNED]
+GET  /analytics/financial  - Financial reporting [PLANNED]
+```
+
+### 🔒 **Authentication & Authorization**
+
+#### **JWT Token Structure**
+```json
+{
+  "sub": "550e8400-e29b-41d4-a716-446655440000",
+  "username": "john.doe",
+  "role": "student",
+  "department": "Engineering",
+  "iat": 1695196800,
+  "exp": 1695283200
+}
+```
+
+#### **Role-Based Access Control (RBAC)**
+```
+Roles Hierarchy:
+├── admin     - Full system access
+├── faculty   - Department management + student oversight
+├── staff     - Limited administrative access
+└── student   - Personal account management only
+
+Protected Routes:
+├── /auth/*     - Authenticated users only
+├── /user/*     - Authenticated users only  
+├── /users/*    - Admin/faculty only
+├── /trading/*  - Authenticated users only
+├── /blockchain/* - Authenticated users only
+└── /analytics/* - Role-based restrictions
+```
+
+#### **Authorization Headers**
+```http
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: application/json
+Accept: application/json
+```
+
+### 📊 **API Response Standards**
+
+#### **Success Response Format**
+```json
+{
+  "data": { ... },
+  "message": "Operation successful",
+  "timestamp": "2025-09-20T10:30:00Z"
+}
+```
+
+#### **Error Response Format**
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Username must be between 3-50 characters",
+    "details": {
+      "field": "username",
+      "value": "jo"
+    }
+  },
+  "timestamp": "2025-09-20T10:30:00Z"
+}
+```
+
+#### **HTTP Status Codes**
+```
+200 OK          - Successful GET/PUT operations
+201 Created     - Successful POST operations
+204 No Content  - Successful DELETE operations
+400 Bad Request - Invalid request data
+401 Unauthorized - Authentication required
+403 Forbidden   - Insufficient permissions
+404 Not Found   - Resource not found
+422 Unprocessable Entity - Validation errors
+429 Too Many Requests - Rate limit exceeded
+500 Internal Server Error - Server errors
+503 Service Unavailable - Service temporarily down
+```
+
+### 🔧 **API Configuration**
+
+#### **Base URL & Versioning**
+```
+Development: http://localhost:8080/api/v1
+Staging:     https://api-staging.energy-trading.edu/api/v1
+Production:  https://api.energy-trading.edu/api/v1
+```
+
+#### **Rate Limiting**
+```
+Anonymous:      100 requests/hour
+Authenticated:  1000 requests/hour
+Admin:         10000 requests/hour
+```
+
+#### **Request/Response Limits**
+```
+Max Request Size:  10MB
+Max Response Size: 50MB
+Request Timeout:   30 seconds
+Connection Pool:   50 connections
+```
+
+#### **CORS Configuration**
+```
+Allowed Origins: 
+├── http://localhost:3000 (development)
+├── https://app.energy-trading.edu (production)
+└── https://staging.energy-trading.edu (staging)
+
+Allowed Methods: GET, POST, PUT, DELETE, OPTIONS
+Allowed Headers: Authorization, Content-Type, Accept
+Max Age: 86400 seconds (24 hours)
 ```
 
 ---

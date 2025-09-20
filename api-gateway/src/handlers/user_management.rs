@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use validator::Validate;
 
-use crate::auth::{AuthResponse, Claims, UserInfo};
+use crate::auth::{SecureAuthResponse, Claims, UserInfo, SecureUserInfo};
 use crate::auth::middleware::AuthenticatedUser;
 use crate::auth::password::PasswordService;
 use crate::error::{ApiError, Result};
@@ -106,7 +106,7 @@ pub struct UserActivity {
 pub async fn enhanced_register(
     State(state): State<AppState>,
     Json(request): Json<EnhancedRegisterRequest>,
-) -> Result<Json<AuthResponse>> {
+) -> Result<Json<SecureAuthResponse>> {
     // Validate request
     request.validate()
         .map_err(|e| ApiError::BadRequest(format!("Validation error: {}", e)))?;
@@ -211,17 +211,15 @@ pub async fn enhanced_register(
     // Generate token
     let access_token = state.jwt_service.encode_token(&claims)?;
 
-    let response = AuthResponse {
+    let response = SecureAuthResponse {
         access_token,
         token_type: "Bearer".to_string(),
         expires_in: 24 * 60 * 60, // 24 hours in seconds
-        user: UserInfo {
-            id: user_id,
+        user: SecureUserInfo {
             username: request.username,
             email: request.email,
             role: request.role,
             department: request.department,
-            wallet_address: request.wallet_address,
             blockchain_registered: false,
         },
     };

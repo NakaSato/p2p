@@ -18,7 +18,7 @@ mod error;
 mod auth;
 
 use config::Config;
-use handlers::{health, auth as auth_handlers, user_management};
+use handlers::{health, auth as auth_handlers, user_management, blockchain, analytics};
 use auth::{jwt::JwtService, jwt::ApiKeyService};
 
 /// Application state shared across handlers
@@ -87,8 +87,7 @@ async fn main() -> Result<()> {
         
         // Authentication routes (no authentication required)
         .route("/auth/login", post(auth_handlers::login))
-        .route("/auth/register", post(auth_handlers::register))
-        .route("/auth/register/enhanced", post(user_management::enhanced_register))
+        .route("/auth/register", post(user_management::enhanced_register))
         
         // Protected user routes
         .nest("/auth", Router::new()
@@ -128,6 +127,33 @@ async fn main() -> Result<()> {
         
         // Department information routes (public)
         .route("/departments/:department", get(user_management::get_department_info))
+        
+        // Blockchain interaction routes (authenticated users)
+        .nest("/blockchain", Router::new()
+            .route("/transactions", post(blockchain::submit_transaction))
+            .route("/transactions", get(blockchain::get_transaction_history))
+            .route("/transactions/:signature", get(blockchain::get_transaction_status))
+            .route("/programs/:name", post(blockchain::interact_with_program))
+            .route("/accounts/:address", get(blockchain::get_account_info))
+            .route("/network", get(blockchain::get_network_status))
+            .layer(from_fn_with_state(
+                app_state.clone(),
+                auth::middleware::auth_middleware,
+            ))
+        )
+        
+        // Analytics routes (authenticated users with role restrictions)
+        .nest("/analytics", Router::new()
+            .route("/energy", get(analytics::get_energy_analytics))
+            .route("/trading", get(analytics::get_trading_analytics))
+            .route("/users", get(analytics::get_user_analytics))
+            .route("/market", get(analytics::get_market_analytics))
+            .route("/financial", get(analytics::get_financial_analytics))
+            .layer(from_fn_with_state(
+                app_state.clone(),
+                auth::middleware::auth_middleware,
+            ))
+        )
         
         // Global middleware stack
         .layer(

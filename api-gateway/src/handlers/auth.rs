@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use validator::Validate;
 
-use crate::auth::{AuthResponse, Claims, UserInfo};
+use crate::auth::{SecureAuthResponse, Claims, UserInfo, SecureUserInfo};
 use crate::auth::middleware::AuthenticatedUser;
 use crate::auth::password::PasswordService;
 use crate::error::{ApiError, Result};
@@ -21,31 +21,6 @@ pub struct LoginRequest {
     
     #[validate(length(min = 8, max = 128))]
     pub password: String,
-}
-
-/// User registration request
-#[derive(Debug, Deserialize, Validate)]
-pub struct RegisterRequest {
-    #[validate(length(min = 3, max = 50))]
-    pub username: String,
-    
-    #[validate(email)]
-    pub email: String,
-    
-    #[validate(length(min = 8, max = 128))]
-    pub password: String,
-    
-    #[validate(length(min = 1, max = 20))]
-    pub role: String,
-    
-    #[validate(length(min = 1, max = 100))]
-    pub department: String,
-    
-    #[validate(length(min = 1, max = 100))]
-    pub first_name: String,
-    
-    #[validate(length(min = 1, max = 100))]
-    pub last_name: String,
 }
 
 /// User profile update request
@@ -101,7 +76,7 @@ pub struct UserListResponse {
 pub async fn login(
     State(state): State<AppState>,
     Json(request): Json<LoginRequest>,
-) -> Result<Json<AuthResponse>> {
+) -> Result<Json<SecureAuthResponse>> {
     // Validate request
     request.validate()
         .map_err(|e| ApiError::BadRequest(format!("Validation error: {}", e)))?;
@@ -139,91 +114,16 @@ pub async fn login(
         .execute(&state.db)
         .await;
 
-    let response = AuthResponse {
+    let response = SecureAuthResponse {
         access_token,
         token_type: "Bearer".to_string(),
         expires_in: 24 * 60 * 60, // 24 hours in seconds
-        user: UserInfo {
-            id: user.id,
+        user: SecureUserInfo {
             username: user.username,
             email: user.email,
             role: user.role,
             department: user.department,
-            wallet_address: user.wallet_address,
             blockchain_registered: user.blockchain_registered,
-        },
-    };
-
-    Ok(Json(response))
-}
-
-/// Register new user handler
-pub async fn register(
-    State(state): State<AppState>,
-    Json(request): Json<RegisterRequest>,
-) -> Result<Json<AuthResponse>> {
-    // Validate request
-    request.validate()
-        .map_err(|e| ApiError::BadRequest(format!("Validation error: {}", e)))?;
-
-    // Validate role
-    crate::auth::Role::from_str(&request.role)
-        .map_err(|_| ApiError::BadRequest("Invalid role".to_string()))?;
-
-    // Check if username already exists
-    let existing_user = sqlx::query_scalar::<_, i64>(
-        "SELECT COUNT(*) FROM users WHERE username = $1 OR email = $2"
-    )
-    .bind(&request.username)
-    .bind(&request.email)
-    .fetch_one(&state.db)
-    .await
-    .map_err(|e| ApiError::Internal(format!("Database error: {}", e)))?;
-
-    if existing_user > 0 {
-        return Err(ApiError::BadRequest("Username or email already exists".to_string()));
-    }
-
-    // Hash password
-    let password_hash = PasswordService::hash_password(&request.password)?;
-
-    // Create user
-    let user_id = Uuid::new_v4();
-    sqlx::query(
-        "INSERT INTO users (id, username, email, password_hash, role, department, 
-                           first_name, last_name, is_active, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, ($5)::user_role, $6, $7, $8, true, NOW(), NOW())"
-    )
-    .bind(user_id)
-    .bind(&request.username)
-    .bind(&request.email)
-    .bind(&password_hash)
-    .bind(&request.role)
-    .bind(&request.department)
-    .bind(&request.first_name)
-    .bind(&request.last_name)
-    .execute(&state.db)
-    .await
-    .map_err(|e| ApiError::Internal(format!("Failed to create user: {}", e)))?;
-
-    // Create JWT claims
-    let claims = Claims::new(user_id, request.username.clone(), request.role.clone(), request.department.clone());
-    
-    // Generate token
-    let access_token = state.jwt_service.encode_token(&claims)?;
-
-    let response = AuthResponse {
-        access_token,
-        token_type: "Bearer".to_string(),
-        expires_in: 24 * 60 * 60, // 24 hours in seconds
-        user: UserInfo {
-            id: user_id,
-            username: request.username,
-            email: request.email,
-            role: request.role,
-            department: request.department,
-            wallet_address: None,
-            blockchain_registered: false,
         },
     };
 

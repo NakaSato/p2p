@@ -59,13 +59,13 @@ pub struct ApiKey {
     pub last_used_at: Option<DateTime<Utc>>,
 }
 
-/// Authentication response
+/// Secure authentication response (excludes sensitive user data)
 #[derive(Debug, Serialize)]
-pub struct AuthResponse {
+pub struct SecureAuthResponse {
     pub access_token: String,
     pub token_type: String,
     pub expires_in: i64,
-    pub user: UserInfo,
+    pub user: SecureUserInfo,
 }
 
 /// User information for responses
@@ -77,6 +77,16 @@ pub struct UserInfo {
     pub role: String,
     pub department: String,
     pub wallet_address: Option<String>,
+    pub blockchain_registered: bool,
+}
+
+/// Secure user information for login responses (excludes sensitive data)
+#[derive(Debug, Serialize)]
+pub struct SecureUserInfo {
+    pub username: String,
+    pub email: String,
+    pub role: String,
+    pub department: String,
     pub blockchain_registered: bool,
 }
 
