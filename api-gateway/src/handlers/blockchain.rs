@@ -1,6 +1,5 @@
 use axum::{
     extract::{Path, Query, State},
-    http::StatusCode,
     response::Json,
 };
 use chrono::{DateTime, Utc};
@@ -73,7 +72,7 @@ pub async fn submit_transaction(
     user: AuthenticatedUser,
     Json(payload): Json<TransactionSubmission>,
 ) -> Result<Json<TransactionResponse>> {
-    tracing::info!("Submitting blockchain transaction for user: {}", user.user_id);
+    tracing::info!("Submitting blockchain transaction for user: {}", user.0.sub);
 
     // Validate transaction format (placeholder for actual Solana validation)
     if payload.transaction.is_empty() {
@@ -85,17 +84,22 @@ pub async fn submit_transaction(
     let signature = format!("tx_{}", Uuid::new_v4().to_string().replace('-', ""));
     
     // Store transaction record in database
+    let fee_bigdecimal = {
+        use std::str::FromStr;
+        sqlx::types::BigDecimal::from_str(&payload.priority_fee.to_string()).unwrap_or_default()
+    };
+    
     sqlx::query!(
         r#"
         INSERT INTO blockchain_transactions 
-        (signature, user_id, program_id, transaction_data, status, priority_fee, compute_units, created_at)
+        (signature, user_id, program_id, instruction_name, status, fee, compute_units_consumed, submitted_at)
         VALUES ($1, $2, $3, $4, 'pending', $5, $6, NOW())
         "#,
         signature,
-        user.user_id,
+        user.0.sub,
         payload.program_id,
-        payload.transaction,
-        payload.priority_fee,
+        "submit_transaction".to_string(),
+        fee_bigdecimal,
         payload.compute_units as i32
     )
     .execute(&state.db)
@@ -123,14 +127,14 @@ pub async fn get_transaction_history(
     user: AuthenticatedUser,
     Query(params): Query<TransactionQuery>,
 ) -> Result<Json<Vec<TransactionStatus>>> {
-    tracing::info!("Fetching transaction history for user: {}", user.user_id);
+    tracing::info!("Fetching transaction history for user: {}", user.0.sub);
 
     let limit = params.limit.unwrap_or(50).min(100);
     let offset = params.offset.unwrap_or(0);
 
     let mut query = "SELECT * FROM blockchain_transactions WHERE user_id = $1".to_string();
     let mut param_count = 1;
-    let mut query_params: Vec<String> = vec![user.user_id.to_string()];
+    let mut query_params: Vec<String> = vec![user.0.sub.to_string()];
 
     // Add optional filters
     if let Some(program_id) = &params.program_id {
@@ -185,7 +189,7 @@ pub async fn get_transaction_status(
     let tx_record = sqlx::query!(
         "SELECT * FROM blockchain_transactions WHERE signature = $1 AND user_id = $2",
         signature,
-        user.user_id
+        user.0.sub
     )
     .fetch_optional(&state.db)
     .await
@@ -201,8 +205,11 @@ pub async fn get_transaction_status(
         status: tx_record.status,
         block_height: Some(1000000),
         confirmation_status: "finalized".to_string(),
-        fee: tx_record.priority_fee,
-        compute_units_consumed: tx_record.compute_units.map(|cu| cu as u32),
+        fee: tx_record.fee.map(|bd| {
+            use std::str::FromStr;
+            rust_decimal::Decimal::from_str(&bd.to_string()).unwrap_or_default()
+        }).unwrap_or_default(),
+        compute_units_consumed: tx_record.compute_units_consumed.map(|cu| cu as u32),
         logs: vec!["Program log: Transaction processed".to_string()],
         program_interactions: vec![],
     };
@@ -218,7 +225,7 @@ pub async fn interact_with_program(
     Path(program_name): Path<String>,
     Json(payload): Json<ProgramInteractionRequest>,
 ) -> Result<Json<TransactionResponse>> {
-    tracing::info!("Program interaction request for: {} by user: {}", program_name, user.user_id);
+    tracing::info!("Program interaction request for: {} by user: {}", program_name, user.0.sub);
 
     // Validate program name
     let valid_programs = vec!["registry", "trading", "energy-token", "oracle", "governance"];
@@ -238,13 +245,13 @@ pub async fn interact_with_program(
     sqlx::query!(
         r#"
         INSERT INTO blockchain_transactions 
-        (signature, user_id, program_id, transaction_data, status, compute_units, created_at)
+        (signature, user_id, program_id, instruction_name, status, compute_units_consumed, submitted_at)
         VALUES ($1, $2, $3, $4, 'pending', $5, NOW())
         "#,
         signature,
-        user.user_id,
+        user.0.sub,
         program_name,
-        serde_json::to_string(&payload).unwrap_or_default(),
+        payload.instruction.clone(),
         payload.compute_units.unwrap_or(10000) as i32
     )
     .execute(&state.db)
@@ -272,7 +279,7 @@ pub async fn get_account_info(
     user: AuthenticatedUser,
     Path(address): Path<String>,
 ) -> Result<Json<AccountInfo>> {
-    tracing::info!("Fetching account info for address: {} by user: {}", address, user.user_id);
+    tracing::info!("Fetching account info for address: {} by user: {}", address, user.0.sub);
 
     // Validate address format (basic validation)
     if address.len() < 32 || address.len() > 44 {

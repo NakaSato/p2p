@@ -1,7 +1,7 @@
 # Development Dockerfile for API Gateway
 # Optimized for fast rebuilds and development workflow
 
-FROM rust:1.75-slim
+FROM rust:1.89-slim
 
 # Install development dependencies
 RUN apt-get update && apt-get install -y \

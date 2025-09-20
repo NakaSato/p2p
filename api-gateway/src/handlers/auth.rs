@@ -14,7 +14,7 @@ use crate::error::{ApiError, Result};
 use crate::AppState;
 
 /// Login request
-#[derive(Debug, Deserialize, Validate)]
+#[derive(Debug, Deserialize, Serialize, Validate)]
 pub struct LoginRequest {
     #[validate(length(min = 3, max = 50))]
     pub username: String,
@@ -24,7 +24,7 @@ pub struct LoginRequest {
 }
 
 /// User profile update request
-#[derive(Debug, Deserialize, Validate)]
+#[derive(Debug, Deserialize, Serialize, Validate)]
 pub struct UpdateProfileRequest {
     #[validate(email)]
     pub email: Option<String>,
@@ -43,7 +43,7 @@ pub struct UpdateProfileRequest {
 }
 
 /// Password change request
-#[derive(Debug, Deserialize, Validate)]
+#[derive(Debug, Deserialize, Serialize, Validate)]
 pub struct ChangePasswordRequest {
     #[validate(length(min = 8, max = 128))]
     pub current_password: String,

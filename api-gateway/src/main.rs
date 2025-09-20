@@ -144,11 +144,8 @@ async fn main() -> Result<()> {
         
         // Analytics routes (authenticated users with role restrictions)
         .nest("/analytics", Router::new()
-            .route("/energy", get(analytics::get_energy_analytics))
-            .route("/trading", get(analytics::get_trading_analytics))
-            .route("/users", get(analytics::get_user_analytics))
-            .route("/market", get(analytics::get_market_analytics))
-            .route("/financial", get(analytics::get_financial_analytics))
+            .route("/user", get(analytics::get_user_analytics))
+            .route("/system", get(analytics::get_system_analytics))
             .layer(from_fn_with_state(
                 app_state.clone(),
                 auth::middleware::auth_middleware,

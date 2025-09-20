@@ -1,18 +1,18 @@
 use axum::{
     extract::{Path, Query, State},
-    http::StatusCode,
     response::Json,
 };
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::types::BigDecimal;
 use uuid::Uuid;
 use validator::Validate;
 
-use crate::auth::middleware::AuthenticatedUser;
-use crate::error::{ApiError, Result};
-use crate::models::energy::{EnergyReading, EnergyReadingSubmission};
-use crate::AppState;
+use crate::{
+    auth::middleware::AuthenticatedUser,
+    error::{ApiError, Result},
+    models::energy::{EnergyReading, EnergyReadingDb, EnergyReadingSubmission},
+    AppState,
+};
 
 /// Query parameters for energy readings
 #[derive(Debug, Deserialize, Validate)]
@@ -38,7 +38,7 @@ pub struct EnergyReadingResponse {
 /// POST /api/v1/meters/readings
 pub async fn submit_energy_reading(
     State(state): State<AppState>,
-    user: AuthenticatedUser,
+    _user: AuthenticatedUser,
     Json(payload): Json<EnergyReadingSubmission>,
 ) -> Result<Json<EnergyReadingResponse>> {
     tracing::info!("Submitting energy reading for meter: {}", payload.meter_id);
@@ -54,6 +54,24 @@ pub async fn submit_energy_reading(
     
     let metadata_json = payload.metadata.as_ref().map(|m| serde_json::to_value(m).unwrap());
 
+    // Convert f64 values to BigDecimal for database storage
+    let energy_generated_bd = {
+        use std::str::FromStr;
+        sqlx::types::BigDecimal::from_str(&payload.energy_generated.to_string()).unwrap_or_default()
+    };
+    let energy_consumed_bd = {
+        use std::str::FromStr;
+        sqlx::types::BigDecimal::from_str(&payload.energy_consumed.to_string()).unwrap_or_default()
+    };
+    let solar_irradiance_bd = payload.solar_irradiance.map(|val| {
+        use std::str::FromStr;
+        sqlx::types::BigDecimal::from_str(&val.to_string()).unwrap_or_default()
+    });
+    let temperature_bd = payload.temperature.map(|val| {
+        use std::str::FromStr;
+        sqlx::types::BigDecimal::from_str(&val.to_string()).unwrap_or_default()
+    });
+
     sqlx::query!(
         r#"
         INSERT INTO energy_readings (
@@ -64,10 +82,10 @@ pub async fn submit_energy_reading(
         reading_id,
         payload.meter_id,
         payload.timestamp,
-        payload.energy_generated,
-        payload.energy_consumed,
-        payload.solar_irradiance,
-        payload.temperature,
+        energy_generated_bd,
+        energy_consumed_bd,
+        solar_irradiance_bd,
+        temperature_bd,
         metadata_json,
         now
     )
@@ -129,7 +147,7 @@ pub async fn get_energy_readings(
     }
 
     // Execute parameterized query
-    let mut sqlx_query = sqlx::query_as::<_, EnergyReading>(&query);
+    let mut sqlx_query = sqlx::query_as::<_, EnergyReadingDb>(&query);
     
     if let Some(meter_id) = &params.meter_id {
         sqlx_query = sqlx_query.bind(meter_id);
@@ -153,7 +171,10 @@ pub async fn get_energy_readings(
         .map_err(|e| {
             tracing::error!("Failed to fetch energy readings: {}", e);
             ApiError::Database(e)
-        })?;
+        })?
+        .into_iter()
+        .map(|db_reading| db_reading.into())
+        .collect::<Vec<EnergyReading>>();
 
     Ok(Json(readings))
 }
@@ -162,13 +183,13 @@ pub async fn get_energy_readings(
 /// GET /api/v1/meters/readings/{id}
 pub async fn get_energy_reading_by_id(
     State(state): State<AppState>,
-    user: AuthenticatedUser,
+    _user: AuthenticatedUser,
     Path(reading_id): Path<Uuid>,
 ) -> Result<Json<EnergyReading>> {
     tracing::info!("Fetching energy reading: {}", reading_id);
 
     let reading = sqlx::query_as!(
-        EnergyReading,
+        EnergyReadingDb,
         "SELECT id, meter_id, timestamp, energy_generated, energy_consumed, solar_irradiance, temperature, metadata, created_at FROM energy_readings WHERE id = $1",
         reading_id
     )
@@ -180,7 +201,7 @@ pub async fn get_energy_reading_by_id(
     })?
     .ok_or_else(|| ApiError::NotFound("Energy reading not found".to_string()))?;
 
-    Ok(Json(reading))
+    Ok(Json(reading.into()))
 }
 
 /// Get energy readings aggregated by time intervals (for analytics)

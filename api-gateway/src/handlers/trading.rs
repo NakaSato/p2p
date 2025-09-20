@@ -1,6 +1,5 @@
 use axum::{
-    extract::{Path, Query, State},
-    http::StatusCode,
+    extract::{Query, State},
     response::Json,
 };
 use chrono::{DateTime, Utc};
@@ -11,7 +10,7 @@ use validator::Validate;
 use crate::auth::middleware::AuthenticatedUser;
 use crate::database::schema::types::{OrderSide, OrderStatus, OrderType};
 use crate::error::{ApiError, Result};
-use crate::models::trading::{CreateOrderRequest, MarketData, OrderBook, TradeExecution, TradingOrder};
+use crate::models::trading::{CreateOrderRequest, MarketData, OrderBook, TradingOrder, TradingOrderDb};
 use crate::AppState;
 
 /// Query parameters for trading orders
@@ -62,6 +61,20 @@ pub async fn create_order(
         OrderSide::Sell
     };
 
+    // Convert Decimal to BigDecimal for database storage
+    let energy_amount_bd = {
+        use std::str::FromStr;
+        sqlx::types::BigDecimal::from_str(&payload.energy_amount.to_string()).unwrap_or_default()
+    };
+    let price_per_kwh_bd = {
+        use std::str::FromStr;
+        sqlx::types::BigDecimal::from_str(&payload.price_per_kwh.to_string()).unwrap_or_default()
+    };
+    let filled_amount_bd = {
+        use std::str::FromStr;
+        sqlx::types::BigDecimal::from_str("0").unwrap_or_default()
+    };
+
     sqlx::query!(
         r#"
         INSERT INTO trading_orders (
@@ -73,9 +86,9 @@ pub async fn create_order(
         user.0.sub,
         payload.order_type as OrderType,
         order_side as OrderSide,
-        payload.energy_amount,
-        payload.price_per_kwh,
-        rust_decimal::Decimal::ZERO, // filled_amount starts at 0
+        energy_amount_bd,
+        price_per_kwh_bd,
+        filled_amount_bd,
         OrderStatus::Pending as OrderStatus,
         expires_at,
         now
@@ -132,7 +145,7 @@ pub async fn get_user_orders(
     }
 
     // Execute parameterized query
-    let mut sqlx_query = sqlx::query_as::<_, TradingOrder>(&query);
+    let mut sqlx_query = sqlx::query_as::<_, TradingOrderDb>(&query);
     sqlx_query = sqlx_query.bind(user.0.sub);
 
     if let Some(status) = &params.status {
@@ -154,7 +167,10 @@ pub async fn get_user_orders(
         .map_err(|e| {
             tracing::error!("Failed to fetch trading orders: {}", e);
             ApiError::Database(e)
-        })?;
+        })?
+        .into_iter()
+        .map(|db_order| db_order.into())
+        .collect::<Vec<TradingOrder>>();
 
     Ok(Json(orders))
 }

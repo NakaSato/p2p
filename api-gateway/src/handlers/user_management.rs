@@ -14,7 +14,7 @@ use crate::error::{ApiError, Result};
 use crate::AppState;
 
 /// Enhanced user registration request with additional validation
-#[derive(Debug, Deserialize, Validate)]
+#[derive(Debug, Deserialize, Serialize, Validate)]
 pub struct EnhancedRegisterRequest {
     #[validate(length(min = 3, max = 50))]
     pub username: String,
