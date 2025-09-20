@@ -1,6 +1,3 @@
-# Multi-stage Dockerfile for API Gateway
-# Engineering Department P2P Energy Trading System
-
 # Stage 1: Build stage
 FROM rust:1.89-slim AS builder
 
