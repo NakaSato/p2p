@@ -6,11 +6,14 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-registry = "EtmU16tPPrGZVdyd9g5zABnq8wMt9UWYNGY4uZVdpQHK"
+# Public key for the deployed registry program; update if redeployed or changed.
+# Energy token program address for localnet environment
 energy_token = "HaMSXq2FPjjCVC4EaAtoSmtykoFQbX7g6cXxrbrRcDpn"
 oracle = "2R68FVjvq6oRtpzJBq4Mxsw165wCL6wbFRSxzAqNkJro"
+# Trading address for localnet environment
 trading = "BDcRY7tRjCWWDbS3DHMje8MWgJ5G84kL19C3NjqBUwph"
-governance = "D5qmDv77pmtebp3MM78HienoXWMfSa8JFzxw1Sj2rNQc"
+# Governance program address for localnet environment
+governance_program = "D5qmDv77pmtebp3MM78HienoXWMfSa8JFzxw1Sj2rNQc"
 
 [registry]
 url = "https://api.apr.dev"

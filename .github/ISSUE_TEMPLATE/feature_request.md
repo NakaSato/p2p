@@ -22,7 +22,6 @@ Provide a detailed description of the feature, including:
 Which component should implement this feature?
 - [ ] Smart Contracts (Rust/Anchor)
 - [ ] API Gateway (Node.js)
-- [ ] Oracle Simulator (Node.js)
 - [ ] Smart Meter Simulator (Python)
 - [ ] Frontend (React/TypeScript)
 - [ ] Docker Infrastructure

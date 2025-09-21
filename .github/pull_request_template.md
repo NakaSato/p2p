@@ -15,7 +15,6 @@ Fixes #(issue number)
 ## 📋 Component Changes
 - [ ] Smart Contracts (Rust/Anchor)
 - [ ] API Gateway (Node.js)
-- [ ] Oracle Simulator (Node.js)
 - [ ] Smart Meter Simulator (Python)
 - [ ] Frontend (React/TypeScript)
 - [ ] Docker Infrastructure

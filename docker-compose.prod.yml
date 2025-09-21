@@ -258,21 +258,6 @@ services:
       - prod
       - simulators
 
-  # Production Oracle Simulator
-  oracle-simulator:
-    restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 256M
-          cpus: '0.5'
-        reservations:
-          memory: 128M
-    profiles:
-      - production
-      - prod
-      - simulators
-
   # Production Nginx reverse proxy and load balancer
   nginx:
     image: nginx:alpine

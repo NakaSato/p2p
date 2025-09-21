@@ -37,8 +37,7 @@ Solana, Anchor Framework, P2P Energy Trading, SPL Token, Smart Contract, AMI Sim
 1. **พัฒนาระบบจำลองด้วย Solana Anchor Framework**: สร้างระบบจำลอง P2P Energy Trading บน Solana ด้วย Anchor Programs
 2. **สร้าง Anchor Smart Contracts**: พัฒนา Smart Contracts ด้วย Anchor Framework พร้อม AMI Simulation
 3. **ออกแบบ SPL Token Economy Simulation**: สร้างระบบจำลองเศรษฐกิจ SPL Token สำหรับการแลกเปลี่ยนพลังงาน (1 GRID = 1 kWh)
-4. **พัฒนา Oracle System Simulation**: สร้างระบบจำลอง Oracle เพื่อเชื่อมต่อข้อมูลจาก AMI Simulator
-5. **สร้าง Full-Stack Simulation Application**: พัฒนา API Gateway และ Frontend สำหรับการจำลองในมหาวิทยาลัย
+4. **สร้าง Full-Stack Simulation Application**: พัฒนา API Gateway และ Frontend สำหรับการจำลองในมหาวิทยาลัย
 
 ### วัตถุประสงค์รอง (Secondary Objectives)
 1. ศึกษาและประยุกต์ใช้ Solana Anchor Framework ในงานด้านการจำลองการซื้อขายพลังงาน

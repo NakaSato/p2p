@@ -32,7 +32,6 @@ A clear and concise description of what actually happened.
 Which component is affected?
 - [ ] Smart Contracts (Rust/Anchor)
 - [ ] API Gateway (Node.js)
-- [ ] Oracle Simulator (Node.js)
 - [ ] Smart Meter Simulator (Python)
 - [ ] Frontend (React/TypeScript)
 - [ ] Docker Infrastructure

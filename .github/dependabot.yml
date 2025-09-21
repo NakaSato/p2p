@@ -31,23 +31,8 @@ updates:
       prefix-development: "npm"
       include: "scope"
 
-  # Node.js dependencies - Oracle Simulator
-  - package-ecosystem: "npm"
-    directory: "/docker/oracle-simulator"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-    target-branch: "develop"
-    reviewers:
-      - "NakaSato"
-    commit-message:
-      prefix: "npm"
-      prefix-development: "npm"
-      include: "scope"
-
-  # Node.js dependencies - Smart Meter Simulator
-  - package-ecosystem: "npm"
+  # Smart meter simulator Python dependencies
+  - package-ecosystem: "pip"
     directory: "/docker/smart-meter-simulator"
     schedule:
       interval: "weekly"
@@ -57,8 +42,8 @@ updates:
     reviewers:
       - "NakaSato"
     commit-message:
-      prefix: "npm"
-      prefix-development: "npm"
+      prefix: "pip"
+      prefix-development: "pip"
       include: "scope"
 
   # Node.js dependencies - Frontend
@@ -79,16 +64,6 @@ updates:
   # Docker base images
   - package-ecosystem: "docker"
     directory: "/api-gateway"
-    schedule:
-      interval: "weekly"
-      day: "tuesday"
-      time: "09:00"
-    target-branch: "develop"
-    reviewers:
-      - "NakaSato"
-
-  - package-ecosystem: "docker"
-    directory: "/docker/oracle-simulator"
     schedule:
       interval: "weekly"
       day: "tuesday"
