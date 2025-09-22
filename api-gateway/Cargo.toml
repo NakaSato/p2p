@@ -40,7 +40,7 @@ jsonwebtoken = "9.0"
 bcrypt = "0.15"
 
 # Caching
-redis = { version = "0.24", features = ["tokio-comp", "connection-manager"] }
+redis = { version = "0.32", features = ["tokio-comp", "connection-manager"] }
 
 # Observability
 tracing = "0.1"
