@@ -55,9 +55,8 @@ async fn main() -> Result<()> {
     info!("TimescaleDB connection established");
 
     // Run database migrations (PostgreSQL only - TimescaleDB has its own schema)
-    // TEMPORARY: Disable migrations due to SQLx migration runner issue with enum casting
-    // database::run_migrations(&db_pool).await?;
-    info!("Database migrations skipped (manual schema setup completed)");
+    database::run_migrations(&db_pool).await?;
+    info!("Database migrations completed successfully");
 
     // Setup Redis connection
     let redis_client = redis::Client::open(config.redis_url.as_str())?;

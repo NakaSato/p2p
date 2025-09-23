@@ -143,7 +143,7 @@ Production Environment:
 ### 4. SPL Energy Token Process
 
 #### **Step 1: Engineering Energy Generation Detection**
-1. AMI smart meters (ENG_001-015) detect renewable energy generation within Engineering Complex
+1. AMI smart meters (METER_001-015) detect renewable energy generation within Engineering Complex
 2. Real-time data transmitted to Engineering Department oracle via secure network
 3. Energy data processed and validated for accuracy within Engineering systems
 4. Net energy surplus calculated (generation - consumption) for Engineering participants

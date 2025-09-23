@@ -105,11 +105,11 @@ echo
 
 # 8. AMI Meter Simulation
 echo -e "${BLUE}🏭 AMI Meter Simulation${NC}"
-echo "To create test accounts for 15 AMI meters (ENG_001-015):"
+echo "To create test accounts for 15 AMI meters (METER_001-015):"
 echo
 echo "mkdir -p test-meters"
 echo "for i in {1..15}; do"
-echo "  meter_id=\$(printf \"ENG_%03d\" \$i)"
+echo "  meter_id=\$(printf \"METER_%03d\" \$i)"
 echo "  solana-keygen new --outfile \"./test-meters/\${meter_id}.json\" --no-bip39-passphrase"
 echo "  pubkey=\$(solana-keygen pubkey \"./test-meters/\${meter_id}.json\")"
 echo "  solana airdrop 5 \"\$pubkey\""

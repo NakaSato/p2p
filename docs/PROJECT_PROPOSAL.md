@@ -40,12 +40,6 @@ Solana, Anchor Framework, P2P Energy Trading, SPL Token, Smart Contract, AMI Sim
 4. **พัฒนา Oracle System Simulation**: สร้างระบบจำลอง Oracle เพื่อเชื่อมต่อข้อมูลจาก AMI Simulator
 5. **สร้าง Full-Stack Simulation Application**: พัฒนา API Gateway และ Frontend สำหรับการจำลองในมหาวิทยาลัย
 
-### วัตถุประสงค์รอง (Secondary Objectives)
-1. ศึกษาและประยุกต์ใช้ Solana Anchor Framework ในงานด้านการจำลองการซื้อขายพลังงาน
-2. ออกแบบระบบจำลองที่สามารถขยายผลไปใช้ในคณะต่าง ๆ และอาคารต่าง ๆ ของมหาวิทยาลัย
-3. พัฒนาต้นแบบการจำลองที่สามารถใช้เป็นเครื่องมือการเรียนการสอน Blockchain และวิจัยในมหาวิทยาลัย
-4. วิเคราะห์ประสิทธิภาพของ Anchor Framework ใน Single Validator Architecture
-
 ### เทคโนโลยีที่ใช้ (Technologies Used)
 - **Blockchain**: Solana with University Single Validator (POA)
 - **Smart Contracts**: Anchor Framework 0.31.1
@@ -418,7 +412,7 @@ const createSellOrder = async (energyAmount: number, pricePerKWh: number) => {
 graph TD
   subgraph "University Campus Layout"
     subgraph "Engineering Complex"
-      ENG["Engineering Building<br/>ENG_001 - ENG_015<br/>15 AMI meters<br/>50kW Solar Array"]
+      ENG["Engineering Building<br/>METER_001 - METER_015<br/>15 AMI meters<br/>50kW Solar Array"]
     end
     
     subgraph "Science Complex"
@@ -457,7 +451,7 @@ graph TD
 ```
 
 **รายละเอียดการกระจายตัว:**
-- **อาคารวิศวกรรม (Engineering Complex)**: ENG_001 ถึง ENG_015 (15 meters)
+- **อาคารวิศวกรรม (Engineering Complex)**: METER_001 ถึง METER_015 (15 meters)
 - **อาคารวิทยาศาสตร์ (Science Building)**: SCI_001 ถึง SCI_012 (12 meters)
 - **อาคารบริหาร (Administration Building)**: ADM_001 ถึง ADM_008 (8 meters)
 - **หอสมุด (Library Building)**: LIB_001 ถึง LIB_005 (5 meters)

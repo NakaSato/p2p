@@ -373,7 +373,7 @@ sequenceDiagram
 1. **Smart Meter Data Collection**
    ```json
    {
-     "meter_id": "ENG_001",
+     "meter_id": "METER_001",
      "timestamp": "2025-09-20T14:30:00Z",
      "energy_produced": 15.5,
      "energy_consumed": 12.0,

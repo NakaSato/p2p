@@ -67,7 +67,7 @@ The system implements a **multi-signature REC validation system** with universit
 - **Policy Enforcement**: University energy policies directly encoded
 
 #### **Operational Control**
-- **AMI Integration**: Direct control over 15 smart meters (ENG_001-015)
+- **AMI Integration**: Direct control over 15 smart meters (METER_001-015)
 - **Energy Management**: Real-time control over building energy systems
 - **Emergency Response**: Immediate system shutdown/modification capability
 - **Maintenance Windows**: Scheduled maintenance without external dependencies
@@ -83,7 +83,7 @@ The system implements a **multi-signature REC validation system** with universit
 │   ├── Engineering Department IT Management
 │   ├── University Network Infrastructure
 │   └── Backup & Disaster Recovery
-├── AMI Smart Meters (ENG_001-015)
+├── AMI Smart Meters (METER_001-015)
 │   ├── Building A: Meters 001-005
 │   ├── Building B: Meters 006-010
 │   └── Research Center: Meters 011-015
@@ -250,7 +250,7 @@ done
 ```bash
 # Create accounts for all 15 AMI meters
 for i in {1..15}; do
-  meter_id=$(printf "ENG_%03d" $i)
+  meter_id=$(printf "METER_%03d" $i)
   solana-keygen new --outfile "ami-${meter_id}.json" --no-bip39-passphrase
   solana airdrop 5 $(solana-keygen pubkey "ami-${meter_id}.json")
 done

@@ -4,7 +4,7 @@
 ```mermaid
 graph TB
     %% External Systems
-    AMI["Engineering Complex AMI<br/>Smart Meter Data (ENG_001-015)"]
+    AMI["Engineering Complex AMI<br/>Smart Meter Data (METER_001-015)"]
     EngineeringAuth["Engineering Department<br/>Single Validator Authority"]
     
     %% Anchor Programs

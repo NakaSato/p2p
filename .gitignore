@@ -1,3 +1,5 @@
+.sqlx/
+
 # Rust
 target/
 **/*.rs.bk

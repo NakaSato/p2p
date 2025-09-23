@@ -307,7 +307,7 @@ ami:
   smart_meters:
     total_count: 15
     building: "Engineering Complex"
-    meter_ids: ["ENG_001", "ENG_002", "ENG_003", "ENG_004", "ENG_005", "ENG_006", "ENG_007", "ENG_008", "ENG_009", "ENG_010", "ENG_011", "ENG_012", "ENG_013", "ENG_014", "ENG_015"]
+    meter_ids: ["METER_001", "METER_002", "METER_003", "METER_004", "METER_005", "METER_006", "METER_007", "METER_008", "METER_009", "METER_010", "METER_011", "METER_012", "METER_013", "METER_014", "METER_015"]
     energy_sources: ["solar_panels_50kw", "grid_connection", "battery_storage_10kwh"]
         
   data_collection:
@@ -432,7 +432,7 @@ sleep 30
 # Register Engineering Complex meters
 echo "📊 Registering Engineering Complex smart meters..."
 
-METERS=("ENG_001" "ENG_002" "ENG_003" "ENG_004" "ENG_005" "ENG_006" "ENG_007" "ENG_008" "ENG_009" "ENG_010" "ENG_011" "ENG_012" "ENG_013" "ENG_014" "ENG_015")
+METERS=("METER_001" "METER_002" "METER_003" "METER_004" "METER_005" "METER_006" "METER_007" "METER_008" "METER_009" "METER_010" "METER_011" "METER_012" "METER_013" "METER_014" "METER_015")
 
 for meter in "\${METERS[@]}"; do
     echo "   Registering meter: \$meter"
@@ -623,7 +623,7 @@ cat > engineering-phase4-summary.md << EOF
    - Solar panels: 50kW rooftop array
    - Grid connection: University electrical system
    - Battery storage: 10kWh capacity
-   - Meter IDs: ENG_001 through ENG_015
+   - Meter IDs: METER_001 through METER_015
 
 ### 🚀 Program Deployment Status
 
