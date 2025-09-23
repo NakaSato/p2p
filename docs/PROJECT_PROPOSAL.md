@@ -41,17 +41,103 @@ Solana, Anchor Framework, P2P Energy Trading, SPL Token, Smart Contract, AMI Sim
 5. **สร้าง Full-Stack Simulation Application**: พัฒนา API Gateway และ Frontend สำหรับการจำลองในมหาวิทยาลัย
 
 ### เทคโนโลยีที่ใช้ (Technologies Used)
-- **Blockchain**: Solana with University Single Validator (POA)
-- **Smart Contracts**: Anchor Framework 0.31.1
-- **Token Standard**: SPL Token (Solana Program Library)
-- **Backend**: Rust API Gateway with Axum framework
-- **Frontend**: React TypeScript with Vite
-- **Database**: PostgreSQL with TimescaleDB extension
-- **Containerization**: Docker & Docker Compose
-- **Programming Language**: Rust (Edition 2021)
-- **Development Environment**: Docker-based Solana validator with Anchor CLI
-- **Cross-Program Communication**: Anchor CPI (Cross Program Invocation)
-- **Wallet Integration**: Solana Wallet Adapter for React
+
+```mermaid
+block-beta
+    columns 6
+    
+    %% Frontend Technologies Layer
+    block:frontend["Frontend Technologies"]:6
+        columns 6
+        react["React 18<br/>TypeScript"] vite["Vite<br/>Build Tool"] tailwind["Tailwind CSS<br/>Styling"] wallet["Solana Wallet<br/>Adapter"] playwright["Playwright<br/>Testing"] lighthouse["Lighthouse<br/>Performance"]
+    end
+    
+    space:6
+    
+    %% Backend Technologies Layer  
+    block:backend["Backend Technologies"]:6
+        columns 6
+        rust["Rust 2021<br/>Edition"] axum["Axum<br/>Web Framework"] sqlx["SQLx<br/>Database ORM"] jwt["JWT<br/>Authentication"] bcrypt["BCrypt<br/>Password Hashing"] redis["Redis<br/>Caching"]
+    end
+    
+    space:6
+    
+    %% Blockchain Technologies Layer
+    block:blockchain["Blockchain Technologies"]:6
+        columns 6
+        solana["Solana<br/>Blockchain"] anchor["Anchor 0.31.1<br/>Framework"] spl["SPL Token<br/>Standard"] web3js["Web3.js<br/>Client Library"] phantom["Phantom<br/>Wallet"] rpc["RPC<br/>Node"]
+    end
+    
+    space:6
+    
+    %% Database Technologies Layer
+    block:database["Database Technologies"]:6
+        columns 6
+        postgres["PostgreSQL 15<br/>Primary DB"] timescale["TimescaleDB<br/>Time Series"] uuid["UUID<br/>Primary Keys"] enum["PostgreSQL<br/>Enums"] migrations["Database<br/>Migrations"] indexing["Database<br/>Indexing"]
+    end
+    
+    space:6
+    
+    %% Development Technologies Layer
+    block:devtools["Development Tools"]:6
+        columns 6
+        docker["Docker<br/>Containers"] compose["Docker<br/>Compose"] git["Git<br/>Version Control"] github["GitHub<br/>Repository"] vscode["VS Code<br/>IDE"] cargo["Cargo<br/>Rust Package Manager"]
+    end
+    
+    space:6
+    
+    %% Simulation Technologies Layer
+    block:simulation["Simulation Technologies"]:6
+        columns 6
+        python["Python<br/>AMI Simulator"] numpy["NumPy<br/>Calculations"] pandas["Pandas<br/>Data Processing"] json["JSON<br/>Data Format"] restapi["REST API<br/>Integration"] websocket["WebSocket<br/>Events"]
+    end
+    
+    space:6
+    
+    %% Security Technologies Layer
+    block:security["Security Technologies"]:6
+        columns 6
+        tls["TLS/SSL<br/>Encryption"] cors["CORS<br/>Protection"] helmet["Security<br/>Headers"] rate["Rate<br/>Limiting"] validation["Input<br/>Validation"] audit["Audit<br/>Logging"]
+    end
+    
+    space:6
+    
+    %% Monitoring Technologies Layer
+    block:monitoring["Monitoring Technologies"]:6
+        columns 6
+        prometheus["Prometheus<br/>Metrics"] grafana["Grafana<br/>Visualization"] health["Health<br/>Checks"] logs["Structured<br/>Logging"] alerts["Alert<br/>Manager"] tracing["Request<br/>Tracing"]
+    end
+    
+    %% Styling for different technology categories
+    classDef frontendStyle fill:#61dafb,stroke:#20232a,stroke-width:2px,color:#20232a
+    classDef backendStyle fill:#ce422b,stroke:#8b0000,stroke-width:2px,color:#ffffff
+    classDef blockchainStyle fill:#9945ff,stroke:#14f195,stroke-width:2px,color:#ffffff
+    classDef databaseStyle fill:#336791,stroke:#003d5c,stroke-width:2px,color:#ffffff
+    classDef devtoolsStyle fill:#2496ed,stroke:#0366d6,stroke-width:2px,color:#ffffff
+    classDef simulationStyle fill:#3776ab,stroke:#ffd43b,stroke-width:2px,color:#ffffff
+    classDef securityStyle fill:#ff6b6b,stroke:#c92a2a,stroke-width:2px,color:#ffffff
+    classDef monitoringStyle fill:#ff8f00,stroke:#e65100,stroke-width:2px,color:#ffffff
+    
+    class react,vite,tailwind,wallet,playwright,lighthouse frontendStyle
+    class rust,axum,sqlx,jwt,bcrypt,redis backendStyle
+    class solana,anchor,spl,web3js,phantom,rpc blockchainStyle
+    class postgres,timescale,uuid,enum,migrations,indexing databaseStyle
+    class docker,compose,git,github,vscode,cargo devtoolsStyle
+    class python,numpy,pandas,json,restapi,websocket simulationStyle
+    class tls,cors,helmet,rate,validation,audit securityStyle
+    class prometheus,grafana,health,logs,alerts,tracing monitoringStyle
+```
+
+**หมวดหมู่เทคโนโลยีหลัก (Main Technology Categories):**
+
+- **Frontend Technologies**: React 18 with TypeScript, Vite build system, Tailwind CSS styling, และ Solana wallet integration
+- **Backend Technologies**: Rust 2021 Edition, Axum web framework, SQLx ORM, JWT authentication, และ Redis caching
+- **Blockchain Technologies**: Solana blockchain platform, Anchor Framework 0.31.1, SPL Token standard, และ Web3.js client library
+- **Database Technologies**: PostgreSQL 15 primary database, TimescaleDB for time-series data, UUID primary keys, และ enum types
+- **Development Tools**: Docker containerization, Git version control, VS Code IDE, และ Cargo package manager
+- **Simulation Technologies**: Python AMI simulator, NumPy calculations, REST API integration, และ real-time WebSocket events
+- **Security Technologies**: TLS encryption, CORS protection, input validation, และ comprehensive audit logging
+- **Monitoring Technologies**: Prometheus metrics, Grafana visualization, health monitoring, และ distributed tracing
 
 ### สถาปัตยกรรมระบบ (System Architecture)
 ```mermaid
@@ -497,12 +583,6 @@ graph TD
 - ✅ ทีมมีความรู้พื้นฐานด้าน Rust Programming และ Blockchain
 - ✅ มีเวลาเพียงพอสำหรับการพัฒนา (1-2 เทอม)
 - ✅ สามารถทดสอบได้ด้วย University Campus Simulation
-
-### **ความเสี่ยงและการแก้ไข**
-1. **ความซับซ้อนของ Solana/Anchor**: แก้ไขด้วยการศึกษาเอกสารและ Tutorial
-2. **การ Deploy Single Validator**: ใช้ Local Development และ Devnet testing
-3. **ปัญหา Performance**: ออกแบบระบบให้เหมาะสมกับ University Campus scale
-4. **ข้อจำกัดเวลา**: แบ่งงานเป็น Milestone ที่ชัดเจน
 
 ## แผนการดำเนินงาน (Timeline)
 
