@@ -1,6 +1,6 @@
 # Multi-stage build for optimized Solana validator container
 # Build stage
-FROM --platform=linux/amd64 ubuntu:22.04 AS builder
+FROM --platform=$BUILDPLATFORM ubuntu:22.04 AS builder
 
 # Install only essential build dependencies
 RUN apt-get update && apt-get install -y \
@@ -56,7 +56,7 @@ RUN cargo install --git https://github.com/coral-xyz/anchor anchor-cli --locked 
 RUN rm -rf ~/.cargo/registry ~/.cargo/git
 
 # Runtime stage
-FROM --platform=linux/amd64 ubuntu:22.04 AS runtime
+FROM ubuntu:22.04 AS runtime
 
 # Install only runtime dependencies
 RUN apt-get update && apt-get install -y \

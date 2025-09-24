@@ -10,8 +10,55 @@ pub mod governance {
     use super::*;
     
     /// Simple initialization for testing
-    pub fn initialize(_ctx: Context<Initialize>) -> Result<()> {
+    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
+        let poa_config = &mut ctx.accounts.poa_config;
+        poa_config.university_authority = ctx.accounts.authority.key();
+        poa_config.authorized_rec_validators = Vec::new();
+        poa_config.min_rec_validators = 1;
+        poa_config.emergency_paused = false;
+        poa_config.created_at = Clock::get()?.unix_timestamp;
+        
         msg!("Governance program initialized");
+        Ok(())
+    }
+
+    /// Emergency pause functionality
+    pub fn emergency_pause(ctx: Context<EmergencyPause>) -> Result<()> {
+        let poa_config = &mut ctx.accounts.poa_config;
+        
+        require!(
+            ctx.accounts.authority.key() == poa_config.university_authority,
+            ErrorCode::UnauthorizedAuthority
+        );
+        
+        poa_config.emergency_paused = true;
+        
+        emit!(EmergencyPauseActivated {
+            authority: ctx.accounts.authority.key(),
+            timestamp: Clock::get()?.unix_timestamp,
+        });
+        
+        msg!("Emergency pause activated");
+        Ok(())
+    }
+
+    /// Emergency unpause functionality
+    pub fn emergency_unpause(ctx: Context<EmergencyUnpause>) -> Result<()> {
+        let poa_config = &mut ctx.accounts.poa_config;
+        
+        require!(
+            ctx.accounts.authority.key() == poa_config.university_authority,
+            ErrorCode::UnauthorizedAuthority
+        );
+        
+        poa_config.emergency_paused = false;
+        
+        emit!(EmergencyPauseDeactivated {
+            authority: ctx.accounts.authority.key(),
+            timestamp: Clock::get()?.unix_timestamp,
+        });
+        
+        msg!("Emergency pause deactivated");
         Ok(())
     }
     
@@ -256,6 +303,40 @@ pub mod governance {
 
 // Account structs
 #[derive(Accounts)]
+pub struct Initialize<'info> {
+    #[account(
+        init,
+        payer = authority,
+        space = 8 + PoAConfig::LEN,
+        seeds = [b"poa_config"],
+        bump
+    )]
+    pub poa_config: Account<'info, PoAConfig>,
+    
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct EmergencyPause<'info> {
+    #[account(mut)]
+    pub poa_config: Account<'info, PoAConfig>,
+    
+    #[account(constraint = authority.key() == UNIVERSITY_AUTHORITY_PUBKEY)]
+    pub authority: Signer<'info>,
+}
+
+#[derive(Accounts)]
+pub struct EmergencyUnpause<'info> {
+    #[account(mut)]
+    pub poa_config: Account<'info, PoAConfig>,
+    
+    #[account(constraint = authority.key() == UNIVERSITY_AUTHORITY_PUBKEY)]
+    pub authority: Signer<'info>,
+}
+#[derive(Accounts)]
 pub struct InitializePoAWithRec<'info> {
     #[account(
         init,
@@ -334,8 +415,7 @@ pub struct IsAuthorizedRecValidator<'info> {
     pub poa_config: Account<'info, PoAConfig>,
 }
 
-#[derive(Accounts)]
-pub struct Initialize {}
+
 
 // Data structs
 #[account]
@@ -343,12 +423,13 @@ pub struct PoAConfig {
     pub university_authority: Pubkey,
     pub authorized_rec_validators: Vec<RecValidatorInfo>,
     pub min_rec_validators: u8,
+    pub emergency_paused: bool,
     pub created_at: i64,
 }
 
 impl PoAConfig {
     pub const MAX_REC_VALIDATORS: usize = 10;
-    pub const LEN: usize = 32 + 4 + (RecValidatorInfo::LEN * Self::MAX_REC_VALIDATORS) + 1 + 8;
+    pub const LEN: usize = 32 + 4 + (RecValidatorInfo::LEN * Self::MAX_REC_VALIDATORS) + 1 + 1 + 8;
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
@@ -365,6 +446,18 @@ impl RecValidatorInfo {
 }
 
 // Events
+#[event]
+pub struct EmergencyPauseActivated {
+    pub authority: Pubkey,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct EmergencyPauseDeactivated {
+    pub authority: Pubkey,
+    pub timestamp: i64,
+}
+
 #[event]
 pub struct PoAInitialized {
     pub authority: Pubkey,

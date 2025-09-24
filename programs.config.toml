@@ -1,0 +1,133 @@
+# P2P Energy Trading System - Anchor Programs Configuration
+# University Campus P2P Energy Trading Platform
+# Updated: September 24, 2025
+# Platform: Solana/Anchor
+
+[system]
+name = "p2p-energy-trading"
+version = "1.0.0"
+platform = "solana"
+framework = "anchor"
+deployment_date = "2025-09-24"
+
+[network]
+cluster = "localnet"
+rpc_endpoint = "http://127.0.0.1:8899"
+websocket_endpoint = "ws://127.0.0.1:8900"
+commitment_level = "confirmed"
+
+[programs]
+# Program identifiers from Anchor.toml
+[programs.registry]
+name = "registry"
+id = "EtmU16tPPrGZVdyd9g5zABnq8wMt9UWYNGY4uZVdpQHK"
+description = "User registration and campus identity management"
+version = "1.0.0"
+
+[programs.energy_token]
+name = "energy_token"
+id = "HaMSXq2FPjjCVC4EaAtoSmtykoFQbX7g6cXxrbrRcDpn"
+description = "Energy token management with REC integration"
+version = "1.0.0"
+
+[programs.oracle]
+name = "oracle"
+id = "2R68FVjvq6oRtpzJBq4Mxsw165wCL6wbFRSxzAqNkJro"
+description = "AMI data oracle and meter reading management"
+version = "1.0.0"
+
+[programs.trading]
+name = "trading"
+id = "BDcRY7tRjCWWDbS3DHMje8MWgJ5G84kL19C3NjqBUwph"
+description = "P2P energy trading marketplace"
+version = "1.0.0"
+
+[programs.governance]
+name = "governance"
+id = "D5qmDv77pmtebp3MM78HienoXWMfSa8JFzxw1Sj2rNQc"
+description = "PoA governance and emergency controls"
+version = "1.0.0"
+
+[accounts]
+# Common account configurations
+[accounts.pda_seeds]
+registry = ["registry"]
+oracle_data = ["oracle_data"]
+oracle_config = ["oracle_config"]
+market = ["market"]
+poa_config = ["poa_config"]
+user_account = ["user", "user_pubkey"]
+
+[accounts.space_allocations]
+registry = 1000
+oracle_data = 500
+oracle_config = 300
+market = 2000
+poa_config = 400
+user_account = 800
+
+[development]
+# Development environment settings
+build_target = "bpf-unknown-unknown"
+anchor_version = "0.31.1"
+solana_version = "2.3.10"
+rust_version = "1.75.0"
+
+[testing]
+# Test configuration
+test_validator = true
+reset_ledger = true
+test_timeout = 1000000
+parallel_tests = false
+
+[features]
+# Program features
+rec_validation = true
+emergency_pause = true
+market_clearing = true
+audit_logging = true
+meter_integration = true
+
+[security]
+# Security settings
+multi_sig_required = false
+authority_validation = true
+input_sanitization = true
+reentrancy_protection = true
+overflow_checks = true
+
+[market]
+# Trading market configuration
+clearing_frequency = "hourly"
+order_matching = "fifo"
+settlement_type = "immediate"
+fee_structure = "percentage"
+platform_fee_bps = 25  # 0.25%
+
+[oracle]
+# Oracle configuration
+data_sources = ["ami", "smart_meters"]
+validation_required = true
+timestamp_tolerance = 300  # 5 minutes
+reading_frequency = "hourly"
+
+[governance]
+# Governance settings
+consensus_mechanism = "poa"
+validator_count = 1
+emergency_pause_enabled = true
+authority_levels = ["admin", "validator", "user"]
+
+[monitoring]
+# Monitoring and logging
+enable_events = true
+log_level = "info"
+metrics_collection = true
+performance_tracking = true
+
+[deployment]
+# Deployment configuration
+target_network = "localnet"
+upgrade_authority = "keypair"
+deployment_strategy = "fresh"
+verification_required = false
