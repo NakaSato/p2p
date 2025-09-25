@@ -6,7 +6,7 @@
 [![Phase](https://img.shields.io/badge/Phase-Production_Deployment-blue)](https://github.com/NakaSato/p2p)
 [![Last Updated](https://img.shields.io/badge/Updated-September_2025-orange)](https://github.com/NakaSato/p2p)
 
-**Advanced P2P Energy Trading Platform** - A production-ready Solana Anchor implementation featuring a permissioned Proof of Authority (PoA) consensus system with Engineering Department as the primary validator for campus energy trading.
+**Advanced P2P Energy Trading Platform** - A production-ready Solana Anchor implementation featuring permissioned environments with streamlined Proof of Authority (PoA) consensus system and REC Validator as the sole authority for secure campus energy trading.
 
 ## Project Status
 
@@ -27,7 +27,7 @@
 2. **Energy Token Program** (`programs/energy-token/`) - SPL token with REC validation and automated minting
 3. **Trading Program** (`programs/trading/`) - Automated order book and matching engine
 4. **Oracle Program** (`programs/oracle/`) - API Gateway exclusive authorization for AMI integration
-5. **Governance Program** (`programs/governance/`) - Proof of Authority consensus with Engineering Department validation
+5. **Governance Program** (`programs/governance/`) - Proof of Authority consensus with REC Validator as sole authority
 
 ### System Components
 
@@ -40,12 +40,13 @@
 
 ### Key Features
 
-- **Permissioned Network**: Engineering Department-controlled environment with authorized participants
-- **PoA Consensus**: Engineering Department acts as primary validator and certification authority
-- **REC Integration**: University-issued Renewable Energy Certificate validation for token minting
+- **Permissioned Environments**: Controlled access network with authorized participants only
+- **Streamlined PoA Network**: Single REC Validator authority with comprehensive system control
+- **PoA Consensus**: REC Validator acts as sole authority and certification body
+- **REC Integration**: Renewable Energy Certificate validation for token minting
 - **AMI Integration**: Advanced Metering Infrastructure with UUID-based smart meter management
 - **Automated Market Clearing**: Oracle-driven periodic market settlement with API Gateway security
-- **University Governance**: Multi-signature validation by Engineering Department authorities
+- **Simplified Governance**: Single-authority validation for efficient decision making
 - **Production Ready**: 92% complete with comprehensive testing and documentation
 
 ## Quick Start
@@ -73,6 +74,9 @@ cd p2p
 # Environment setup
 ./scripts/setup-dev.sh
 
+# PoA initialization with REC Validator
+./scripts/setup-poa.sh
+
 # Infrastructure validation  
 ./scripts/validate-docker.sh
 
@@ -86,11 +90,11 @@ cd p2p
 ### Development & Testing
 
 ```bash
+# Initialize PoA network
+./scripts/setup-poa.sh
+
 # Build all programs
 anchor build
-
-# Start local Solana validator
-solana-test-validator --reset
 
 # Deploy programs to local network
 anchor deploy --provider.cluster localnet
@@ -128,17 +132,17 @@ yarn test
 - **Status**: Production Ready with Security Enhancements
 
 ### Governance Program
-- **Purpose**: PoA consensus and Engineering Department validator management
+- **Purpose**: PoA consensus with single REC Validator authority
 - **Key Functions**: `add_rec_validator()`, `authorize_operation()`, `manage_consensus()`
-- **Features**: Multi-signature validation, university authority control
+- **Features**: Single-authority validation, streamlined governance control
 - **Status**: Production Ready
 
 ## Deployment
 
 ### Local Development
 ```bash
-# Start local validator with reset
-solana-test-validator --reset
+# Initialize PoA network with REC Validator
+./scripts/setup-poa.sh
 
 # Deploy to local network
 anchor deploy --provider.cluster localnet
@@ -162,31 +166,41 @@ anchor deploy --provider.cluster devnet
 solana program show <program-id> --url devnet
 ```
 
-### Production (Engineering Department Network)
+### Production (REC Validator Network)
 ```bash
 # Configure custom RPC endpoint
 solana config set --url <engineering-rpc-endpoint>
 
-# Deploy with governance approval
+# Initialize PoA network
+./scripts/setup-poa.sh --reset
+
+# Deploy with REC Validator authority
 ./scripts/deploy-programs.sh --production
 
-# Initialize with Engineering Department as primary validator
+# Initialize with REC Validator as sole authority
 ./scripts/initialize-production.sh
 ```
 
 ## Configuration
 
-### Engineering Department Validator Setup
-Engineering Department serves as the primary PoA validator:
+### REC Validator Setup
+REC Validator serves as the sole PoA authority:
 
 ```typescript
-// Engineering Department validator configuration
-const engineeringValidator = {
-  pubkey: engineeringValidatorKey,
-  authority_name: "Engineering Department",
-  validator_type: "PRIMARY_POA",
+// REC Validator configuration
+const recValidator = {
+  pubkey: recValidatorKey,
+  authority_name: "REC Validator",
+  validator_type: "SOLE_POA",
   rec_authority: true,
-  governance_weight: 100
+  governance_weight: 100,
+  permissions: [
+    "initialize",
+    "manage_authorities", 
+    "emergency_stop",
+    "validate_transactions",
+    "oracle_data"
+  ]
 };
 ```
 
@@ -196,8 +210,8 @@ API Gateway exclusive configuration for secure data submission:
 ```typescript
 // Enhanced oracle configuration with API Gateway authorization
 const oracleConfig = {
-  authority: engineeringDepartmentKey,
-  api_gateway: authorizedApiGatewayKey,    // Only this gateway can submit data
+  authority: recValidatorKey,                      // REC Validator as sole authority
+  api_gateway: authorizedApiGatewayKey,           // Only this gateway can submit data
   operators: [
     { pubkey: amiOperatorKey, source: "AMI_INTEGRATION" },
     { pubkey: meterOperatorKey, source: "SMART_METERS" },
@@ -216,7 +230,7 @@ const oracleConfig = {
 - **Oracle Data Freshness**: Real-time validation of AMI data submission
 
 ### Production Operations
-- **Engineering Department Governance**: All system parameters controlled by Engineering Department
+- **REC Validator Governance**: All system parameters controlled by REC Validator
 - **Smart Meter Management**: UUID-based registration and monitoring
 - **Energy Token Operations**: Automated minting/burning with REC validation
 - **Trading Operations**: Real-time order matching with automated settlement
@@ -224,21 +238,23 @@ const oracleConfig = {
 
 ### Emergency Procedures
 - **Emergency Pause**: System-wide halt functionality for critical issues
-- **Governance Override**: Engineering Department emergency authority
+- **Governance Override**: REC Validator emergency authority
 - **Data Recovery**: Comprehensive backup and restoration procedures
 - **Network Maintenance**: Coordinated maintenance windows and updates
 
 ## Security Architecture
 
 ### Multi-Layer Security
-- **Proof of Authority**: Engineering Department as primary validator
+- **Permissioned Network Access**: Restricted environment with authorized participants only
+- **Proof of Authority**: REC Validator as sole authority
 - **API Gateway Authorization**: Oracle program restricted to authorized gateway only
-- **Multi-signature Validation**: Critical operations require Engineering Department approval
+- **Single Authority Validation**: Critical operations require REC Validator approval only
 - **Hardware Security Module**: TPM 2.0 integration for smart meter authentication
 - **Cryptographic Verification**: RSA-4096/ECDSA-P256 for all device communications
 
 ### Access Control
-- **Role-Based Permissions**: Student, Faculty, Admin, and System roles
+- **Permissioned Environment**: Only authorized users can participate in energy trading
+- **Role-Based Permissions**: Student, Faculty, Admin, and System roles with restricted access
 - **Device Authentication**: X.509 certificates for smart meter validation
 - **Transaction Signing**: Ed25519 signatures for all blockchain operations
 - **Audit Logging**: Comprehensive logging of all system operations
@@ -257,9 +273,9 @@ const oracleConfig = {
 - **[SPL Token Documentation](https://spl.solana.com/token)**: Token standard implementation
 
 ### Support
-- **Engineering Department**: Primary system administrator and validator
+- **REC Validator**: Primary system administrator and sole authority
 - **Technical Issues**: See comprehensive documentation in `/docs` directory
-- **Production Deployment**: Contact Engineering Department for university-specific configuration
+- **Production Deployment**: Contact REC Validator for system-specific configuration
 
 ## Project Achievements
 
@@ -285,4 +301,4 @@ const oracleConfig = {
 
 ---
 
-**Ready for Engineering Department Production Deployment**
+**Ready for REC Validator Production Deployment**

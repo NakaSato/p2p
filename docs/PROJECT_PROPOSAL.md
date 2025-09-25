@@ -14,7 +14,7 @@
 โครงงานพัฒนาระบบต้นแบบและจำลองสถานการณ์ (Prototype and Simulation System Development)
 
 ### **คำสำคัญ (Keywords)**
-Solana, Anchor Framework, P2P Energy Trading, SPL Token, Smart Contract, AMI Simulator, Blockchain Simulation, University Campus, Solar Energy
+Solana, Anchor Framework, P2P Energy Trading, SPL Token, Smart Contract, AMI Simulator, Blockchain Simulation, University Campus, Solar Energy, Permissioned Environments
 
 ### **ระดับของโครงงาน (Project Complexity)**
 **สูง (Advanced):** โครงงานนี้ต้องการความเข้าใจในเทคโนโลยีบล็อกเชนขั้นสูง (Solana), การพัฒนา Smart Contract ด้วย Anchor Framework, และสถาปัตยกรรมระบบแบบ Full-Stack
@@ -23,7 +23,7 @@ Solana, Anchor Framework, P2P Energy Trading, SPL Token, Smart Contract, AMI Sim
 
 โครงงานนี้นำเสนอการพัฒนาระบบจำลองการซื้อขายพลังงานแสงอาทิตย์แบบ Peer-to-Peer (P2P) ภายในมหาวิทยาลัย เพื่อตอบสนองต่อความต้องการในการจัดการพลังงานส่วนเกินที่ผลิตได้จากแผงโซลาร์เซลล์อย่างมีประสิทธิภาพและโปร่งใส ระบบดั้งเดิมมักมีข้อจำกัดในด้านความล่าช้า ค่าใช้จ่ายสูง และการขาดความโปร่งใสในการทำธุรกรรม โครงงานนี้จึงมุ่งแก้ไขปัญหาดังกล่าวโดยใช้เทคโนโลยีบล็อกเชนเพื่อสร้างตลาดพลังงานที่น่าเชื่อถือและเข้าถึงได้ง่ายสำหรับบุคลากรในมหาวิทยาลัย
 
-หัวใจหลักของระบบคือการใช้ Solana Blockchain และ Anchor Framework ในการพัฒนา Smart Contracts ที่มีความปลอดภัยและประสิทธิภาพสูง เพื่อสร้างตลาดซื้อขายพลังงานอัตโนมัติ ผู้ใช้ (นักศึกษา, อาจารย์, บุคลากร) สามารถซื้อและขายพลังงานแสงอาทิตย์ส่วนเกินได้โดยตรงผ่านแพลตฟอร์ม โดยใช้ SPL Token ที่สร้างขึ้นเพื่อเป็นตัวแทนของหน่วยพลังงาน (1 GRID = 1 kWh) ระบบทั้งหมดจะทำงานบนเครือข่าย Solana แบบ Permissioned (ส่วนตัว) ที่ควบคุมโดยมหาวิทยาลัยในฐานะผู้ตรวจสอบธุรกรรมเพียงรายเดียว (Single Validator Authority) ซึ่งช่วยให้สามารถควบคุมสภาพแวดล้อมการจำลอง, ลดค่าใช้จ่ายในการทำธุรกรรม, และรับประกันความเร็วในการประมวลผล
+หัวใจหลักของระบบคือการใช้ Solana Blockchain และ Anchor Framework ในการพัฒนา Smart Contracts ที่มีความปลอดภัยและประสิทธิภาพสูง เพื่อสร้างตลาดซื้อขายพลังงานอัตโนมัติ ผู้ใช้ (นักศึกษา, อาจารย์, บุคลากร) สามารถซื้อและขายพลังงานแสงอาทิตย์ส่วนเกินได้โดยตรงผ่านแพลตฟอร์ม โดยใช้ SPL Token ที่สร้างขึ้นเพื่อเป็นตัวแทนของหน่วยพลังงาน (1 GRID = 1 kWh) ระบบทั้งหมดจะทำงานบนเครือข่าย Solana แบบ **Permissioned Environments** (สภาพแวดล้อมที่ควบคุมการเข้าถึง) ที่ควบคุมโดยมหาวิทยาลัยในฐานะผู้ตรวจสอบธุรกรรมเพียงรายเดียว (Single Validator Authority) ซึ่งช่วยให้สามารถควบคุมสภาพแวดล้อมการจำลอง, จำกัดการเข้าถึงเฉพาะผู้ใช้ที่ได้รับอนุญาต, ลดค่าใช้จ่ายในการทำธุรกรรม, และรับประกันความเร็วในการประมวลผล
 
 นอกเหนือจากด้านเทคนิคแล้ว โครงงานนี้ยังนำเสนอแนวคิดด้านเศรษฐศาสตร์สมัยใหม่ผ่านการทำ **'Tokenization'** ซึ่งเป็นการแปลงสินทรัพย์ที่มีอยู่จริง (พลังงานแสงอาทิตย์ส่วนเกิน) ให้กลายเป็นสินทรัพย์ดิจิทัล (SPL Token) บนบล็อกเชน แนวคิดนี้ช่วยสร้าง **'สภาพคล่อง' (Liquidity)** ให้กับพลังงานที่แต่เดิมอาจสูญเปล่า ทำให้เกิดตลาดซื้อขายขนาดย่อม (Micro-economy) ภายในมหาวิทยาลัย ที่ซึ่งอุปสงค์และอุปทานสามารถกำหนดราคาพลังงานได้อย่างมีประสิทธิภาพ (Price Discovery) โดยไม่ต้องผ่านตัวกลาง สิ่งนี้ไม่เพียงแต่เป็นการลดต้นทุน แต่ยังเป็นการสร้างแรงจูงใจทางเศรษฐศาสตร์ (Economic Incentives) ให้ทุกคนในชุมชนหันมาให้ความสำคัญกับการผลิตและใช้พลังงานหมุนเวียนอย่างคุ้มค่าที่สุด
 
@@ -31,14 +31,14 @@ Solana, Anchor Framework, P2P Energy Trading, SPL Token, Smart Contract, AMI Sim
 
 ## บทคัดย่อ (Abstract)
 
-โปรเจคนี้เป็นการพัฒนาระบบจำลองการซื้อขายพลังงานแสงอาทิตย์แบบ Peer-to-Peer (P2P Energy Trading Simulation System) โดยใช้ Solana Anchor Framework เป็นเครื่องมือหลักในการสร้าง Smart Contracts และ AMI Simulator เพื่อให้นักศึกษา อาจารย์ และบุคลากรในมหาวิทยาลัยสามารถศึกษาและทดลองระบบการซื้อขายพลังงานแสงอาทิตย์ส่วนเกินได้ในสภาพแวดล้อมที่จำลองขึ้น ผ่านระบบที่ควบคุมโดยมหาวิทยาลัยในฐานะ Single Validator Authority (PoA)
+โปรเจคนี้เป็นการพัฒนาระบบจำลองการซื้อขายพลังงานแสงอาทิตย์แบบ Peer-to-Peer (P2P Energy Trading Simulation System) โดยใช้ Solana Anchor Framework เป็นเครื่องมือหลักในการสร้าง Smart Contracts และ AMI Simulator เพื่อให้นักศึกษา อาจารย์ และบุคลากรในมหาวิทยาลัยสามารถศึกษาและทดลองระบบการซื้อขายพลังงานแสงอาทิตย์ส่วนเกินได้ในสภาพแวดล้อมที่จำลองขึ้น ผ่านระบบ **Permissioned Environments** ที่ควบคุมโดยมหาวิทยาลัยในฐานะ Single Validator Authority (PoA) เพื่อรับประกันความปลอดภัยและการควบคุมการเข้าถึง
 
 ### วัตถุประสงค์หลัก (Main Objectives)
-1. **พัฒนาระบบจำลองด้วย Solana Anchor Framework**: สร้างระบบจำลอง P2P Energy Trading บน Solana ด้วย Anchor Programs
-2. **สร้าง Anchor Smart Contracts**: พัฒนา Smart Contracts ด้วย Anchor Framework พร้อม AMI Simulation
-3. **ออกแบบ SPL Token Economy Simulation**: สร้างระบบจำลองเศรษฐกิจ SPL Token สำหรับการแลกเปลี่ยนพลังงาน (1 GRID = 1 kWh)
-4. **พัฒนา Oracle System Simulation**: สร้างระบบจำลอง Oracle เพื่อเชื่อมต่อข้อมูลจาก AMI Simulator
-5. **สร้าง Full-Stack Simulation Application**: พัฒนา API Gateway และ Frontend สำหรับการจำลองในมหาวิทยาลัย
+1. **พัฒนาระบบจำลองด้วย Solana Anchor Framework**: สร้างระบบจำลอง P2P Energy Trading บน Solana ด้วย Anchor Programs ใน Permissioned Environments
+2. **สร้าง Anchor Smart Contracts**: พัฒนา Smart Contracts ด้วย Anchor Framework พร้อม AMI Simulation และการควบคุมการเข้าถึง
+3. **ออกแบบ SPL Token Economy Simulation**: สร้างระบบจำลองเศรษฐกิจ SPL Token สำหรับการแลกเปลี่ยนพลังงาน (1 GRID = 1 kWh) ในเครือข่ายที่ควบคุม
+4. **พัฒนา Oracle System Simulation**: สร้างระบบจำลอง Oracle เพื่อเชื่อมต่อข้อมูลจาก AMI Simulator ด้วยความปลอดภัยสูง
+5. **สร้าง Full-Stack Simulation Application**: พัฒนา API Gateway และ Frontend สำหรับการจำลองในมหาวิทยาลัยด้วย Permissioned Access Control
 
 ### เทคโนโลยีที่ใช้ (Technologies Used)
 
@@ -241,18 +241,22 @@ graph TB
 
 **หน้าที่ของแต่ละส่วน:**
 
-1. **Registry Program**: จัดการการลงทะเบียนผู้ใช้และ AMI Simulation
-2. **Energy Token Program**: SPL Token มาตรฐาน Solana สำหรับการจำลองซื้อขายพลังงาน
-3. **Trading Program**: ระบบจำลองตลาดการซื้อขายแบบ Order Book ที่มีการทำ Automated Clearing
-4. **Oracle Program**: จำลองการเชื่อมต่อข้อมูลจาก AMI และทำ Market Clearing อัตโนมัติ
-5. **Governance Program**: การจัดการระบบจำลองโดยมหาวิทยาลัย
-6. **University AMI Simulator**: การจำลองการทำงานของ AMI ในมหาวิทยาลัย
+1. **Registry Program**: จัดการการลงทะเบียนผู้ใช้และ AMI Simulation ด้วย Permissioned Access Control
+2. **Energy Token Program**: SPL Token มาตรฐาน Solana สำหรับการจำลองซื้อขายพลังงานในเครือข่ายที่ควบคุม
+3. **Trading Program**: ระบบจำลองตลาดการซื้อขายแบบ Order Book ที่มีการทำ Automated Clearing สำหรับผู้ใช้ที่ได้รับอนุญาต
+4. **Oracle Program**: จำลองการเชื่อมต่อข้อมูลจาก AMI และทำ Market Clearing อัตโนมัติด้วยความปลอดภัยสูง
+5. **Governance Program**: การจัดการระบบจำลองโดยมหาวิทยาลัยใน Permissioned Environment
+6. **University AMI Simulator**: การจำลองการทำงานของ AMI ในมหาวิทยาลัยด้วยการควบคุมการเข้าถึง
 
 ### คุณสมบัติหลัก (Key Features)
 
 ```mermaid
 mindmap
   root((P2P Energy Trading Features))
+    Permissioned Environments
+      Controlled Access Network
+      Authorized Users Only
+      University Authority Control
     Real-time Trading
       15-minute Market Epochs
       Automated Market Clearing
@@ -276,6 +280,7 @@ mindmap
 ```
 
 **รายละเอียดคุณสมบัติ:**
+- **Permissioned Environments**: ระบบควบคุมการเข้าถึงเฉพาะผู้ใช้ที่ได้รับอนุญาตเท่านั้น
 - การจำลองการซื้อขายพลังงานแบบ Real-time ทุก 15 นาที (Simulated Market Epoch)
 - ระบบจำลอง Automated Market Clearing ด้วย Oracle Program
 - การควบคุมโดยมหาวิทยาลัยในฐานะ Single Validator Authority

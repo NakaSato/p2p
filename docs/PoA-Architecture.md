@@ -1,74 +1,64 @@
 # P2P Energy Trading System - Proof of Authority (PoA) Architecture
 
 ## Overview
-This is a **Proof of Authority (PoA)** blockchain system running on a **single Solana validator** in a **private network** controlled by the University Engineering Department. This architecture provides complete control and governance over the energy trading ecosystem within the Engineering Complex.
+This is a **Proof of Authority (PoA)** blockchain system running on a **single Solana validator** in a **Permissioned Environment** controlled by the REC Validator authority. This architecture provides complete control and governance over the energy trading ecosystem with streamlined single-authority consensus.
 
 ## PoA Architecture Components
 
-### 🏛️ **University Authority Structure**
+### 🏛️ **REC Validator Authority Structure**
 
-#### **Single Validator Authority**
-- **Engineering Department** operates the sole Solana validator node
-- **Complete network control** - no external validators
-- **Private network** isolated from public Solana networks
+#### **Single REC Validator Authority**
+- **REC Validator** operates as the sole Solana validator node
+- **Complete network control** - single authority consensus
+- **Permissioned Environment** isolated from public networks
 - **Deterministic consensus** with immediate finality
 
-#### **Hardcoded University Authority**
+#### **Streamlined Authority Configuration**
 ```rust
 // From governance/src/lib.rs
-pub const UNIVERSITY_AUTHORITY_PUBKEY: Pubkey = Pubkey::new_from_array([1u8; 32]);
+pub const REC_VALIDATOR_AUTHORITY_PUBKEY: Pubkey = Pubkey::new_from_array([1u8; 32]);
 ```
 
-### 🎯 **REC (Renewable Energy Certificate) Validators**
+### 🎯 **Simplified Authority Model**
 
-The system implements a **multi-signature REC validation system** with university departments as authorities:
+The system implements a **single REC Validator authority** for streamlined consensus:
 
-#### **Authorized REC Validators**
-1. **University Sustainability Office**
-   - Primary REC certification authority
-   - Environmental compliance oversight
-   - Renewable energy verification
+#### **REC Validator (Sole Authority)**
+- **Primary Authority**: Complete system control and validation
+- **REC Certification**: Renewable Energy Certificate authority
+- **Network Operations**: All blockchain operations and governance
+- **System Management**: Infrastructure and operational oversight
 
-2. **University Engineering Department**
-   - Technical validation and system authority
-   - Infrastructure management
-   - Academic research oversight
-
-3. **University Facilities Management**
-   - Building energy management
-   - Grid integration authority
-   - Operational validation
-
-#### **REC Consensus Mechanism**
-- **Minimum 2 REC validators** required for token minting
-- **Multi-signature approval** for energy token issuance
-- **University-controlled certification** process
-- **Active/inactive validator management**
+#### **Single Authority Consensus Mechanism**
+- **Single validator** required for all operations
+- **Immediate finality** for all transactions
+- **Streamlined governance** with unified control
+- **Comprehensive permissions** for system management
 
 ## PoA vs Traditional Consensus
 
-### ✅ **PoA Advantages for University Environment**
+### ✅ **PoA Advantages for Permissioned Environment**
 
 | Aspect | PoA (This System) | Traditional PoS/PoW |
 |--------|-------------------|---------------------|
-| **Control** | Complete university authority | Decentralized/uncontrolled |
+| **Control** | Complete REC Validator authority | Decentralized/uncontrolled |
 | **Performance** | Instant finality | Variable confirmation times |
 | **Costs** | No gas fees (controlled) | Market-driven fees |
-| **Governance** | University policies | Community/validator voting |
+| **Governance** | Single authority policies | Community/validator voting |
 | **Compliance** | Built-in regulatory compliance | External compliance needed |
-| **Security** | University IT security | Network-dependent |
+| **Security** | Permissioned environment security | Network-dependent |
 
-### 🏫 **University-Specific Benefits**
+### 🏫 **Permissioned Environment Benefits**
 
-#### **Academic Control**
-- **Research Environment**: Controlled testing for energy systems research
-- **Educational Use**: Safe environment for student learning
-- **Data Privacy**: All data remains within university infrastructure
-- **Policy Enforcement**: University energy policies directly encoded
+#### **Access Control**
+- **Permissioned Network**: Only authorized participants can join
+- **Controlled Environment**: Safe testing and operation space
+- **Data Privacy**: All data remains within controlled infrastructure
+- **Policy Enforcement**: System policies directly encoded and enforced
 
 #### **Operational Control**
-- **AMI Integration**: Direct control over 15 smart meters (METER_001-015)
-- **Energy Management**: Real-time control over building energy systems
+- **AMI Integration**: Direct control over smart meters (METER_001-015)
+- **Energy Management**: Real-time control over energy systems
 - **Emergency Response**: Immediate system shutdown/modification capability
 - **Maintenance Windows**: Scheduled maintenance without external dependencies
 
@@ -78,10 +68,10 @@ The system implements a **multi-signature REC validation system** with universit
 
 #### **Infrastructure Components**
 ```bash
-# University Engineering Department Infrastructure
+# REC Validator Infrastructure
 ├── Solana Validator Node (Single Authority)
-│   ├── Engineering Department IT Management
-│   ├── University Network Infrastructure
+│   ├── REC Validator Authority Management
+│   ├── Permissioned Network Infrastructure
 │   └── Backup & Disaster Recovery
 ├── AMI Smart Meters (METER_001-015)
 │   ├── Building A: Meters 001-005
@@ -91,31 +81,31 @@ The system implements a **multi-signature REC validation system** with universit
     ├── PostgreSQL (User data)
     ├── TimescaleDB (Time-series energy data)
     ├── Redis (Session management)
-    └── Kafka (Event streaming)
+    └── Monitoring Services
 ```
 
 #### **Network Configuration**
-- **RPC Endpoint**: `http://localhost:8899` (University internal)
+- **RPC Endpoint**: `http://localhost:8899` (Permissioned network)
 - **WebSocket**: `ws://localhost:8900` (Real-time updates)
-- **Network ID**: Custom university network
-- **Genesis Block**: University-controlled initialization
+- **Network ID**: Custom permissioned network
+- **Genesis Block**: REC Validator controlled initialization
 
 ### ⚡ **Validator Operations**
 
-#### **Starting the Private Network**
+#### **Starting the Permissioned Network**
 ```bash
-# University Engineering Department Validator
+# REC Validator Authority Network
 solana-test-validator \
   --rpc-port 8899 \
   --websocket-port 8900 \
-  --ledger /opt/university/solana-ledger \
+  --ledger /opt/rec-validator/solana-ledger \
   --log-messages-bytes-limit 100000 \
   --reset
 ```
 
 #### **Network Monitoring**
 ```bash
-# Check validator status (Engineering Department only)
+# Check validator status (REC Validator authority only)
 solana validators
 solana cluster-version
 solana epoch-info
@@ -127,31 +117,21 @@ watch -n 5 "solana validators"
 
 ## Governance Model
 
-### 🎓 **University Governance Structure**
+### 🎓 **Streamlined Governance Structure**
 
 #### **Authority Hierarchy**
-1. **University Authority** (Top Level)
-   - Engineering Department IT
-   - System administration rights
-   - Validator control
-
-2. **REC Validators** (Certification Level)
-   - Department-level authorities
-   - Energy certificate validation
-   - Multi-sig consensus
-
-3. **Program Authorities** (Operational Level)
-   - Registry management
-   - Trading oversight
-   - Oracle operations
+1. **REC Validator Authority** (Sole Authority)
+   - Complete system administration rights
+   - All governance and operational control
+   - Single point of authority
 
 #### **Decision Making Process**
 ```rust
-// Multi-signature REC validation
+// Single REC Validator authority configuration
 pub struct PoAConfig {
-    pub university_authority: Pubkey,
-    pub authorized_rec_validators: Vec<RecValidatorInfo>,
-    pub min_rec_validators: u8,  // Minimum 2 for consensus
+    pub rec_validator_authority: Pubkey,
+    pub network_name: String,
+    pub authority_type: AuthorityType::SoleValidator,
     pub created_at: i64,
 }
 ```
@@ -159,16 +139,16 @@ pub struct PoAConfig {
 ### 🔐 **Security Model**
 
 #### **Authority-Based Security**
-- **University IT Security**: Physical and network security
-- **Access Control**: University authentication systems
+- **Permissioned Network Security**: Controlled access and authentication
+- **Access Control**: Authority-based authentication systems
 - **Private Network**: No external attack vectors
 - **Audit Trail**: Complete transaction logging
 
-#### **REC Validation Security**
-- **Department Keypairs**: Secure key management
-- **Multi-signature Requirements**: No single point of failure
-- **Active Validator Monitoring**: Automatic deactivation capabilities
-- **Emergency Response**: Immediate validator suspension
+#### **Single Authority Validation Security**
+- **REC Validator Keypair**: Secure key management
+- **Single Point of Authority**: Streamlined security model
+- **Authority Monitoring**: Continuous validator health checks
+- **Emergency Response**: Immediate authority-controlled response
 
 ## Operational Procedures
 
@@ -185,14 +165,14 @@ solana-test-validator --reset
 
 #### **2. Program Deployment**
 ```bash
-# Deploy all programs to private network
+# Deploy all programs to permissioned network
 anchor build
 anchor deploy --provider.cluster localnet
 ```
 
 #### **3. Governance Initialization**
 ```bash
-# Initialize PoA with university REC validators
+# Initialize PoA with REC Validator authority
 anchor run initialize-poa-governance
 ```
 
@@ -214,36 +194,34 @@ df -h # Disk usage
 
 #### **REC Validator Management**
 ```bash
-# Add new university department validator
-anchor run add-rec-validator --args "DEPT_PUBKEY" "Department Name"
+# Check REC Validator status
+anchor run check-validator-status
 
-# Deactivate validator (maintenance)
-anchor run deactivate-rec-validator --args "VALIDATOR_PUBKEY"
+# Update validator configuration
+anchor run update-validator-config --args "NEW_CONFIG"
 
-# Reactivate validator
-anchor run reactivate-rec-validator --args "VALIDATOR_PUBKEY"
+# Emergency authority transfer (if needed)
+anchor run emergency-authority-transfer --args "NEW_AUTHORITY_PUBKEY"
 ```
 
 ## Development & Testing
 
 ### 🧪 **Testing in PoA Environment**
 
-#### **University User Simulation**
+#### **Authorized User Simulation**
 ```bash
-# Create test accounts for university users
-mkdir -p university-test-accounts
+# Create test accounts for authorized users
+mkdir -p permissioned-test-accounts
 
-# Engineering students
+# Create authorized participant accounts
 for i in {1..10}; do
-  solana-keygen new --outfile "engineering-student-$i.json" --no-bip39-passphrase
-  solana airdrop 10 $(solana-keygen pubkey "engineering-student-$i.json")
+  solana-keygen new --outfile "authorized-user-$i.json" --no-bip39-passphrase
+  solana airdrop 10 $(solana-keygen pubkey "authorized-user-$i.json")
 done
 
-# Faculty members
-for i in {1..5}; do
-  solana-keygen new --outfile "engineering-faculty-$i.json" --no-bip39-passphrase
-  solana airdrop 20 $(solana-keygen pubkey "engineering-faculty-$i.json")
-done
+# Create authority accounts
+solana-keygen new --outfile "rec-validator.json" --no-bip39-passphrase
+solana airdrop 100 $(solana-keygen pubkey "rec-validator.json")
 ```
 
 #### **AMI Meter Testing**
