@@ -84,10 +84,7 @@ pub async fn submit_transaction(
     let signature = format!("tx_{}", Uuid::new_v4().to_string().replace('-', ""));
     
     // Store transaction record in database
-    let fee_bigdecimal = {
-        use std::str::FromStr;
-        sqlx::types::BigDecimal::from_str(&payload.priority_fee.to_string()).unwrap_or_default()
-    };
+    let fee_lamports = payload.priority_fee.to_string().parse::<i64>().unwrap_or(0);
     
     sqlx::query!(
         r#"
@@ -99,7 +96,7 @@ pub async fn submit_transaction(
         user.0.sub,
         payload.program_id,
         "submit_transaction".to_string(),
-        fee_bigdecimal,
+        fee_lamports,
         payload.compute_units as i32
     )
     .execute(&state.db)

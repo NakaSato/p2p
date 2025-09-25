@@ -6,19 +6,20 @@ declare_id!("2R68FVjvq6oRtpzJBq4Mxsw165wCL6wbFRSxzAqNkJro");
 pub mod oracle {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
+    pub fn initialize(ctx: Context<Initialize>, api_gateway: Pubkey) -> Result<()> {
         let oracle_data = &mut ctx.accounts.oracle_data;
         oracle_data.authority = ctx.accounts.authority.key();
+        oracle_data.api_gateway = api_gateway;
         oracle_data.total_readings = 0;
         oracle_data.last_clearing = 0;
         oracle_data.active = true;
         oracle_data.created_at = Clock::get()?.unix_timestamp;
         
-        msg!("Oracle program initialized");
+        msg!("Oracle program initialized with API Gateway: {}", api_gateway);
         Ok(())
     }
 
-    /// Submit meter reading data from AMI
+    /// Submit meter reading data from AMI (only via API Gateway)
     pub fn submit_meter_reading(
         ctx: Context<SubmitMeterReading>,
         meter_id: String,
@@ -29,6 +30,12 @@ pub mod oracle {
         let oracle_data = &mut ctx.accounts.oracle_data;
         
         require!(oracle_data.active, ErrorCode::OracleInactive);
+        
+        // Only API Gateway can submit meter readings
+        require!(
+            ctx.accounts.authority.key() == oracle_data.api_gateway,
+            ErrorCode::UnauthorizedGateway
+        );
         
         oracle_data.total_readings += 1;
         oracle_data.last_reading_timestamp = reading_timestamp;
@@ -42,17 +49,23 @@ pub mod oracle {
         });
         
         msg!(
-            "Meter reading submitted - Meter: {}, Produced: {}, Consumed: {}", 
+            "Meter reading submitted via API Gateway - Meter: {}, Produced: {}, Consumed: {}", 
             meter_id, energy_produced, energy_consumed
         );
         Ok(())
     }
 
-    /// Trigger market clearing process
+    /// Trigger market clearing process (only via API Gateway)
     pub fn trigger_market_clearing(ctx: Context<TriggerMarketClearing>) -> Result<()> {
         let oracle_data = &mut ctx.accounts.oracle_data;
         
         require!(oracle_data.active, ErrorCode::OracleInactive);
+        
+        // Only API Gateway can trigger market clearing
+        require!(
+            ctx.accounts.authority.key() == oracle_data.api_gateway,
+            ErrorCode::UnauthorizedGateway
+        );
         
         let current_time = Clock::get()?.unix_timestamp;
         oracle_data.last_clearing = current_time;
@@ -62,7 +75,7 @@ pub mod oracle {
             timestamp: current_time,
         });
         
-        msg!("Market clearing triggered at timestamp: {}", current_time);
+        msg!("Market clearing triggered via API Gateway at timestamp: {}", current_time);
         Ok(())
     }
 
@@ -87,6 +100,32 @@ pub mod oracle {
         });
         
         msg!("Oracle status updated to: {}", active);
+        Ok(())
+    }
+
+    /// Update API Gateway address (admin only)
+    pub fn update_api_gateway(
+        ctx: Context<UpdateApiGateway>,
+        new_api_gateway: Pubkey,
+    ) -> Result<()> {
+        let oracle_data = &mut ctx.accounts.oracle_data;
+        
+        require!(
+            ctx.accounts.authority.key() == oracle_data.authority,
+            ErrorCode::UnauthorizedAuthority
+        );
+        
+        let old_gateway = oracle_data.api_gateway;
+        oracle_data.api_gateway = new_api_gateway;
+        
+        emit!(ApiGatewayUpdated {
+            authority: ctx.accounts.authority.key(),
+            old_gateway,
+            new_gateway: new_api_gateway,
+            timestamp: Clock::get()?.unix_timestamp,
+        });
+        
+        msg!("API Gateway updated from {} to {}", old_gateway, new_api_gateway);
         Ok(())
     }
 }
@@ -133,11 +172,20 @@ pub struct UpdateOracleStatus<'info> {
     pub authority: Signer<'info>,
 }
 
+#[derive(Accounts)]
+pub struct UpdateApiGateway<'info> {
+    #[account(mut, has_one = authority @ ErrorCode::UnauthorizedAuthority)]
+    pub oracle_data: Account<'info, OracleData>,
+    
+    pub authority: Signer<'info>,
+}
+
 // Data structs
 #[account]
 #[derive(InitSpace)]
 pub struct OracleData {
     pub authority: Pubkey,
+    pub api_gateway: Pubkey,        // Only API Gateway can call oracle functions
     pub total_readings: u64,
     pub last_reading_timestamp: i64,
     pub last_clearing: i64,
@@ -168,11 +216,21 @@ pub struct OracleStatusUpdated {
     pub timestamp: i64,
 }
 
+#[event]
+pub struct ApiGatewayUpdated {
+    pub authority: Pubkey,
+    pub old_gateway: Pubkey,
+    pub new_gateway: Pubkey,
+    pub timestamp: i64,
+}
+
 // Errors
 #[error_code]
 pub enum ErrorCode {
     #[msg("Unauthorized authority")]
     UnauthorizedAuthority,
+    #[msg("Unauthorized API Gateway")]
+    UnauthorizedGateway,
     #[msg("Oracle is inactive")]
     OracleInactive,
     #[msg("Invalid meter reading")]
