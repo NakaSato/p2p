@@ -6,11 +6,11 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-registry = "EtmU16tPPrGZVdyd9g5zABnq8wMt9UWYNGY4uZVdpQHK"
-energy_token = "HaMSXq2FPjjCVC4EaAtoSmtykoFQbX7g6cXxrbrRcDpn"
-oracle = "2R68FVjvq6oRtpzJBq4Mxsw165wCL6wbFRSxzAqNkJro"
-trading = "BDcRY7tRjCWWDbS3DHMje8MWgJ5G84kL19C3NjqBUwph"
-governance = "D5qmDv77pmtebp3MM78HienoXWMfSa8JFzxw1Sj2rNQc"
+registry = "BkZ9cBB3FFGXxJPw5JTJAbVAQYaDBeoQKoSL7b5u5Snv"
+energy_token = "J61eiwojt9zA1TP6t9M9wEDmiDek4QNEY2HiAfunHs7"
+oracle = "7sA8No5jojLboTzQQTU3fiAL8kGAjTzPgXtaMEYNKPEC"
+trading = "UbU6TWh6YP4kYQuj8t7xiNg65NdEQF9kfAKa4aS85iS"
+governance = "8SD7rh3fMtLsS9ciVKvyhVUkHimq7TEfgfE4AqUi2Lxt"
 
 [registry]
 url = "https://api.apr.dev"

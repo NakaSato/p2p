@@ -26,7 +26,7 @@
 1. **Registry Program** (`programs/registry/`) - User and smart meter registration with UUID management
 2. **Energy Token Program** (`programs/energy-token/`) - SPL token with REC validation and automated minting
 3. **Trading Program** (`programs/trading/`) - Automated order book and matching engine
-4. **Oracle Program** (`programs/oracle/`) - **Enhanced**: API Gateway exclusive authorization for AMI integration
+4. **Oracle Program** (`programs/oracle/`) - API Gateway exclusive authorization for AMI integration
 5. **Governance Program** (`programs/governance/`) - Proof of Authority consensus with Engineering Department validation
 
 ### System Components
