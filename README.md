@@ -1,5 +1,7 @@
 # P2P Energy Trading System - Solana Anchor
 
+![Alt](https://repobeats.axiom.co/api/embed/5fa20d94a0ea053095c632762cb654fc41cdbd81.svg "Repobeats analytics image")
+
 This project has been migrated from ink!/Substrate to Solana Anchor, implementing a permissioned Proof of Authority (PoA) consensus system with university departments as REC (Renewable Energy Certificate) validators for campus energy trading.
 
 ## Architecture Overview
