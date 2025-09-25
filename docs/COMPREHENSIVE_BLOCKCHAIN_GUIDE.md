@@ -1,9 +1,9 @@
 # P2P Energy Trading Platform - Complete Blockchain Documentation
 ## Engineering Department - Comprehensive Blockchain Guide
 
-**Document Version**: 5.0  
+**Document Version**: 6.0  
 **Created**: September 13, 2025  
-**Last Updated**: September 20, 2025  
+**Last Updated**: September 25, 2025  
 **Blockchain Network**: Solana with Proof of Authority  
 
 ---
@@ -648,6 +648,61 @@ graph TB
     GOV --> REG
     GOV --> TRADE
     GOV --> ORACLE
+```
+
+### Oracle Program Security Enhancements (September 2025)
+
+#### **API Gateway Exclusive Authorization**
+The Oracle program has been enhanced with strict API Gateway authorization, ensuring secure and controlled data submission.
+
+**Enhanced Security Model:**
+```rust
+#[account]
+#[derive(InitSpace)]
+pub struct OracleData {
+    pub authority: Pubkey,           // Admin authority
+    pub api_gateway: Pubkey,         // Only authorized API Gateway
+    pub total_readings: u64,         // Total meter readings processed
+    pub last_reading_timestamp: i64, // Last reading timestamp
+    pub last_clearing: i64,          // Last market clearing
+    pub active: bool,                // Oracle operational status
+    pub created_at: i64,            // Oracle creation timestamp
+}
+```
+
+**Core Security Functions:**
+- `submit_meter_reading()` - Restricted to authorized API Gateway only
+- `trigger_market_clearing()` - Market clearing automation (API Gateway only)
+- `update_oracle_status()` - Admin-only Oracle state management
+- `update_api_gateway()` - Admin-only gateway address updates
+
+**Event System:**
+```rust
+#[event]
+pub struct MeterReadingSubmitted {
+    pub meter_id: String,
+    pub energy_produced: u64,
+    pub energy_consumed: u64,
+    pub timestamp: i64,
+    pub submitter: Pubkey,
+}
+
+#[event]
+pub struct ApiGatewayUpdated {
+    pub authority: Pubkey,
+    pub old_gateway: Pubkey,
+    pub new_gateway: Pubkey,
+    pub timestamp: i64,
+}
+```
+
+**Authorization Validation:**
+```rust
+// Only API Gateway can submit meter readings
+require!(
+    ctx.accounts.authority.key() == oracle_data.api_gateway,
+    ErrorCode::UnauthorizedGateway
+);
 ```
 
 ### Program Dependencies and Interactions
