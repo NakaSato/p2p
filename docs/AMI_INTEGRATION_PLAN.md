@@ -34,7 +34,7 @@ Advanced Metering Infrastructure (AMI) integration specification for P2P Energy 
 ### **Smart Meter Device Registry**
 
 **Primary Table: smart_meters**
-- UUID primary key with meter_id pattern: `^ENG_[0-9]{3}$`
+- UUID primary key with meter_id as UUID (generated automatically)
 - Device identification: serial, manufacturer, model, firmware_version, hardware_revision
 - Cryptographic security: RSA-4096 public key, X.509 certificate, HSM fingerprint
 - Network configuration: MAC address, IP, protocol (mqtt_tls, coap_dtls, https_rest, websocket_secure)
@@ -109,10 +109,10 @@ Advanced Metering Infrastructure (AMI) integration specification for P2P Energy 
 - `DELETE /api/meters/{meter_id}` - Decommission meter
 
 **Energy Data Management**
-- `POST /api/meters/{meter_id}/readings` - Submit energy readings
-- `GET /api/meters/{meter_id}/readings` - Query historical readings
-- `GET /api/meters/{meter_id}/readings/latest` - Get latest readings
-- `POST /api/meters/energy/batch` - High-speed batch processing (10K readings/sec)
+- `POST /api/meters/{meter_id}/energy` - Submit energy data
+- `GET /api/meters/{meter_id}/energy` - Query historical energy data
+- `GET /api/meters/{meter_id}/energy/latest` - Get latest energy data
+- `POST /api/meters/energy/batch` - High-speed batch processing (10K energy records/sec)
 
 **Authentication & Security**
 - `POST /api/meters/{meter_id}/auth/attest` - Hardware attestation
@@ -125,13 +125,6 @@ Advanced Metering Infrastructure (AMI) integration specification for P2P Energy 
 - `POST /api/meters/{meter_id}/link-wallet` - Link meter to Solana wallet
 - `POST /api/meters/{meter_id}/verify-ownership` - Cryptographic ownership proof
 - `GET /api/meters/wallet/{wallet_address}` - Get all owned meters
-- `POST /api/meters/{meter_id}/transfer-ownership` - Secure ownership transfer
-
-**Fleet Management**
-- `GET /api/meters/fleet/overview` - Manage 10,000+ meters
-- `GET /api/meters/status/bulk` - Query 1000s of devices instantly
-- `POST /api/meters/bulk-register` - Register 1000 meters simultaneously
-- `GET /api/meters/health/summary` - Fleet-wide health monitoring
 
 **Real-time Communication**
 - `WebSocket /api/meters/{meter_id}/stream/energy` - Real-time energy data
@@ -143,6 +136,188 @@ Advanced Metering Infrastructure (AMI) integration specification for P2P Energy 
 - Data processing: 10,000 readings/second sustained throughput
 - Concurrent connections: 50,000+ simultaneous meter connections
 - Batch processing: 1,000 meters registered in <2 seconds
+
+### **API Request & Response Examples**
+
+#### **Device Registration**
+```json
+POST /api/meters/register
+Request:
+{
+  "device_serial": "SM2025-ENG-001-ABC123",
+  "manufacturer": "SmartGrid Technologies",
+  "model": "SGT-AMI-Pro-4000",
+  "firmware_version": "2.1.5",
+  "wallet_address": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+  "installation_location": {
+    "building": "ENG_MAIN_BUILDING",
+    "room": "E101",
+    "gps_coordinates": {
+      "latitude": 37.7749,
+      "longitude": -122.4194
+    }
+  },
+  "device_certificate": "-----BEGIN CERTIFICATE-----\n..."
+}
+
+Response (201 Created):
+{
+  "status": "success",
+  "data": {
+    "meter_id": "123e4567-e89b-12d3-a456-426614174000",
+    "status": "pending_registration",
+    "registration_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "expires_at": "2025-09-26T10:15:00Z"
+  }
+}
+```
+
+#### **Energy Data Submission**
+```json
+POST /api/meters/{meter_id}/energy
+Request:
+{
+  "timestamp": "2025-09-25T10:15:00Z",
+  "energy_data": {
+    "energy_generated_kwh": 12.75,
+    "energy_consumed_kwh": 8.50,
+    "instantaneous_power_kw": 3.2,
+    "voltage_avg_v": 240.2,
+    "current_avg_a": 13.3,
+    "power_factor": 0.95,
+    "frequency_hz": 59.98
+  },
+  "device_signature": "ECDSA_P256_signature_here",
+  "wallet_signature": "Ed25519_wallet_signature_here"
+}
+
+Response (200 OK):
+{
+  "status": "success",
+  "data": {
+    "record_id": "rec_20250925_101500_001",
+    "timestamp": "2025-09-25T10:15:00Z",
+    "validation_status": "verified",
+    "blockchain_tx": "5J1sbNdBiZFGFhcXsXzc7UK9DuQT8QoJ5qkrDY8Zq8z4",
+    "oracle_updated": true
+  }
+}
+```
+
+#### **Get Latest Energy Data**
+```json
+GET /api/meters/{meter_id}/energy/latest
+Response (200 OK):
+{
+  "status": "success",
+  "data": {
+    "meter_id": "123e4567-e89b-12d3-a456-426614174000",
+    "timestamp": "2025-09-25T10:15:00Z",
+    "energy_data": {
+      "energy_generated_kwh": 12.75,
+      "energy_consumed_kwh": 8.50,
+      "instantaneous_power_kw": 3.2,
+      "voltage_avg_v": 240.2,
+      "current_avg_a": 13.3,
+      "power_factor": 0.95,
+      "frequency_hz": 59.98
+    },
+    "data_quality": {
+      "measurement_accuracy": 0.995,
+      "sensor_health_score": 0.98,
+      "calibration_status": "valid"
+    },
+    "blockchain_verified": true
+  }
+}
+```
+
+#### **Hardware Attestation**
+```json
+POST /api/meters/{meter_id}/auth/attest
+Request:
+{
+  "attestation_data": {
+    "tpm_version": "2.0",
+    "attestation_key_certificate": "base64_encoded_ak_cert",
+    "quote_signature": "tpm_quote_signature",
+    "pcr_values": {
+      "0": "sha256_pcr0_value",
+      "1": "sha256_pcr1_value",
+      "7": "sha256_pcr7_value"
+    }
+  },
+  "challenge_response": "hardware_challenge_response",
+  "timestamp": "2025-09-25T10:15:00Z"
+}
+
+Response (200 OK):
+{
+  "status": "success",
+  "data": {
+    "attestation_verified": true,
+    "trust_score": 0.95,
+    "hardware_integrity": "validated",
+    "certificate_valid": true,
+    "auth_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "expires_at": "2025-09-25T11:15:00Z"
+  }
+}
+```
+
+#### **Link Wallet**
+```json
+POST /api/meters/{meter_id}/link-wallet
+Request:
+{
+  "wallet_address": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+  "ownership_proof": {
+    "message": "I own smart meter 123e4567-e89b-12d3-a456-426614174000 at 2025-09-25T10:15:00Z",
+    "signature": "ed25519_signature_of_message",
+    "public_key": "wallet_public_key_here"
+  },
+  "device_confirmation": {
+    "meter_signature": "device_ecdsa_signature",
+    "timestamp": "2025-09-25T10:15:00Z"
+  }
+}
+
+Response (200 OK):
+{
+  "status": "success",
+  "data": {
+    "meter_id": "123e4567-e89b-12d3-a456-426614174000",
+    "wallet_address": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+    "ownership_verified": true,
+    "blockchain_tx": "linking_transaction_hash",
+    "oracle_account": "oracle_program_derived_address",
+    "linked_at": "2025-09-25T10:15:00Z"
+  }
+}
+```
+
+#### **Error Response Format**
+```json
+Response (400/401/403/500):
+{
+  "status": "error",
+  "error": {
+    "code": "DEVICE_AUTHENTICATION_FAILED",
+    "message": "Hardware attestation validation failed",
+    "details": {
+      "error_id": "err_2025092501_001",
+      "timestamp": "2025-09-25T10:15:00Z",
+      "validation_steps": {
+        "certificate_valid": true,
+        "signature_valid": false,
+        "hardware_attestation": false
+      },
+      "retry_after_seconds": 300
+    },
+    "correlation_id": "corr_abc123def456"
+  }
+}
+```
 
 ### **Rate Limiting Specification**
 - Authentication endpoints: 10 requests/min
@@ -176,9 +351,10 @@ Advanced Metering Infrastructure (AMI) integration specification for P2P Energy 
 ### **Deployment Requirements**
 
 **Smart Meter Locations**
-- ENG_001-ENG_005: Main Building (Solar + Consumption)
-- ENG_006-ENG_010: Research Labs (High Consumption)
-- ENG_011-ENG_015: Dormitory Buildings (Mixed Usage)
+- Main Building (Solar + Consumption): UUID auto-generated
+- Main Building Units (4 meters): UUID auto-generated each
+- Research Labs (High Consumption, 5 meters): UUID auto-generated each
+- Dormitory Buildings (Mixed Usage, 5 meters): UUID auto-generated each
 
 **Network Configuration**
 - Primary: WiFi (WPA3-Enterprise)
