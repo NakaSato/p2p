@@ -1,5 +1,5 @@
 # Multi-stage build for optimized Solana validator container
-# Build stage
+# Build stage for Anchor and Solana tools
 FROM --platform=$BUILDPLATFORM ubuntu:22.04 AS builder
 
 # Install only essential build dependencies
@@ -28,27 +28,21 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
     --no-modify-path
 ENV PATH="/home/builder/.cargo/bin:${PATH}"
 
-# Install Solana CLI with architecture detection
-RUN ARCH=$(dpkg --print-architecture) && \
-    if [ "$ARCH" = "amd64" ]; then \
-        SOLANA_ARCH="x86_64-unknown-linux-gnu"; \
-    elif [ "$ARCH" = "arm64" ]; then \
-        SOLANA_ARCH="aarch64-unknown-linux-gnu"; \
-    else \
-        echo "Unsupported architecture: $ARCH" && exit 1; \
-    fi && \
-    curl -sSfL "https://github.com/solana-labs/solana/releases/download/v1.18.17/solana-release-$SOLANA_ARCH.tar.bz2" -o solana.tar.bz2 && \
-    tar -xjf solana.tar.bz2 && \
-    mkdir -p solana-install && \
-    cp -r solana-release/* solana-install/ && \
-    rm -rf solana.tar.bz2 solana-release
-
 # Install Node.js (runtime minimal)
 USER root
 RUN apt-get update && apt-get install -y nodejs npm --no-install-recommends && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get clean
 USER builder
+
+# Build Solana from source for ARM64 compatibility
+RUN git clone https://github.com/solana-labs/solana.git --depth 1 --branch v1.18.15 && \
+    cd solana && \
+    cargo build --release --bin solana --bin solana-validator --bin solana-keygen --bin solana-faucet --bin solana-test-validator && \
+    mkdir -p ~/.local/bin && \
+    cp target/release/solana target/release/solana-validator target/release/solana-keygen target/release/solana-faucet target/release/solana-test-validator ~/.local/bin/ && \
+    cd .. && \
+    rm -rf solana
 
 # Install Anchor CLI (minimal build)
 RUN cargo install --git https://github.com/coral-xyz/anchor anchor-cli --locked --force --profile release
@@ -70,7 +64,7 @@ RUN apt-get update && apt-get install -y \
 
 # Copy binaries from builder
 COPY --from=builder /home/builder/.cargo/bin/anchor /usr/local/bin/
-COPY --from=builder /home/builder/solana-install/bin/* /usr/local/bin/
+COPY --from=builder /home/builder/.local/bin/* /usr/local/bin/
 
 # Create required directories
 USER root

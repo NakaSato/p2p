@@ -26,63 +26,42 @@ impl Config {
         dotenv::dotenv().ok(); // Load .env file if it exists
 
         Ok(Config {
-            environment: env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string()),
+            environment: env::var("ENVIRONMENT")
+                .map_err(|_| anyhow::anyhow!("ENVIRONMENT environment variable is required"))?,
             port: env::var("PORT")
-                .unwrap_or_else(|_| "8080".to_string())
+                .map_err(|_| anyhow::anyhow!("PORT environment variable is required"))?
                 .parse()?,
             database_url: env::var("DATABASE_URL")
-                .unwrap_or_else(|_| "postgresql://user:password@localhost:5432/energy_trading".to_string()),
+                .map_err(|_| anyhow::anyhow!("DATABASE_URL environment variable is required"))?,
             timescale_url: env::var("TIMESCALE_URL")
-                .unwrap_or_else(|_| "postgresql://timescale_user:timescale_password@localhost:5433/p2p_timeseries".to_string()),
+                .map_err(|_| anyhow::anyhow!("TIMESCALE_URL environment variable is required"))?,
             redis_url: env::var("REDIS_URL")
-                .unwrap_or_else(|_| "redis://localhost:6379".to_string()),
+                .map_err(|_| anyhow::anyhow!("REDIS_URL environment variable is required"))?,
             jwt_secret: env::var("JWT_SECRET")
-                .unwrap_or_else(|_| "your-super-secret-jwt-key".to_string()),
+                .map_err(|_| anyhow::anyhow!("JWT_SECRET environment variable is required"))?,
             solana_rpc_url: env::var("SOLANA_RPC_URL")
-                .unwrap_or_else(|_| "http://localhost:8899".to_string()),
+                .map_err(|_| anyhow::anyhow!("SOLANA_RPC_URL environment variable is required"))?,
             solana_ws_url: env::var("SOLANA_WS_URL")
-                .unwrap_or_else(|_| "ws://localhost:8900".to_string()),
+                .map_err(|_| anyhow::anyhow!("SOLANA_WS_URL environment variable is required"))?,
             engineering_api_key: env::var("ENGINEERING_API_KEY")
-                .unwrap_or_else(|_| "engineering-department-api-key-2025".to_string()),
+                .map_err(|_| anyhow::anyhow!("ENGINEERING_API_KEY environment variable is required"))?,
             max_connections: env::var("MAX_CONNECTIONS")
-                .unwrap_or_else(|_| "50".to_string())
+                .map_err(|_| anyhow::anyhow!("MAX_CONNECTIONS environment variable is required"))?
                 .parse()?,
             redis_pool_size: env::var("REDIS_POOL_SIZE")
-                .unwrap_or_else(|_| "20".to_string())
+                .map_err(|_| anyhow::anyhow!("REDIS_POOL_SIZE environment variable is required"))?
                 .parse()?,
             request_timeout: env::var("REQUEST_TIMEOUT")
-                .unwrap_or_else(|_| "30".to_string())
+                .map_err(|_| anyhow::anyhow!("REQUEST_TIMEOUT environment variable is required"))?
                 .parse()?,
             rate_limit_window: env::var("RATE_LIMIT_WINDOW")
-                .unwrap_or_else(|_| "60".to_string())
+                .map_err(|_| anyhow::anyhow!("RATE_LIMIT_WINDOW environment variable is required"))?
                 .parse()?,
             log_level: env::var("LOG_LEVEL")
-                .unwrap_or_else(|_| "info".to_string()),
+                .map_err(|_| anyhow::anyhow!("LOG_LEVEL environment variable is required"))?,
             audit_log_enabled: env::var("AUDIT_LOG_ENABLED")
-                .unwrap_or_else(|_| "true".to_string())
+                .map_err(|_| anyhow::anyhow!("AUDIT_LOG_ENABLED environment variable is required"))?
                 .parse()?,
         })
-    }
-}
-
-impl Default for Config {
-    fn default() -> Self {
-        Config {
-            environment: "development".to_string(),
-            port: 8080,
-            database_url: "postgresql://user:password@localhost:5432/energy_trading".to_string(),
-            timescale_url: "postgresql://timescale_user:timescale_password@localhost:5433/p2p_timeseries".to_string(),
-            redis_url: "redis://localhost:6379".to_string(),
-            jwt_secret: "your-super-secret-jwt-key".to_string(),
-            solana_rpc_url: "http://localhost:8899".to_string(),
-            solana_ws_url: "ws://localhost:8900".to_string(),
-            engineering_api_key: "engineering-department-api-key-2025".to_string(),
-            max_connections: 50,
-            redis_pool_size: 20,
-            request_timeout: 30,
-            rate_limit_window: 60,
-            log_level: "info".to_string(),
-            audit_log_enabled: true,
-        }
     }
 }

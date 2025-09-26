@@ -178,13 +178,13 @@ services:
     depends_on:
       - postgres
       - redis
-      - solana-validator
+      # - solana-validator  # Temporarily disabled due to build issues
     environment:
       DATABASE_URL: "postgresql://p2p_user:p2p_password@postgres:5432/p2p_energy_trading"
       TIMESCALE_URL: "postgresql://p2p_user:p2p_password@postgres:5432/p2p_energy_trading"
       REDIS_URL: "redis://redis:6379"
-      SOLANA_RPC_URL: "http://solana-validator:8899"
-      SOLANA_WS_URL: "ws://solana-validator:8900"
+      SOLANA_RPC_URL: "http://host.docker.internal:8899"
+      SOLANA_WS_URL: "ws://host.docker.internal:8900"
       JWT_SECRET: "production-jwt-secret-key-change-me"
       API_KEY_SECRET: "production-api-key-secret-change-me"
       ENGINEERING_API_KEY: "engineering-department-api-key-2025"
