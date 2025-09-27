@@ -1,20 +1,21 @@
-# 🏛️ P2P Energy Trading System - C4 Architecture Documentation
+# 🏛️ P2P Energy Trading System - C4 Architecture Documentation (Actual Implementation)
 
 ## 📋 Executive Summary
 
-This document provides a comprehensive **C4 model visualization** of the P2P Energy Trading System architecture, designed for a university campus environment. The system enables peer-to-peer renewable energy trading using **Solana blockchain technology** with **Proof of Authority (PoA)** consensus, creating a sustainable and efficient energy marketplace for campus stakeholders.
+This document provides a comprehensive **C4 model visualization** of the actual P2P Energy Trading System architecture as implemented in the codebase. The system enables peer-to-peer renewable energy trading in the Engineering Complex using **Solana blockchain technology** with **Proof of Authority (PoA)** consensus, creating a sustainable and efficient energy marketplace for campus stakeholders.
 
-## 🎯 Architecture Goals
+## 🎯 Architecture Goals (From Actual Implementation)
 
-- **Decentralized Energy Trading**: Enable direct peer-to-peer energy transactions
-- **Blockchain Transparency**: Immutable transaction records with smart contract automation
-- **Campus Integration**: Seamless integration with existing campus infrastructure
-- **Scalable Design**: Modular architecture supporting growth and feature expansion
-- **Security First**: Multi-layered security with comprehensive audit trails
+- **Decentralized Energy Trading**: Direct peer-to-peer energy transactions through 5 Anchor programs
+- **Blockchain Transparency**: Immutable transaction records with automated smart contract operations  
+- **Engineering Complex Integration**: Seamless integration with 15 smart meters (METER_001-015)
+- **Scalable Design**: Docker-based microservices supporting growth and feature expansion
+- **Security First**: Multi-layered security with JWT authentication, rate limiting, and audit trails
+- **Performance Optimization**: Rust/Axum API Gateway with PostgreSQL/Redis/Kafka stack
 
-## 📐 C4 Model with PlantUML Integration
+## 📐 C4 Model with PlantUML Integration (Production Ready)
 
-The **C4 model** (Context, Containers, Components, Code) combined with **PlantUML** provides a powerful, standardized approach to software architecture documentation. **C4-PlantUML** combines the benefits of PlantUML's mature diagramming engine with the structured methodology of the C4 model for describing and communicating software architectures.
+The **C4 model** (Context, Containers, Components, Code) combined with **PlantUML** provides a powerful, standardized approach to software architecture documentation. **C4-PlantUML** combines the benefits of PlantUML's mature diagramming engine with the structured methodology of the C4 model for describing and communicating the actual software architecture.
 
 ### 🚀 C4-PlantUML Advantages
 
@@ -51,74 +52,95 @@ The **C4 model hierarchy** provides clear levels of abstraction:
 | **⚙️ Component** | ✅ Complete | Technology-specific icons | Clean architecture layers |
 | **�🏗️ Deployment** | ✅ Complete | Infrastructure sprites | Production-ready deployment |
 
-## 🏛️ System Architecture Levels
+## 🏛️ System Architecture Levels (Actual Implementation)
 
 ### 🌐 Level 1: System Context Diagram (C4-PlantUML)
 
 **[📊 View System Context Diagram](c4-system-context.md)**
 
-**Overview**: Shows the P2P Energy Trading System from a campus-wide perspective using **C4-PlantUML** with FontAwesome icons for enhanced visual communication. This professional diagram illustrates the ecosystem of actors, systems, and their interactions with industry-standard rendering quality.
+**Overview**: Shows the actual P2P Energy Trading System from an Engineering Complex perspective using **C4-PlantUML** with FontAwesome icons. This professional diagram illustrates the real ecosystem of actors, systems, and their interactions based on the implemented codebase.
 
-**Key Components**:
-- **👥 External Actors**: Students & Residents, Faculty & Staff, Platform Administrator (REC Validator)
-- **🏛️ System Boundary**: University Campus Ecosystem with nested infrastructure layer
-- **🔗 External Systems**: Solana Blockchain, Advanced Metering Infrastructure, REC Authority, Regional Utility Grid
-- **🌤️ Data Sources**: Weather Data Oracle for renewable generation forecasting
+**Key Components (From Actual System)**:
+- **👥 Engineering Users**: Students & Faculty with assigned smart meters, Engineering Department as PoA authority
+- **🏛️ System Boundary**: Engineering Complex with 15 smart meters (METER_001-015)
+- **🔗 External Systems**: Solana Network (5 deployed Anchor programs), AMI Infrastructure, REC Authority, Regional Utility Grid
+- **🌤️ Data Sources**: Weather API for solar generation forecasting
 
-**🔑 Key Insights:**
-- ✅ **Permissioned Environment**: Campus-only access with authorized participants
-- ✅ **Single Authority**: REC Validator serves as the sole PoA consensus authority  
-- ✅ **Hybrid Integration**: Combines physical infrastructure (smart meters, energy grid) with digital systems (blockchain, certificates)
-- ✅ **Real-time Data**: Weather and generation forecasting for optimized trading decisions
+**🔑 Key Insights (From Implementation):**
+- ✅ **Engineering Complex Scope**: Campus-specific deployment with Engineering Department authority
+- ✅ **Single Authority**: Engineering Department serves as the sole PoA consensus validator  
+- ✅ **Docker Infrastructure**: Complete containerized deployment with 11 Docker services
+- ✅ **Real AMI Integration**: 15 smart meters providing actual energy data via HTTPS/MQTT
 
 ### 📦 Level 2: Container Diagram (C4-PlantUML)
 
 **[📊 View Container Diagram](c4-container.md)**
 
-**Overview**: Zooms into the P2P Energy Trading Platform using **C4-PlantUML** with DevIcon technology sprites, revealing major applications, data stores, and their technological foundations with professional visual representation.
+**Overview**: Shows the actual Docker Compose architecture using **C4-PlantUML** with DevIcon technology sprites, revealing the 11 containerized services and their technological foundations with professional visual representation.
 
-**Architecture Layers**:
+**Architecture Layers (From docker-compose.yml)**:
 
-| Layer | Components | Technology Stack |
-|-------|------------|-----------------|
-| **🖥️ Frontend** | Web Application, Load Balancer | React/TypeScript/Vite, Nginx |
-| **🔌 API** | API Gateway | Rust/Axum (high-performance) |
-| **⛓️ Blockchain** | 5 Solana Programs | Anchor/Rust frameworks |
-| **💾 Data** | Database, Cache, Streaming | PostgreSQL/TimescaleDB, Redis, Kafka |
-| **🧪 Simulation** | Oracle & Meter Simulators | Rust-based testing infrastructure |
-| **📊 Monitoring** | Metrics & Visualization | Prometheus, Grafana |
+| Layer | Components | Actual Technology Stack |
+|-------|------------|------------------------|
+| **🖥️ Frontend** | React Frontend, Nginx Load Balancer | React 18/TypeScript/Vite, Nginx (ports 80/443) |
+| **🔌 API** | API Gateway | Rust/Axum with 23 REST endpoints (port 8080) |
+| **⛓️ Blockchain** | 5 Anchor Programs, Solana Validator | Anchor/Rust programs, Local validator (ports 8898/8901) |
+| **💾 Data** | PostgreSQL 18, Redis 7, Apache Kafka | 9 tables with custom enums, Session cache, Event streaming |
+| **🧪 Testing** | Oracle Simulator, Meter Simulator | Rust-based testing infrastructure for 10+ meters |
+| **📊 Monitoring** | Prometheus, Grafana | Metrics collection (port 9090), Dashboards (port 3001) |
 
-**🔑 Key Insights:**
-- ✅ **Central Orchestration**: API Gateway as the primary integration hub
-- ✅ **Domain Separation**: Clear boundaries between blockchain, data, and presentation layers
-- ✅ **Observability**: Comprehensive monitoring and real-time analytics
-- ✅ **Development Support**: Built-in simulation capabilities for testing and development
+**🔑 Key Insights (From Actual Architecture):**
+- ✅ **11 Docker Services**: Complete containerized deployment with service orchestration
+- ✅ **Rust Performance**: High-performance API Gateway with async HTTP handling
+- ✅ **PostgreSQL Schema**: 9 actual tables with custom types for users, orders, activities
+- ✅ **Real-time Capabilities**: Kafka streaming for events, Redis for performance optimization
 
 ### ⚙️ Level 3: Component Diagram (C4-PlantUML)
 
 **[📊 View Component Diagram](c4-component.md)**
 
-**Overview**: Deep-dive into the API Gateway's internal architecture using **C4-PlantUML** with technology-specific FontAwesome icons, showcasing clean architecture principles and comprehensive integration patterns with professional visual representation.
+**Overview**: Deep-dive into the actual API Gateway's internal architecture using **C4-PlantUML**, showcasing the implemented clean architecture principles and comprehensive integration patterns based on the real Rust codebase.
 
-**Component Architecture**:
+**Component Architecture (From src/ Structure)**:
 
-| Layer | Components | Responsibility |
-|-------|------------|---------------|
-| **🎛️ Controllers** | Auth, User, Trading, Energy, Admin | Request handling and validation |
-| **🛡️ Middleware** | Authentication, Rate Limiting, Audit | Cross-cutting concerns |
-| **🧠 Services** | Blockchain, User, Trading, Energy, Oracle, Notification | Business logic and orchestration |
-| **📁 Repositories** | Database, Cache, Event Publisher | Data access and persistence |
-| **🔌 Clients** | Smart Meter, REC Validation | External system integration |
+| Layer | Actual Components | Implementation Details |
+|-------|------------------|----------------------|
+| **🎛️ Controllers** | 9 Controllers, 23 Endpoints | Auth, User, Admin, Blockchain, Trading, Meters, Analytics, Health, Department |
+| **🛡️ Middleware** | Tower Middleware Stack | Authentication, CORS, Tracing, Timeout, Rate Limiting |
+| **🧠 Services** | 7 Business Services | JWT, API Key, Blockchain, User, Trading, Energy, Analytics |
+| **📁 Data Access** | Connection Pools & Clients | PostgreSQL pool, Redis client, Kafka producer, Solana RPC, AMI/REC clients |
+| **🔌 External** | 5 Integration Points | Solana programs, Smart meters (15 units), REC Authority, Weather API |
 
-**🔑 Key Insights:**
-- ✅ **Clean Architecture**: Clear separation of concerns with layered design
-- ✅ **Security-First**: Comprehensive middleware for authentication, rate limiting, and audit trails
-- ✅ **Event-Driven**: Kafka integration for real-time data streaming and notifications
-- ✅ **External Integration**: Multiple touchpoints with campus and external systems
+**🔑 Key Insights (From Code Analysis):**
+- ✅ **Clean Architecture**: Clear separation with dependency injection through AppState
+- ✅ **Type Safety**: Rust's type system ensures compile-time correctness and performance
+- ✅ **Comprehensive APIs**: 23 REST endpoints covering all system functionality
+- ✅ **External Integration**: HTTP/MQTT clients for real AMI and REC validation systems
 
 ### 🏗️ Level 4: Deployment Diagram (C4-PlantUML)
 
 **[📊 View Deployment Diagram](c4-deployment.md)**
+
+**Overview**: Shows the actual Docker Compose production deployment using **C4-PlantUML** with infrastructure sprites, illustrating the complete containerized environment with service dependencies, port mappings, and persistent volumes.
+
+**Deployment Architecture (From docker-compose.yml)**:
+
+| Service | Container Name | Ports | Volumes |
+|---------|---------------|-------|---------|
+| **Load Balancer** | p2p-nginx | 80, 443 | SSL certificates |
+| **Frontend** | p2p-frontend | 3000→80 | Static assets |
+| **API Gateway** | p2p-api-gateway | 8080 | None (stateless) |
+| **Blockchain** | p2p-anchor-dev | 8898, 8901 | solana_ledger |
+| **Database** | p2p-postgres | 5432 | postgres_data |
+| **Cache** | p2p-redis | 6379 | redis_data |
+| **Messaging** | p2p-kafka | 9092 | kafka_data |
+| **Monitoring** | p2p-prometheus, p2p-grafana | 9090, 3001 | prometheus_data, grafana_data |
+
+**🔑 Key Insights (From Docker Configuration):**
+- ✅ **Production Ready**: Complete Docker deployment with health checks and restart policies
+- ✅ **Persistent Storage**: Proper volume mappings for database and blockchain data
+- ✅ **Service Discovery**: Docker networking with service-to-service communication
+- ✅ **Monitoring Stack**: Integrated Prometheus/Grafana for system observability
 
 **Overview**: Production deployment architecture using **C4-PlantUML** with comprehensive technology sprites and infrastructure icons, showcasing high-availability design within the campus infrastructure environment with enterprise-grade visual quality.
 
