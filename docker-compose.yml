@@ -31,7 +31,7 @@ services:
       timeout: 10s
       retries: 3
 
-  # Anchor Development Chain (includes Solana validator) - OPTIMIZED
+  # Anchor Development Chain (includes Solana validator)
   solana-validator:
     build:
       context: ./docker/solana-validator
@@ -62,7 +62,7 @@ services:
 
   # PostgreSQL Database
   postgres:
-    image: postgres:15
+    image: postgres:18
     container_name: p2p-postgres
     ports:
       - "5432:5432"
