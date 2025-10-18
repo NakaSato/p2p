@@ -5,6 +5,10 @@
       "path": "."
     },
     {
+      "name": "Trading Frontend",
+      "path": "./trading-frontend"
+    },
+    {
       "name": "API Gateway",
       "path": "./api-gateway"
     }
