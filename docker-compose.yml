@@ -1,14 +1,9 @@
 services:
-  # Smart Contract Deployment Service - OPTIMIZED
   contact:
     build:
       context: ./docker/contact
       dockerfile: Dockerfile
     container_name: p2p-contact
-    # Temporarily disabled validator dependency due to platform issues
-    # depends_on:
-    #   solana-validator:
-    #     condition: service_healthy
     volumes:
       - .:/workspaces/p2p
       - ./programs:/workspaces/programs

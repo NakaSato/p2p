@@ -21,7 +21,7 @@
 
 ## Architecture Overview
 
-### Smart Contract Programs (Production Ready)
+### Smart Contract Programs
 
 1. **Registry Program** (`programs/registry/`) - User and smart meter registration with UUID management
 2. **Energy Token Program** (`programs/energy-token/`) - SPL token with REC validation and automated minting
